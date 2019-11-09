@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <None Remove="Resources\AgLink\AGLink40.dll" />
+	  <None Remove="Resources\AgLink\AGLink40CfgDev0000.xml" />
+	  <None Remove="Resources\AgLink\AGLink40_x64.dll" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <EmbeddedResource Include="Resources\AgLink\AGLink40.dll" />
+	  <EmbeddedResource Include="Resources\AgLink\AGLink40CfgDev0000.xml" />
+	  <EmbeddedResource Include="Resources\AgLink\AGLink40_x64.dll" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\Plc.AgLink\Plc.AgLink.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Reference Include="AGL4DotNET.4">
+	    <HintPath>Resources\AgLink\AGL4DotNET.4.dll</HintPath>
+	  </Reference>
+	</ItemGroup>
+
+</Project>

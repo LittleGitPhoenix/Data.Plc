@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<LangVersion>latest</LangVersion>
+		<AssemblyName>Phoenix.Data.Plc.Monitor.Polling</AssemblyName>
+		<RootNamespace>Phoenix.Data.Plc.Monitor.Polling</RootNamespace>
+		<Version>1.0.0</Version>
+		<Authors>Felix Leistner</Authors>
+		<Company>Little Phoenix</Company>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<Description>Provides plc item monitoring via simple polling.</Description>
+		<PackageProjectUrl></PackageProjectUrl>
+		<PackageIconUrl></PackageIconUrl>
+		<PackageId>Phoenix.Data.Plc.Monitor.Polling</PackageId>
+		<Product>Phoenix.Data.Plc.Monitor.Polling</Product>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<DocumentationFile></DocumentationFile>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Plc.Monitor\Plc.Monitor.csproj" />
+		<ProjectReference Include="..\Plc\Plc.csproj" />
+	</ItemGroup>
+
+</Project>

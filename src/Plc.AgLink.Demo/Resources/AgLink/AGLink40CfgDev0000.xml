@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="yes" ?>
+<AGLink>
+	<Device>
+		<DevType>S7_TCPIP</DevType>
+		<S7_TCPIP>
+			<Conn>
+				<Index>0</Index>
+				<lTimeOut>6000</lTimeOut>
+				<wPlcNr>0</wPlcNr>
+				<bCredits>0</bCredits>
+				<bConnType>1</bConnType>
+				<bRemRackNr>{RACK}</bRemRackNr>
+				<bRemSlotNr>{SLOT}</bRemSlotNr>
+				<bIs200>2</bIs200>
+				<Address>{IP}</Address>
+				<Flags>0</Flags>
+				<PortNr>102</PortNr>
+			</Conn>
+		</S7_TCPIP>
+	</Device>
+</AGLink>

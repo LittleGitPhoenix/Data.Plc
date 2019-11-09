@@ -1,0 +1,1208 @@
+;
+; Error messages for ACCON-AGLink 4.0
+;
+; Each line which does not start with a hexadecimal number is considered as a comment.
+;
+; There has to be a semicolon between the error code and the error text
+;
+0x00000000;No error
+0x00000001;No error, job still in process
+
+0xFFF00000;Function not implemented
+0xFFF00001;Parameter error when calling function
+0xFFF00002;Invalid device number
+0xFFF00003;Invalid PLC number
+0xFFF00004;Invalid parameter type
+0xFFF00005;Insufficient memory
+0xFFF00006;Device already opened
+0xFFF00007;Device not opened
+0xFFF00008;Job removed
+0xFFF00009;Invalid job number
+0xFFF0000A;Function not supported
+0xFFF0000B;Adapter not initialized
+0xFFF0000C;No free connections available
+0xFFF0000D;Device not configured or not supported
+0xFFF0000E;Hardware not found
+0xFFF0000F;Error when reading parameters
+0xFFF00010;Error when writing parameters
+0xFFF00011;Demo period expired
+0xFFF00012;Wrong character in text. Conversion not possible
+0xFFF00013;Buffer is not long enough
+0xFFF00014;File not found
+0xFFF00015;Error when calling configuration program
+0xFFF00016;Error when loading DLL dynamically
+0xFFF00017;Could not create file
+0xFFF00018;Notification type already in use
+0xFFF00019;Running job already removed
+0xFFF0001A;Job already removed
+0xFFF0001B;Error when reading WLD file
+0xFFF0001C;Error when writing WLD file
+0xFFF0001D;Invalid structure in WLD file
+0xFFF0001E;Multiple blocks in WLD file
+0xFFF0001F;Function is not reentrant
+0xFFF00020;Function removed for code size reduction
+
+0xFFF50000;No free job buffer available
+0xFFF50001;Invalid packet
+0xFFF50002;No connection to PLC
+0xFFF50003;Connection closed
+0xFFF50004;Timeout
+0xFFF50005;Invalid context
+0xFFF50006;PLC memory error
+0xFFF50007;Invalid operating state
+0xFFF50008;Invalid address on PLC
+0xFFF50009;Invalid mode
+0xFFF5000A;No data available e.g. DB is missing
+0xFFF5000B;Priority class associated to OB does not exist
+0xFFF5000C;Empty blocklist
+0xFFF5000D;Block size error
+0xFFF5000E;Invalid block number
+0xFFF5000F;Protection level of function not sufficient
+0xFFF50010;Unknown SSL-ID (e.g. access to CP instead of PLC)
+0xFFF50011;Unknown SSL-index (e.g. access to CP instead of PLC)
+0xFFF50012;Information currently not ascertainable
+0xFFF50013;Unknown error message from PLC (please report!)
+0xFFF50014;Hardware error e.g. not available periphery
+0xFFF50015;Object access not allowed
+0xFFF50016;Context not supported
+0xFFF50017;Type (data type) not supported
+0xFFF50018;Internal error, please report
+0xFFF50019;Error rebooting PLC
+0xFFF5001A;Error restarting PLC
+0xFFF5001B;Connection end received
+0xFFF5001C;PLC not found
+0xFFF5001D;Too many data for this version of ACCON-AGLink
+0xFFF5001E;PLC does not support this function
+0xFFF5001F;Wrong Password
+0xFFF50020;Connection already legitimated
+0xFFF50021;Legitimation already released
+0xFFF50022;Password not neccessary
+0xFFF50023;At least one variable address invalid
+0xFFF50024;Job does not exist
+0xFFF50025;Invalid job state
+0xFFF50026;Invalid cycle time
+0xFFF50027;No more cyclic job possible
+0xFFF50028;Function not posible for this job (invalid state)
+0xFFF50029;Function abort (overload)
+0xFFF5002A;No data for this variable
+0xFFF5002B;Wrong time format
+0xFFF5002C;Unknown PI name
+0xFFF5002D;File transfer canceled by NCK
+0xFFF5002E;Response too large for PDU size
+0xFFF5002F;No H-PLC found
+0xFFF50030;Data not changed
+0xFFF50031;Received data is corrupt
+0xFFF50032;The requested parameter has the wrong size or type
+0xFFF50033;The parameter has a wrong value
+0xFFF50034;The parameter is not changeable
+0xFFF50035;The parameter is read only
+0xFFF50036;The variable definition contains the wrong size
+0xFFF50037;Array index does not exist
+0xFFF50038;PARA does not exist
+0xFFF50039;Error during disconnect
+
+0xFFF30000;Error when reading device information
+0xFFF30001;Error when reading bus parameters
+0xFFF30002;Error when writing bus parameters
+0xFFF30003;No resources available on device
+0xFFF30004;Invalid device
+0xFFF30005;Adapter not found
+0xFFF30006;Needed device driver not found
+
+0xFFF20000;The desired adapter address already exists
+0xFFF20001;Invalid HSA (smaller than biggest active participant)
+0xFFF20002;Adapter is not in the logical ring
+0xFFF20004;Received package has wrong content
+0xFFF20006;Unknown error number from adapter
+0xFFF20007;Unknown error number from device driver
+0xFFF20008;Communications adapter has been removed
+0xFFF20009;Modem has been removed
+0xFFF2000A;No directly connected PLC found
+0xFFF20313;Invalid speed on MPI bus
+0xFFF20314;Address is bigger than HSA
+0xFFF20315;The desired adapter address already exists
+0xFFF2031A;No other active bus participants found
+0xFFF2031C;Bus is jammed
+0xFFF2031D;Bus is jammed
+0xFFF2031E;Automatic detection of bus profile doesn't work, missing bus parameter telegram
+0xFFF20337;Legitimation missing
+
+0xFFF10000;COM-Port already used
+0xFFF10001;Modem not found
+0xFFF10002;Modem not onhook
+0xFFF10003;Modem not offhook
+0xFFF10004;Error in basic initialisation
+0xFFF10005;Error in Initstring 1
+0xFFF10006;Error in Initstring 2
+0xFFF10007;Error in Initstring 3
+0xFFF10008;Error in Initstring 4
+0xFFF10009;Error in dialtype sequence
+0xFFF1000A;Error in dialtone sequence
+0xFFF1000B;Error in autoanswer sequence
+0xFFF1000C;Modem has been removed
+0xFFF1000D;Connection could not be established
+0xFFF1000E;Login denied. Unknown user.
+0xFFF1000F;Login denied. Wrong password.
+0xFFF10010;Login denied. Callback number defined in adapter.
+0xFFF10011;Error while dialing
+
+0xFFF80000;Function not allowed
+0xFFF80001;Invalid project handle
+0xFFF80002;Error opening project
+0xFFF80003;Error creating program instance of project
+0xFFF80004;Error closing project
+0xFFF80005;No resp. no more programs found
+0xFFF80006;Program not found
+0xFFF80007;At least one of the specified parameters is invalid
+0xFFF80008;Runtime has expired (demo version)
+0xFFF8000A;No resp. invalid data specified
+0xFFF8000B;The program selected has no symbol table
+0xFFF8000C;Symbol table already opened
+0xFFF8000D;No resp. no more symbol entry found
+0xFFF8000E;Error reading symbol entry
+0xFFF8000F;Symbol not found
+0xFFF80010;Operand not found
+0xFFF80011;Invalid symbol
+0xFFF80012;Invalid operand
+0xFFF80013;Invalid filter string
+0xFFF80014;Data block (DB) not present
+0xFFF80015;Error reading DB block data
+0xFFF80016;Error parsing DB block data
+0xFFF80017;An opened DB is already present
+0xFFF80018;No opened DB present
+0xFFF80019;No resp. no more DB component found
+0xFFF8001A;Specified DB component not found
+0xFFF8001B;Specified DB component is invalid
+0xFFF8001C;Specified DB component not matching
+0xFFF8001E;Invalid constant
+0xFFF8001F;Invalid constant size or format
+0xFFF80020;Object type initialization failed
+0xFFF80021;Invalid version of message configuration
+0xFFF80022;Error opening message configuration
+0xFFF80023;Error closing message configuration
+0xFFF80024;No resp. no more message entry found
+0xFFF80025;No resp. no more language found
+0xFFF80026;Database access error
+0xFFF80027;Invalid signal number
+0xFFF80028;Invalid add. value specification
+0xFFF80029;Add. value number invalid
+0xFFF8002A;Element type of add. value invalid
+0xFFF8002B;Add. value data length invalid
+0xFFF8002C;Format specification missing
+0xFFF8002D;Format specification invalid
+0xFFF8002E;No resp. no more text library found
+0xFFF8002F;No resp. no more text library entry found
+0xFFF80030;Not enough memory
+0xFFF80031;Block type invalid
+0xFFF80032;Listing handle invalid
+0xFFF80033;Block not present
+0xFFF80034;Error reading block data
+0xFFF80035;Error parsing block data
+0xFFF80036;No resp. no more declaration found
+0xFFF80037;No resp. no more attributes found
+0xFFF80038;Writing CPU list failed
+
+0xFFF90000;Read error
+0xFFF90001;Write error
+0xFFF90002;Read error (variable content, type)
+0xFFF90003;Wrong PLC type
+0xFFF90064;Internal assert wrong
+0xFFFA0000;Not applicable
+0xFFFA0001;Access invalid element
+0xFFFA0002;Access buffer too small
+0xFFFA0003;Access buffer invalid S5TIME value
+0xFFFA0004;Access buffer invalid S5TIME base
+0xFFFA0005;Access buffer invalid S7 COUNTER value
+0xFFFA0006;Path missing expanded index
+0xFFFA0007;Path invalid
+0xFFFA0008;Path end reached
+0xFFFA0009;Path unknown field
+0xFFFA000A;Unknown child
+0xFFFA000B;Array is no value type
+0xFFFA000C;Array index missing
+0xFFFA000D;Array index invalid
+0xFFFA000E;Array index not allowed
+0xFFFA000F;Array range not allowed
+0xFFFA0010;Array range invalid
+0xFFFA0011;UDT has no base type
+0xFFFA0012;Unknown error code
+0xFFFA0013;Wrong symbol ID
+0xFFFA0014;Item access denied
+0xFFFA0015;Read only item
+0xFFFA0016;Partial errors
+0xFFFA0017;Not an instance
+0xFFFA0018;Wrong symbol ID path
+0xFFFA0019;Symbolic wrong area
+0xFFFA001A;Wrong value range
+0xFFFA001B;PLC cant deliver
+0xFFFA001C;PLC object does not exists
+0xFFFA001D;PLC type info missing
+0xFFFA0050;Invalid datablock
+0xFFFA0051;Datablock is optimized
+0xFFFA0052;Invalid Tag
+0xFFFA0053;Start address too big
+0xFFFA0054;Not allowed symbolic access
+0xFFFA0063;Internal error
+0xFFFA0064;Internal error 0
+0xFFFA0065;Internal error 1
+0xFFFA0066;Internal error 2
+0xFFFA0067;Internal error 3
+0xFFFA0068;Internal error 4
+0xFFFA0069;Internal error 5
+0xFFFA006A;Internal error 6
+0xFFFA006B;Internal error 7
+0xFFFA006C;Internal error 8
+0xFFFA006D;Internal error 9
+0xFFFA006E;File read error
+0xFFFA006F;Internal error 11
+0xFFFA0070;Internal error 12
+0xFFFA0071;Internal error 13
+0xFFFA0072;Internal error 14
+0xFFFA0073;Internal error 15
+0xFFFA0074;Project file not found
+0xFFFA0075;Project file unsupported extension
+0xFFFA0076;Project folder missing
+0xFFFA0077;Internal error 19
+0xFFFA0078;Internal error 20
+0xFFFA0079;Internal error 21
+0xFFFA007A;Internal error 22
+0xFFFA007B;Internal error 23
+0xFFFA007C;Internal error 24
+0xFFFA007D;Internal error 25
+0xFFFA007E;Internal error 26
+0xFFFA007F;Internal error 27
+0xFFFA0080;Internal error 28
+0xFFFA0081;Internal error 29
+0xFFFA0082;Internal error 30
+0xFFFA0083;Internal error 31
+0xFFFA0084;Internal error 32
+0xFFFA0085;Internal error 33
+0xFFFA0086;Internal error 34
+0xFFFA0087;Internal error 35
+0xFFFA0088;Internal error 36
+0xFFFA0089;Internal error 37
+0xFFFA008A;Internal error 38
+0xFFFA008B;Internal error 39
+0xFFFA008C;Internal error 40
+0xFFFA008D;Internal error 41
+0xFFFA008E;Internal error 42
+0xFFFA008F;Internal error 43
+0xFFFA0090;Internal error 44
+0xFFFA0091;Internal error 45
+0xFFFA0092;Internal error 46
+0xFFFA0093;Internal error 47
+0xFFFA0094;Internal error 48
+0xFFFA0095;Internal error 49
+0xFFFA0096;Internal error 50
+0xFFFA0097;Internal error 51
+0xFFFA0098;Internal error 52
+0xFFFA0099;Internal error 53
+0xFFFA009A;Internal error 54
+0xFFFA009B;Internal error 55
+0xFFFA009C;Internal error 56
+0xFFFA009D;Internal error 57
+0xFFFA009E;Internal error 58
+0xFFFA009F;Internal error 59
+0xFFFA00A0;Internal error 60
+0xFFFA00A1;Internal error 61
+0xFFFA00A2;Internal error 62
+0xFFFA00A3;Internal error 63
+0xFFFA00A4;Internal error 64
+0xFFFA00A5;Internal error 65
+0xFFFA00A6;Internal error 66
+0xFFFA00A7;Internal error 67
+0xFFFA00A8;Internal error 68
+0xFFFA00A9;Internal error 69
+0xFFFA00AA;Internal error 70
+0xFFFA00AB;Internal error 71
+0xFFFA00AC;Internal error 72
+0xFFFA00AD;Internal error 73
+0xFFFA00AE;Internal error 74
+0xFFFA00AF;Internal error 75
+0xFFFA00B0;Internal error 76
+0xFFFA00B1;Internal error 77
+0xFFFA00B2;Internal error 78
+0xFFFA00B3;Internal error 79
+0xFFFA00B4;Internal error 80
+0xFFFA00B5;Internal error 81
+0xFFFA00B6;Internal error 82
+0xFFFA00B7;Internal error 83
+0xFFFA00B8;Internal error 84
+0xFFFA00B9;Internal error 85
+0xFFFA00BA;Internal error 86
+0xFFFA00BB;Internal error 87
+0xFFFA00BC;Internal error 88
+0xFFFA00BD;Internal error 89
+0xFFFA00BE;Internal error 90
+0xFFFA00BF;Internal error 91
+0xFFFA00C0;Internal error 92
+0xFFFA00C1;Internal error 93
+0xFFFA00C2;Internal error 94
+0xFFFA00C3;Internal error 95
+0xFFFA00C4;Internal error 96
+0xFFFA00C5;Internal error 97
+0xFFFA00C6;Internal error 98
+0xFFFA00C7;Internal error 99
+0xFFFA00C8;Internal error 100
+0xFFFA00C9;Internal error 101
+0xFFFA00CA;Internal error 102
+0xFFFA00CB;Internal error 103
+0xFFFA00CC;Internal error 104
+0xFFFA00CD;Internal error 105
+0xFFFA00CE;Internal error 106
+0xFFFA00CF;Internal error 107
+0xFFFA00D0;Internal error 108
+0xFFFA00D1;Internal error 109
+0xFFFA00D2;Internal error 110
+0xFFFA00D3;Internal error 111
+0xFFFA00D4;Internal error 112
+0xFFFA00D5;Internal error 113
+0xFFFA00D6;Internal error 114
+0xFFFA00D7;Internal error 115
+0xFFFA00D8;Internal error 116
+0xFFFA00D9;Internal error 117
+0xFFFA00DA;Internal error 118
+0xFFFA00DB;Internal error 119
+0xFFFA00DC;Internal error 120
+0xFFFA00DD;Internal error 121
+0xFFFA00DE;Internal error 122
+0xFFFA00DF;Internal error 123
+0xFFFA00E0;Internal error 124
+0xFFFA00E1;Internal error 125
+0xFFFA00E2;Internal error 126
+0xFFFA00E3;Internal error 127
+0xFFFA00E4;Internal error 128
+0xFFFA00E5;Internal error 129
+0xFFFA00E6;Internal error 130
+0xFFFA00E7;Internal error 131
+0xFFFA00E8;Internal error 132
+0xFFFA00E9;Internal error 133
+0xFFFA00EA;Internal error 134
+0xFFFA00EB;Internal error 135
+0xFFFA00EC;Internal error 136
+0xFFFA00ED;Internal error 137
+0xFFFA00EE;Internal error 138
+0xFFFA00EF;Internal error 139
+0xFFFA00F0;Internal error 140
+0xFFFA00F1;Internal error 141
+0xFFFA00F2;Internal error 142
+0xFFFA00F3;Internal error 143
+0xFFFA00F4;Internal error 144
+0xFFFA00F5;Internal error 145
+0xFFFA00F6;Internal error 146
+0xFFFA00F7;Internal error 147
+0xFFFA00F8;Internal error 148
+0xFFFA00F9;Internal error 149
+0xFFFA00FA;Internal error 150
+0xFFFA00FB;Internal error 151
+0xFFFA00FC;Internal error 152
+0xFFFA00FD;Invalid agl version
+0xFFFA00FE;Invalid filter
+0xFFFA00FF;Invalid node
+0xFFFA0100;Invalid flags
+0xFFFA0190;Internal communication error
+0xFFFA0191;Internal communication error 0
+0xFFFA0193;Internal communication error 2
+0xFFFA0194;Write bool range needs modulo 8 start and count
+0xFFFA0195;Wrong read type
+0xFFFA0196;PLC auto detect failed
+0xFFFB00C8;Internal error 200
+0xFFFB00C9;Internal error 201
+0xFFFB00CA;Internal error 202
+0xFFFB00CB;Internal error 203
+0xFFFB00CC;Internal error 204
+0xFFFB00CD;Internal error 205
+0xFFFB00CE;Internal error 206
+0xFFFB00CF;Internal error 207
+0xFFFB00D0;Internal error 208
+0xFFFB00D1;Internal error 209
+0xFFFB00D2;Internal error 210
+0xFFFB00D3;Internal error 211
+0xFFFB00D4;Internal error 212
+0xFFFB00D5;Internal error 213
+0xFFFB00D6;Internal error 214
+0xFFFB00D7;Internal error 215
+0xFFFB00D8;Internal error 216
+0xFFFB00D9;Internal error 217
+0xFFFB00DA;Internal error 218
+0xFFFB00DB;Internal error 219
+0xFFFB00DC;Internal error 220
+0xFFFB00DD;Internal error 221
+0xFFFB00DE;Internal error 222
+0xFFFB00DF;Internal error 223
+0xFFFB00E0;Internal error 224
+0xFFFB00E1;Internal error 225
+0xFFFB00E2;Internal error 226
+0xFFFB00E3;Internal error 227
+0xFFFB00E4;Internal error 228
+0xFFFB00E5;Internal error 229
+0xFFFB00E6;Internal error 230
+0xFFFB00E7;Internal error 231
+0xFFFB00E8;Internal error 232
+0xFFFB00E9;Internal error 233
+0xFFFB00EA;Internal error 234
+0xFFFB00EB;Internal error 235
+0xFFFB00EC;Internal error 236
+0xFFFB00ED;Internal error 237
+0xFFFB00EE;Internal error 238
+0xFFFB00EF;Internal error 239
+0xFFFB00F0;Internal error 240
+0xFFFB00F1;Internal error 241
+0xFFFB00F2;Internal error 242
+0xFFFB00F3;Internal error 243
+0xFFFB00F4;Internal error 244
+0xFFFB00F5;Internal error 245
+0xFFFB00F6;Internal error 246
+0xFFFB00F7;Internal error 247
+0xFFFB00F8;Internal error 248
+0xFFFB00F9;Internal error 249
+0xFFFB00FA;Internal error 250
+0xFFFB00FB;Internal error 251
+0xFFFB00FC;Internal error 252
+0xFFFB00FD;Internal error 253
+0xFFFB00FE;Internal error 254
+0xFFFB00FF;Internal error 255
+0xFFFB0100;Internal error 256
+0xFFFB0101;Internal error 257
+0xFFFB0102;Internal error 258
+0xFFFB0103;Internal error 259
+0xFFFB0104;Internal error 260
+0xFFFB0105;Internal error 261
+0xFFFB0106;Internal error 262
+0xFFFB0107;Internal error 263
+0xFFFB0108;Internal error 264
+0xFFFB0109;Internal error 265
+0xFFFB010A;Internal error 266
+0xFFFB010B;Internal error 267
+0xFFFB010C;Internal error 268
+0xFFFB010D;Internal error 269
+0xFFFB010E;Internal error 270
+0xFFFB010F;Internal error 271
+0xFFFB0110;Internal error 272
+0xFFFB0111;Internal error 273
+0xFFFB0112;Internal error 274
+0xFFFB0113;Internal error 275
+0xFFFB0114;Internal error 276
+0xFFFB0115;Internal error 277
+0xFFFB0116;Internal error 278
+0xFFFB0117;Internal error 279
+0xFFFB0118;Internal error 280
+0xFFFB0119;Internal error 281
+0xFFFB011A;Internal error 282
+0xFFFB011B;Internal error 283
+0xFFFB011C;Internal error 284
+0xFFFB011D;Internal error 285
+0xFFFB011E;Internal error 286
+0xFFFB011F;Internal error 287
+0xFFFB0120;Internal error 288
+0xFFFB0121;Internal error 289
+0xFFFB0122;Internal error 290
+0xFFFB0123;Internal error 291
+0xFFFB0124;Internal error 292
+0xFFFB0125;Internal error 293
+0xFFFB0126;Internal error 294
+0xFFFB0127;Internal error 295
+0xFFFB0128;Internal error 296
+0xFFFB0129;Internal error 297
+0xFFFB012A;Internal error 298
+0xFFFB012B;Internal error 299
+0xFFFB012C;Internal error 300
+0xFFFB012D;Internal error 301
+0xFFFB012E;Internal error 302
+0xFFFB012F;Internal error 303
+0xFFFB0130;Internal error 304
+0xFFFB0131;Internal error 305
+0xFFFB0132;Internal error 306
+0xFFFB0133;Internal error 307
+0xFFFB0134;Internal error 308
+0xFFFB0135;Internal error 309
+0xFFFB0136;Internal error 310
+0xFFFB0137;Internal error 311
+0xFFFB0138;Internal error 312
+0xFFFB0139;Internal error 313
+0xFFFB013A;Internal error 314
+0xFFFB013B;Internal error 315
+0xFFFB013C;Internal error 316
+0xFFFB013D;Internal error 317
+0xFFFB013E;Internal error 318
+0xFFFB013F;Internal error 319
+0xFFFB0140;Internal error 320
+0xFFFB0141;Internal error 321
+0xFFFB0142;Internal error 322
+0xFFFB0143;Internal error 323
+0xFFFB0144;Internal error 324
+0xFFFB0145;Internal error 325
+0xFFFB0146;Internal error 326
+0xFFFB0147;Internal error 327
+0xFFFB0148;Internal error 328
+0xFFFB0149;Internal error 329
+0xFFFB014A;Internal error 330
+0xFFFB014B;Internal error 331
+0xFFFB014C;Internal error 332
+0xFFFB014D;Internal error 333
+0xFFFB014E;Internal error 334
+0xFFFB014F;Internal error 335
+0xFFFB0150;Internal error 336
+0xFFFB0151;Internal error 337
+0xFFFB0152;Internal error 338
+0xFFFB0153;Internal error 339
+0xFFFB0154;Internal error 340
+0xFFFB0155;Internal error 341
+0xFFFB0156;Internal error 342
+0xFFFB0157;Internal error 343
+0xFFFB0158;Internal error 344
+0xFFFB0159;Internal error 345
+0xFFFB015A;Internal error 346
+0xFFFB015B;Internal error 347
+0xFFFB015C;Internal error 348
+0xFFFB015D;Internal error 349
+0xFFFB015E;Internal error 350
+0xFFFB015F;Internal error 351
+0xFFFB0160;Internal error 352
+0xFFFB0161;Internal error 353
+0xFFFB0162;Internal error 354
+0xFFFB0163;Internal error 355
+0xFFFB0164;Internal error 356
+0xFFFB0165;Internal error 357
+0xFFFB0166;Internal error 358
+0xFFFB0167;Internal error 359
+0xFFFB0168;Internal error 360
+0xFFFB0169;Internal error 361
+0xFFFB016A;Internal error 362
+0xFFFB016B;Internal error 363
+0xFFFB016C;Internal error 364
+0xFFFB016D;Internal error 365
+0xFFFB016E;Internal error 366
+0xFFFB016F;Internal error 367
+0xFFFB0170;Internal error 368
+0xFFFB0171;Internal error 369
+0xFFFB0172;Internal error 370
+0xFFFB0173;Internal error 371
+0xFFFB0174;Internal error 372
+0xFFFB0175;Internal error 373
+0xFFFB0176;Internal error 374
+0xFFFB0177;Internal error 375
+0xFFFB0178;Internal error 376
+0xFFFB0179;Internal error 377
+0xFFFB017A;Internal error 378
+0xFFFB017B;Internal error 379
+0xFFFB017C;Internal error 380
+0xFFFB017D;Internal error 381
+0xFFFB017E;Internal error 382
+0xFFFB017F;Internal error 383
+0xFFFB0180;Internal error 384
+0xFFFB0181;Internal error 385
+0xFFFB0182;Internal error 386
+0xFFFB0183;Internal error 387
+0xFFFB0184;Internal error 388
+0xFFFB0185;Internal error 389
+0xFFFB0186;Internal error 390
+0xFFFB0187;Internal error 391
+0xFFFB0188;Internal error 392
+0xFFFB0189;Internal error 393
+0xFFFB018A;Internal error 394
+0xFFFB018B;Internal error 395
+0xFFFB018C;Internal error 396
+0xFFFB018D;Internal error 397
+0xFFFB018E;Internal error 398
+0xFFFB018F;Internal error 399
+0xFFFB0190;Internal error 400
+0xFFFB0191;Internal error 401
+0xFFFB0192;Internal error 402
+0xFFFB0193;Internal error 403
+0xFFFB0194;Internal error 404
+0xFFFB0195;Internal error 405
+0xFFFB0196;Internal error 406
+0xFFFB0197;Internal error 407
+0xFFFB0198;Internal error 408
+0xFFFB0199;Internal error 409
+0xFFFB019A;Internal error 410
+0xFFFB019B;Internal error 411
+0xFFFB019C;Internal error 412
+0xFFFB019D;Internal error 413
+0xFFFB019E;Internal error 414
+0xFFFB019F;Internal error 415
+0xFFFB01A0;Internal error 416
+0xFFFB01A1;Internal error 417
+0xFFFB01A2;Internal error 418
+0xFFFB01A3;Internal error 419
+0xFFFB01A4;Internal error 420
+0xFFFB01A5;Internal error 421
+0xFFFB01A6;Internal error 422
+0xFFFB01A7;Internal error 423
+0xFFFB01A8;Internal error 424
+0xFFFB01A9;Internal error 425
+0xFFFB01AA;Internal error 426
+0xFFFB01AB;Internal error 427
+0xFFFB01AC;Internal error 428
+0xFFFB01AD;Internal error 429
+0xFFFB01AE;Internal error 430
+0xFFFB01AF;Internal error 431
+0xFFFB01B0;Internal error 432
+0xFFFB01B1;Internal error 433
+0xFFFB01B2;Internal error 434
+0xFFFB01B3;Internal error 435
+0xFFFB01B4;Internal error 436
+0xFFFB01B5;Internal error 437
+0xFFFB01B6;Internal error 438
+0xFFFB01B7;Internal error 439
+0xFFFB01B8;Internal error 440
+0xFFFB01B9;Internal error 441
+0xFFFB01BA;Internal error 442
+0xFFFB01BB;Internal error 443
+0xFFFB01BC;Internal error 444
+0xFFFB01BD;Internal error 445
+0xFFFB01BE;Internal error 446
+0xFFFB01BF;Internal error 447
+0xFFFB01C0;Internal error 448
+0xFFFB01C1;Internal error 449
+0xFFFB01C2;Internal error 450
+0xFFFB01C3;Internal error 451
+0xFFFB01C4;Internal error 452
+0xFFFB01C5;Internal error 453
+0xFFFB01C6;Internal error 454
+0xFFFB01C7;Internal error 455
+0xFFFB01C8;Internal error 456
+0xFFFB01C9;Internal error 457
+0xFFFB01CA;Internal error 458
+0xFFFB01CB;Internal error 459
+0xFFFB01CC;Internal error 460
+0xFFFB01CD;Internal error 461
+0xFFFB01CE;Internal error 462
+0xFFFB01CF;Internal error 463
+0xFFFB01D0;Internal error 464
+0xFFFB01D1;Internal error 465
+0xFFFB01D2;Internal error 466
+0xFFFB01D3;Internal error 467
+0xFFFB01D4;Internal error 468
+0xFFFB01D5;Internal error 469
+0xFFFB01D6;Internal error 470
+0xFFFB01D7;Internal error 471
+0xFFFB01D8;Internal error 472
+0xFFFB01D9;Internal error 473
+0xFFFB01DA;Internal error 474
+0xFFFB01DB;Internal error 475
+0xFFFB01DC;Internal error 476
+0xFFFB01DD;Internal error 477
+0xFFFB01DE;Internal error 478
+0xFFFB01DF;Internal error 479
+0xFFFB01E0;Internal error 480
+0xFFFB01E1;Internal error 481
+0xFFFB01E2;Internal error 482
+0xFFFB01E3;Internal error 483
+0xFFFB01E4;Internal error 484
+0xFFFB01E5;Internal error 485
+0xFFFB01E6;Internal error 486
+0xFFFB01E7;Internal error 487
+0xFFFB01E8;Internal error 488
+0xFFFB01E9;Internal error 489
+0xFFFB01EA;Internal error 490
+0xFFFB01EB;Internal error 491
+0xFFFB01EC;Internal error 492
+0xFFFB01ED;Internal error 493
+0xFFFB01EE;Internal error 494
+0xFFFB01EF;Internal error 495
+0xFFFB01F0;Internal error 496
+0xFFFB01F1;Internal error 497
+0xFFFB01F2;Internal error 498
+0xFFFB01F3;Internal error 499
+0xFFFB01F4;Internal error 500
+0xFFFB01F5;Internal error 501
+0xFFFB01F6;Internal error 502
+0xFFFB01F7;Internal error 503
+0xFFFB01F8;Internal error 504
+0xFFFB01F9;Internal error 505
+0xFFFB01FA;Internal error 506
+0xFFFB01FB;Internal error 507
+0xFFFB01FC;Internal error 508
+0xFFFB01FD;Internal error 509
+0xFFFB01FE;Internal error 510
+0xFFFB01FF;Internal error 511
+0xFFFB0200;Internal error 512
+0xFFFB0201;Internal error 513
+0xFFFB0202;Internal error 514
+0xFFFB0203;Internal error 515
+0xFFFB0204;Internal error 516
+0xFFFB0205;Internal error 517
+0xFFFB0206;Internal error 518
+0xFFFB0207;Internal error 519
+0xFFFB0208;Internal error 520
+0xFFFB0209;Internal error 521
+0xFFFB020A;Internal error 522
+0xFFFB020B;Internal error 523
+0xFFFB020C;Internal error 524
+0xFFFB020D;Internal error 525
+0xFFFB020E;Internal error 526
+0xFFFB020F;Internal error 527
+0xFFFB0210;Internal error 528
+0xFFFB0211;Internal error 529
+0xFFFB0212;Internal error 530
+0xFFFB0213;Internal error 531
+0xFFFB0214;Internal error 532
+0xFFFB0215;Internal error 533
+0xFFFB0216;Internal error 534
+0xFFFB0217;Internal error 535
+0xFFFB0218;Internal error 536
+0xFFFB0219;Internal error 537
+0xFFFB021A;Internal error 538
+0xFFFB021B;Internal error 539
+0xFFFB021C;Internal error 540
+0xFFFB021D;Internal error 541
+0xFFFB021E;Internal error 542
+0xFFFB021F;Internal error 543
+0xFFFB0220;Internal error 544
+0xFFFB0221;Internal error 545
+0xFFFB0222;Internal error 546
+0xFFFB0223;Internal error 547
+0xFFFB0224;Internal error 548
+0xFFFB0225;Internal error 549
+0xFFFB0226;Internal error 550
+0xFFFB0227;Internal error 551
+0xFFFB0228;Internal error 552
+0xFFFB0229;Internal error 553
+0xFFFB022A;Internal error 554
+0xFFFB022B;Internal error 555
+0xFFFB022C;Internal error 556
+0xFFFB022D;Internal error 557
+0xFFFB022E;Internal error 558
+0xFFFB022F;Internal error 559
+0xFFFB0230;Internal error 560
+0xFFFB0231;Internal error 561
+0xFFFB0232;Internal error 562
+0xFFFB0233;Internal error 563
+0xFFFB0234;Internal error 564
+0xFFFB0235;Internal error 565
+0xFFFB0236;Internal error 566
+0xFFFB0237;Internal error 567
+0xFFFB0238;Internal error 568
+0xFFFB0239;Internal error 569
+0xFFFB023A;Internal error 570
+0xFFFB023B;Internal error 571
+0xFFFB023C;Internal error 572
+0xFFFB023D;Internal error 573
+0xFFFB023E;Internal error 574
+0xFFFB023F;Internal error 575
+0xFFFB0240;Internal error 576
+0xFFFB0241;Internal error 577
+0xFFFB0242;Internal error 578
+0xFFFB0243;Internal error 579
+0xFFFB0244;Internal error 580
+0xFFFB0245;Internal error 581
+0xFFFB0246;Internal error 582
+0xFFFB0247;Internal error 583
+0xFFFB0248;Internal error 584
+0xFFFB0249;Internal error 585
+0xFFFB024A;Internal error 586
+0xFFFB024B;Internal error 587
+0xFFFB024C;Internal error 588
+0xFFFB024D;Internal error 589
+0xFFFB024E;Internal error 590
+0xFFFB024F;Internal error 591
+0xFFFB0250;Internal error 592
+0xFFFB0251;Internal error 593
+0xFFFB0252;Internal error 594
+0xFFFB0253;Internal error 595
+0xFFFB0254;Internal error 596
+0xFFFB0255;Internal error 597
+0xFFFB0256;Internal error 598
+0xFFFB0257;Internal error 599
+0xFFFB0258;Internal error 600
+0xFFFB0259;Internal error 601
+0xFFFB025A;Internal error 602
+0xFFFB025B;Internal error 603
+0xFFFB025C;Internal error 604
+0xFFFB025D;Internal error 605
+0xFFFB025E;Internal error 606
+0xFFFB025F;Internal error 607
+0xFFFB0260;Internal error 608
+0xFFFB0261;Internal error 609
+0xFFFB0262;Internal error 610
+0xFFFB0263;Internal error 611
+0xFFFB0264;Internal error 612
+0xFFFB0265;Internal error 613
+0xFFFB0266;Internal error 614
+0xFFFB0267;Internal error 615
+0xFFFB0268;Internal error 616
+0xFFFB0269;Internal error 617
+0xFFFB026A;Internal error 618
+0xFFFB026B;Internal error 619
+0xFFFB026C;Internal error 620
+0xFFFB026D;Internal error 621
+0xFFFB026E;Internal error 622
+0xFFFB026F;Internal error 623
+0xFFFB0270;Internal error 624
+0xFFFB0271;Internal error 625
+0xFFFB0272;Internal error 626
+0xFFFB0273;Internal error 627
+0xFFFB0274;Internal error 628
+0xFFFB0275;Internal error 629
+0xFFFB0276;Internal error 630
+0xFFFB0277;Internal error 631
+0xFFFB0278;Internal error 632
+0xFFFB0279;Internal error 633
+0xFFFB027A;Internal error 634
+0xFFFB027B;Internal error 635
+0xFFFB027C;Internal error 636
+0xFFFB027D;Internal error 637
+0xFFFB027E;Internal error 638
+0xFFFB027F;Internal error 639
+0xFFFB0280;Internal error 640
+0xFFFB0281;Internal error 641
+0xFFFB0282;Internal error 642
+0xFFFB0283;Internal error 643
+0xFFFB0284;Internal error 644
+0xFFFB0285;Internal error 645
+0xFFFB0286;Internal error 646
+0xFFFB0287;Internal error 647
+0xFFFB0288;Internal error 648
+0xFFFB0289;Internal error 649
+0xFFFB028A;Internal error 650
+0xFFFB028B;Internal error 651
+0xFFFB028C;Internal error 652
+0xFFFB028D;Internal error 653
+0xFFFB028E;Internal error 654
+0xFFFB028F;Internal error 655
+0xFFFB0290;Internal error 656
+0xFFFB0291;Internal error 657
+0xFFFB0292;Internal error 658
+0xFFFB0293;Internal error 659
+0xFFFB0294;Internal error 660
+0xFFFB0295;Internal error 661
+0xFFFB0296;Internal error 662
+0xFFFB0297;Internal error 663
+0xFFFB0298;Internal error 664
+0xFFFB0299;Internal error 665
+0xFFFB029A;Internal error 666
+0xFFFB029B;Internal error 667
+0xFFFB029C;Internal error 668
+0xFFFB029D;Internal error 669
+0xFFFB029E;Internal error 670
+0xFFFB029F;Internal error 671
+0xFFFB02A0;Internal error 672
+0xFFFB02A1;Internal error 673
+0xFFFB02A2;Internal error 674
+0xFFFB02A3;Internal error 675
+0xFFFB02A4;Internal error 676
+0xFFFB02A5;Internal error 677
+0xFFFB02A6;Internal error 678
+0xFFFB02A7;Internal error 679
+0xFFFB02A8;Internal error 680
+0xFFFB02A9;Internal error 681
+0xFFFB02AA;Internal error 682
+0xFFFB02AB;Internal error 683
+0xFFFB02AC;Internal error 684
+0xFFFB02AD;Internal error 685
+0xFFFB02AE;Internal error 686
+0xFFFB02AF;Internal error 687
+0xFFFB02B0;Internal error 688
+0xFFFB02B1;Internal error 689
+0xFFFB02B2;Internal error 690
+0xFFFB02B3;Internal error 691
+0xFFFB02B4;Internal error 692
+0xFFFB02B5;Internal error 693
+0xFFFB02B6;Internal error 694
+0xFFFB02B7;Internal error 695
+0xFFFB02B8;Internal error 696
+0xFFFB02B9;Internal error 697
+0xFFFB02BA;Internal error 698
+0xFFFB02BB;Internal error 699
+0xFFFB02BC;Internal error 700
+0xFFFB02BD;Internal error 701
+0xFFFB02BE;Internal error 702
+0xFFFB02BF;Internal error 703
+0xFFFB02C0;Internal error 704
+0xFFFB02C1;Internal error 705
+0xFFFB02C2;Internal error 706
+0xFFFB02C3;Internal error 707
+0xFFFB02C4;Internal error 708
+0xFFFB02C5;Internal error 709
+0xFFFB02C6;Internal error 710
+0xFFFB02C7;Internal error 711
+0xFFFB02C8;Internal error 712
+0xFFFB02C9;Internal error 713
+0xFFFB02CA;Internal error 714
+0xFFFB02CB;Internal error 715
+0xFFFB02CC;Internal error 716
+0xFFFB02CD;Internal error 717
+0xFFFB02CE;Internal error 718
+0xFFFB02CF;Internal error 719
+0xFFFB02D0;Internal error 720
+0xFFFB02D1;Internal error 721
+0xFFFB02D2;Internal error 722
+0xFFFB02D3;Internal error 723
+0xFFFB02D4;Internal error 724
+0xFFFB02D5;Internal error 725
+0xFFFB02D6;Internal error 726
+0xFFFB02D7;Internal error 727
+0xFFFB02D8;Internal error 728
+0xFFFB02D9;Internal error 729
+0xFFFB02DA;Internal error 730
+0xFFFB02DB;Internal error 731
+0xFFFB02DC;Internal error 732
+0xFFFB02DD;Internal error 733
+0xFFFB02DE;Internal error 734
+0xFFFB02DF;Internal error 735
+0xFFFB02E0;Internal error 736
+0xFFFB02E1;Internal error 737
+0xFFFB02E2;Internal error 738
+0xFFFB02E3;Internal error 739
+0xFFFB02E4;Internal error 740
+0xFFFB02E5;Internal error 741
+0xFFFB02E6;Internal error 742
+0xFFFB02E7;Internal error 743
+0xFFFB02E8;Internal error 744
+0xFFFB02E9;Internal error 745
+0xFFFB02EA;Internal error 746
+0xFFFB02EB;Internal error 747
+0xFFFB02EC;Internal error 748
+0xFFFB02ED;Internal error 749
+0xFFFB02EE;Internal error 750
+0xFFFB02EF;Internal error 751
+0xFFFB02F0;Internal error 752
+0xFFFB02F1;Internal error 753
+0xFFFB02F2;Internal error 754
+0xFFFB02F3;Internal error 755
+0xFFFB02F4;Internal error 756
+0xFFFB02F5;Internal error 757
+0xFFFB02F6;Internal error 758
+0xFFFB02F7;Internal error 759
+0xFFFB02F8;Internal error 760
+0xFFFB02F9;Internal error 761
+0xFFFB02FA;Internal error 762
+0xFFFB02FB;Internal error 763
+0xFFFB02FC;Internal error 764
+0xFFFB02FD;Internal error 765
+0xFFFB02FE;Internal error 766
+0xFFFB02FF;Internal error 767
+0xFFFB0300;Internal error 768
+0xFFFB0301;Internal error 769
+0xFFFB0302;Internal error 770
+0xFFFB0303;Internal error 771
+0xFFFB0304;Internal error 772
+0xFFFB0305;Internal error 773
+0xFFFB0306;Internal error 774
+0xFFFB0307;Internal error 775
+0xFFFB0308;Internal error 776
+0xFFFB0309;Internal error 777
+0xFFFB030A;Internal error 778
+0xFFFB030B;Internal error 779
+0xFFFB030C;Internal error 780
+0xFFFB030D;Internal error 781
+0xFFFB030E;Internal error 782
+0xFFFB030F;Internal error 783
+0xFFFB0310;Internal error 784
+0xFFFB0311;Internal error 785
+0xFFFB0312;Internal error 786
+0xFFFB0313;Internal error 787
+0xFFFB0314;Internal error 788
+0xFFFB0315;Internal error 789
+0xFFFB0316;Internal error 790
+0xFFFB0317;Internal error 791
+0xFFFB0318;Internal error 792
+0xFFFB0319;Internal error 793
+0xFFFB031A;Internal error 794
+0xFFFB031B;Internal error 795
+0xFFFB031C;Internal error 796
+0xFFFB031D;Internal error 797
+0xFFFB031E;Internal error 798
+0xFFFB031F;Internal error 799
+0xFFFB0320;Internal error 800
+0xFFFB0321;Internal error 801
+0xFFFB0322;Internal error 802
+0xFFFB0323;Internal error 803
+0xFFFB0324;Internal error 804
+0xFFFB0325;Internal error 805
+0xFFFB0326;Internal error 806
+0xFFFB0327;Internal error 807
+0xFFFB0328;Internal error 808
+0xFFFB0329;Internal error 809
+0xFFFB032A;Internal error 810
+0xFFFB032B;Internal error 811
+0xFFFB032C;Internal error 812
+0xFFFB032D;Internal error 813
+0xFFFB032E;Internal error 814
+0xFFFB032F;Internal error 815
+0xFFFB0330;Internal error 816
+0xFFFB0331;Internal error 817
+0xFFFB0332;Internal error 818
+0xFFFB0333;Internal error 819
+0xFFFB0334;Internal error 820
+0xFFFB0335;Internal error 821
+0xFFFB0336;Internal error 822
+0xFFFB0337;Internal error 823
+0xFFFB0338;Internal error 824
+0xFFFB0339;Internal error 825
+0xFFFB033A;Internal error 826
+0xFFFB033B;Internal error 827
+0xFFFB033C;Internal error 828
+0xFFFB033D;Internal error 829
+0xFFFB033E;Internal error 830
+0xFFFB033F;Internal error 831
+0xFFFB0340;Internal error 832
+0xFFFB0341;Internal error 833
+0xFFFB0342;Internal error 834
+0xFFFB0343;Internal error 835
+0xFFFB0344;Internal error 836
+0xFFFB0345;Internal error 837
+0xFFFB0346;Internal error 838
+0xFFFB0347;Internal error 839
+0xFFFB0348;Internal error 840
+0xFFFB0349;Internal error 841
+0xFFFB034A;Internal error 842
+0xFFFB034B;Internal error 843
+0xFFFB034C;Internal error 844
+0xFFFB034D;Internal error 845
+0xFFFB034E;Internal error 846
+0xFFFB034F;Internal error 847
+0xFFFB0350;Internal error 848
+0xFFFB0351;Internal error 849
+0xFFFB0352;Internal error 850
+0xFFFB0353;Internal error 851
+0xFFFB0354;Internal error 852
+0xFFFB0355;Internal error 853
+0xFFFB0356;Internal error 854
+0xFFFB0357;Internal error 855
+0xFFFB0358;Internal error 856
+0xFFFB0359;Internal error 857
+0xFFFB035A;Internal error 858
+0xFFFB035B;Internal error 859
+0xFFFB035C;Internal error 860
+0xFFFB035D;Internal error 861
+0xFFFB035E;Internal error 862
+0xFFFB035F;Internal error 863
+0xFFFB0360;Internal error 864
+0xFFFB0361;Internal error 865
+0xFFFB0362;Internal error 866
+0xFFFB0363;Internal error 867
+0xFFFB0364;Internal error 868
+0xFFFB0365;Internal error 869
+0xFFFB0366;Internal error 870
+0xFFFB0367;Internal error 871
+0xFFFB0368;Internal error 872
+0xFFFB0369;Internal error 873
+0xFFFB036A;Internal error 874
+0xFFFB036B;Internal error 875
+0xFFFB036C;Internal error 876
+0xFFFB036D;Internal error 877
+0xFFFB036E;Internal error 878
+0xFFFB036F;Internal error 879
+0xFFFB0370;Internal error 880
+0xFFFB0371;Internal error 881
+0xFFFB0372;Internal error 882
+0xFFFB0373;Internal error 883
+0xFFFB0374;Internal error 884
+0xFFFB0375;Internal error 885
+0xFFFB0376;Internal error 886
+0xFFFB0377;Internal error 887
+0xFFFB0378;Internal error 888
+0xFFFB0379;Internal error 889
+0xFFFB037A;Internal error 890
+0xFFFB037B;Internal error 891
+0xFFFB037C;Internal error 892
+0xFFFB037D;Internal error 893
+0xFFFB037E;Internal error 894
+0xFFFB037F;Internal error 895
+0xFFFB0380;Internal error 896
+0xFFFB0381;Internal error 897
+0xFFFB0382;Internal error 898
+0xFFFB0383;Internal error 899
+0xFFFB0384;Internal error 900
+0xFFFB0385;Internal error 901
+0xFFFB0386;Internal error 902
+0xFFFB0387;Internal error 903
+0xFFFB0388;Internal error 904
+0xFFFB0389;Internal error 905
+0xFFFB038A;Internal error 906
+0xFFFB038B;Internal error 907
+0xFFFB038C;Internal error 908
+0xFFFB038D;Internal error 909
+0xFFFB038E;Internal error 910
+0xFFFB038F;Internal error 911
+0xFFFB0390;Internal error 912
+0xFFFB0391;Internal error 913
+0xFFFB0392;Internal error 914
+0xFFFB0393;Internal error 915
+0xFFFB0394;Internal error 916
+0xFFFB0395;Internal error 917
+0xFFFB0396;Internal error 918
+0xFFFB0397;Internal error 919
+0xFFFB0398;Internal error 920
+0xFFFB0399;Internal error 921
+0xFFFB039A;Internal error 922
+0xFFFB039B;Internal error 923
+0xFFFB039C;Internal error 924
+0xFFFB039D;Internal error 925
+0xFFFB039E;Internal error 926
+0xFFFB039F;Internal error 927
+0xFFFB03A0;Internal error 928
+0xFFFB03A1;Internal error 929
+0xFFFB03A2;Internal error 930
+0xFFFB03A3;Internal error 931
+0xFFFB03A4;Internal error 932
+0xFFFB03A5;Internal error 933
+0xFFFB03A6;Internal error 934
+0xFFFB03A7;Internal error 935
+0xFFFB03A8;Internal error 936
+0xFFFB03A9;Internal error 937
+0xFFFB03AA;Internal error 938
+0xFFFB03AB;Internal error 939
+0xFFFB03AC;Internal error 940
+0xFFFB03AD;Internal error 941
+0xFFFB03AE;Internal error 942
+0xFFFB03AF;Internal error 943
+0xFFFB03B0;Internal error 944
+0xFFFB03B1;Internal error 945
+0xFFFB03B2;Internal error 946
+0xFFFB03B3;Internal error 947
+0xFFFB03B4;Internal error 948
+0xFFFB03B5;Internal error 949
+0xFFFB03B6;Internal error 950
+0xFFFB03B7;Internal error 951
+0xFFFB03B8;Internal error 952
+0xFFFB03B9;Internal error 953
+0xFFFB03BA;Internal error 954
+0xFFFB03BB;Internal error 955
+0xFFFB03BC;Internal error 956
+0xFFFB03BD;Internal error 957
+0xFFFB03BE;Internal error 958
+0xFFFB03BF;Internal error 959
+0xFFFB03C0;Internal error 960
+0xFFFB03C1;Internal error 961
+0xFFFB03C2;Internal error 962
+0xFFFB03C3;Internal error 963
+0xFFFB03C4;Internal error 964
+0xFFFB03C5;Internal error 965
+0xFFFB03C6;Internal error 966
+0xFFFB03C7;Internal error 967
+0xFFFB03C8;Internal error 968
+0xFFFB03C9;Internal error 969
+0xFFFB03CA;Internal error 970
+0xFFFB03CB;Internal error 971
+0xFFFB03CC;Internal error 972
+0xFFFB03CD;Internal error 973
+0xFFFB03CE;Internal error 974
+0xFFFB03CF;Internal error 975
+0xFFFB03D0;Internal error 976
+0xFFFB03D1;Internal error 977
+0xFFFB03D2;Internal error 978
+0xFFFB03D3;Internal error 979
+0xFFFB03D4;Internal error 980
+0xFFFB03D5;Internal error 981
+0xFFFB03D6;Internal error 982
+0xFFFB03D7;Internal error 983
+0xFFFB03D8;Internal error 984
+0xFFFB03D9;Internal error 985
+0xFFFB03DA;Internal error 986
+0xFFFB03DB;Internal error 987
+0xFFFB03DC;Internal error 988
+0xFFFB03DD;Internal error 989
+0xFFFB03DE;Internal error 990
+0xFFFB03DF;Internal error 991
+0xFFFB03E0;Internal error 992
+0xFFFB03E1;Internal error 993
+0xFFFB03E2;Internal error 994
+0xFFFB03E3;Internal error 995
+0xFFFB03E4;Internal error 996
+0xFFFB03E5;Internal error 997
+0xFFFB03E6;Internal error 998
+0xFFFB03E7;Internal error 999
