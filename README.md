@@ -45,15 +45,15 @@ plc.Dispose();
 | :-: | :-: | :-: |
 | :heavy_check_mark: 4.5.0 | :heavy_check_mark: 2.0 | :heavy_check_mark: 2.0 |
 
-This implementation utilizes **AGLink** assemblies for communicating with the plc.
+This implementation utilizes **AGLink** assemblies for communicating with the plc via **S7 TCP/IP**. Since those assemblies are proprietary and owned by **Delta Logic**, the **_Plc.AgLink_** assembly itself is just a wrapper and cannot be used on its own. Fortunately **Delta Logic** provides a trial version of their communication assembly. Those trial assemblies are implemented in **_Plc.AgLink.Demo_**.
 
 ### Initialization
 
-To create an instance of the **_AGLinkPlc_** class, the **_AgLinkPlcConnectionData_** has to be supplied. It basically contains the ip address and some additional information about the plc.
+To create an instance of any concrete **_AGLinkPlc_** class (like **_DemoAgLinkPlc_**), the **_AgLinkPlcConnectionData_** has to be supplied. It basically contains the ip address and some additional information about the plc.
 
 ``` csharp
-var connectionData = new AgLinkPlcConnectionData(name: "AGLink@1518", ip: "172.20.4.241", rack: 0, slot: 0);
-IPlc plc = new AgLinkPlc(connectionData);
+var connectionData = new AgLinkPlcConnectionData(name: "AGLink@PLC", ip: "127.0.0.2", rack: 0, slot: 0);
+IPlc plc = new DemoAgLinkPlc(connectionData);
 
 // Don't forget to call dispose.
 plc.Dispose();
@@ -79,7 +79,7 @@ To make working with those plc items easier, specialized items for the most comm
 
 ### Initialization
 
-Creating new instance can be done either by using the constructor of any concrete **PlcItem** or more guided via builder pattern.
+Creating new instance can be done either by using the constructor of any concrete **_PlcItem_** or more guided via builder pattern.
 
 **Constructor**
 ``` csharp
