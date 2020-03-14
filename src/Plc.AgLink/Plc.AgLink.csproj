@@ -10,7 +10,7 @@
 		<Authors>Felix Leistner</Authors>
 		<Company>Little Phoenix</Company>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<Description>Provides plc communication via AGLink.</Description>
+		<Description>Base assembly for providing plc communication via AGLink.</Description>
 		<PackageProjectUrl></PackageProjectUrl>
 		<PackageIconUrl></PackageIconUrl>
 		<PackageId>Phoenix.Data.Plc.AgLink</PackageId>

@@ -10,7 +10,7 @@
 		<Authors>Felix Leistner</Authors>
 		<Company>Little Phoenix</Company>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<Description>Provides plc item monitoring via simple polling.</Description>
+		<Description>Provides plc item monitoring via polling.</Description>
 		<PackageProjectUrl></PackageProjectUrl>
 		<PackageIconUrl></PackageIconUrl>
 		<PackageId>Phoenix.Data.Plc.Monitor.Polling</PackageId>
