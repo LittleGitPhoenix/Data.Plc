@@ -2,6 +2,7 @@
 
 	<PropertyGroup>
 		<TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
+		<LangVersion>latest</LangVersion>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<AssemblyName>Phoenix.Data.Plc.Monitor</AssemblyName>
 		<RootNamespace>Phoenix.Data.Plc.Monitor</RootNamespace>
@@ -10,15 +11,21 @@
 		<Company>Little Phoenix</Company>
 		<Description>Interface assembly for monitoring plc items.</Description>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<PackageProjectUrl></PackageProjectUrl>
-		<PackageIconUrl></PackageIconUrl>
 		<PackageId>Phoenix.Data.Plc.Monitor</PackageId>
 		<Product>Phoenix.Data.Plc.Monitor</Product>
+		<IncludeSymbols>true</IncludeSymbols>
+		<PackageIcon>nuget.png</PackageIcon>
+		<PackageIconUrl>https://www.little-phoenix.de/nuget/nuget.ico</PackageIconUrl>
+		<PackageReadmeFile>readme.md</PackageReadmeFile>
+		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-		<DocumentationFile></DocumentationFile>
-	</PropertyGroup>
+	<ItemGroup>
+		<None Include="..\..\..\nuget.png" Pack="true" PackagePath="" />
+		<None Include="..\..\README.md" Pack="true" PackagePath="" />
+		<None Include="..\..\LICENSE.md" Pack="true" PackagePath="" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\Plc\Plc.csproj" />

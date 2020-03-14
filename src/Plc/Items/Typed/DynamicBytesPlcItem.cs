@@ -1,4 +1,9 @@
-﻿namespace Phoenix.Data.Plc.Items.Typed
+﻿#region LICENSE NOTICE
+//! This file is subject to the terms and conditions defined in file 'LICENSE.md', which is part of this source code package.
+#endregion
+
+
+namespace Phoenix.Data.Plc.Items.Typed
 {
 	/// <summary>
 	/// <see cref="IDynamicPlcItem"/> for pure byte data.

@@ -1,4 +1,9 @@
-﻿namespace Phoenix.Data.Plc.Monitor.Polling
+﻿#region LICENSE NOTICE
+//! This file is subject to the terms and conditions defined in file 'LICENSE.md', which is part of this source code package.
+#endregion
+
+
+namespace Phoenix.Data.Plc.Monitor.Polling
 {
 	/// <summary>
 	/// Provides extension methods for <see cref="IPlc"/>.

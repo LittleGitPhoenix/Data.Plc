@@ -1,4 +1,9 @@
-﻿using Phoenix.Data.Plc.Items;
+﻿#region LICENSE NOTICE
+//! This file is subject to the terms and conditions defined in file 'LICENSE.md', which is part of this source code package.
+#endregion
+
+
+using Phoenix.Data.Plc.Items;
 
 namespace Phoenix.Data.Plc.Monitor
 {

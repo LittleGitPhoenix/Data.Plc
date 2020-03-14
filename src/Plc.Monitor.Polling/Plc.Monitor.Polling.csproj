@@ -2,6 +2,7 @@
 
 	<PropertyGroup>
 		<TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
+		<LangVersion>latest</LangVersion>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<LangVersion>latest</LangVersion>
 		<AssemblyName>Phoenix.Data.Plc.Monitor.Polling</AssemblyName>
@@ -11,15 +12,21 @@
 		<Company>Little Phoenix</Company>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<Description>Provides plc item monitoring via polling.</Description>
-		<PackageProjectUrl></PackageProjectUrl>
-		<PackageIconUrl></PackageIconUrl>
 		<PackageId>Phoenix.Data.Plc.Monitor.Polling</PackageId>
 		<Product>Phoenix.Data.Plc.Monitor.Polling</Product>
+		<IncludeSymbols>true</IncludeSymbols>
+		<PackageIcon>nuget.png</PackageIcon>
+		<PackageIconUrl>https://www.little-phoenix.de/nuget/nuget.ico</PackageIconUrl>
+		<PackageReadmeFile>readme.md</PackageReadmeFile>
+		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-		<DocumentationFile></DocumentationFile>
-	</PropertyGroup>
+	<ItemGroup>
+		<None Include="..\..\..\nuget.png" Pack="true" PackagePath="" />
+		<None Include="..\..\README.md" Pack="true" PackagePath="" />
+		<None Include="..\..\LICENSE.md" Pack="true" PackagePath="" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\Plc.Monitor\Plc.Monitor.csproj" />

@@ -11,15 +11,21 @@
 		<Company>Little Phoenix</Company>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<Description>Base assembly for providing plc communication via AGLink.</Description>
-		<PackageProjectUrl></PackageProjectUrl>
-		<PackageIconUrl></PackageIconUrl>
 		<PackageId>Phoenix.Data.Plc.AgLink</PackageId>
 		<Product>Phoenix.Data.Plc.AgLink</Product>
+		<IncludeSymbols>true</IncludeSymbols>
+		<PackageIcon>nuget.png</PackageIcon>
+		<PackageIconUrl>https://www.little-phoenix.de/nuget/nuget.ico</PackageIconUrl>
+		<PackageReadmeFile>readme.md</PackageReadmeFile>
+		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-		<DocumentationFile></DocumentationFile>
-	</PropertyGroup>
+	<ItemGroup>
+		<None Include="..\..\..\nuget.png" Pack="true" PackagePath="" />
+		<None Include="..\..\README.md" Pack="true" PackagePath="" />
+		<None Include="..\..\LICENSE.md" Pack="true" PackagePath="" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\Plc\Plc.csproj" />

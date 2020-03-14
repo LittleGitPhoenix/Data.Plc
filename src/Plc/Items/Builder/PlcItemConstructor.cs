@@ -1,4 +1,9 @@
-﻿#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+﻿#region LICENSE NOTICE
+//! This file is subject to the terms and conditions defined in file 'LICENSE.md', which is part of this source code package.
+#endregion
+
+
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 namespace Phoenix.Data.Plc.Items.Builder
 {
 	[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]

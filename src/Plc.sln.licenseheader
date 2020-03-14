@@ -1,0 +1,26 @@
+﻿extensions: designer.cs generated.cs
+extensions: .cs .cpp .h
+#region LICENSE NOTICE
+//! This file is subject to the terms and conditions defined in file 'LICENSE.md', which is part of this source code package.
+#endregion
+
+
+extensions: .aspx .ascx
+<%--
+LICENSE NOTICE:
+This file is subject to the terms and conditions defined in file 'LICENSE.md', which is part of this source code package.
+--%>
+
+
+extensions: .vb
+#Region "LICENSE NOTICE"
+'! This file is subject to the terms and conditions defined in file 'LICENSE.md', which is part of this source code package.
+#End Region 
+
+
+extensions:  .xml .config .xsd
+<!--
+LICENSE NOTICE:
+This file is subject to the terms and conditions defined in file 'LICENSE.md', which is part of this source code package.
+-->
+

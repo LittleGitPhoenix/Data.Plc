@@ -2,33 +2,47 @@
 
 	<PropertyGroup>
 		<TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
+		<LangVersion>latest</LangVersion>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<RootNamespace>Phoenix.Data.Plc.AgLink</RootNamespace>
 		<AssemblyName>Phoenix.Data.Plc.AgLink.Demo</AssemblyName>
 		<Authors>Felix Leistner</Authors>
 		<Company>Little Phoenix</Company>
 		<Description>Provides plc communication via AGLink demo assemblies.</Description>
+		<IncludeSymbols>true</IncludeSymbols>
+		<PackageIcon>nuget.png</PackageIcon>
+		<PackageIconUrl>https://www.little-phoenix.de/nuget/nuget.ico</PackageIconUrl>
+		<PackageReadmeFile>readme.md</PackageReadmeFile>
+		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <None Remove="Resources\AgLink\AGLink40.dll" />
-	  <None Remove="Resources\AgLink\AGLink40CfgDev0000.xml" />
-	  <None Remove="Resources\AgLink\AGLink40_x64.dll" />
+		<None Include="..\..\..\nuget.png" Pack="true" PackagePath="" />
+		<None Include="..\..\README.md" Pack="true" PackagePath="" />
+		<None Include="..\..\LICENSE.md" Pack="true" PackagePath="" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <EmbeddedResource Include="Resources\AgLink\AGLink40.dll" />
-	  <EmbeddedResource Include="Resources\AgLink\AGLink40CfgDev0000.xml" />
-	  <EmbeddedResource Include="Resources\AgLink\AGLink40_x64.dll" />
+		<None Remove="Resources\AgLink\AGLink40.dll" />
+		<None Remove="Resources\AgLink\AGLink40CfgDev0000.xml" />
+		<None Remove="Resources\AgLink\AGLink40_x64.dll" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\Plc.AgLink\Plc.AgLink.csproj" />
+		<EmbeddedResource Include="Resources\AgLink\AGLink40.dll" />
+		<EmbeddedResource Include="Resources\AgLink\AGLink40CfgDev0000.xml" />
+		<EmbeddedResource Include="Resources\AgLink\AGLink40_x64.dll" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Reference Include="AGL4DotNET.4">
-	    <HintPath>Resources\AgLink\AGL4DotNET.4.dll</HintPath>
-	  </Reference>
+		<ProjectReference Include="..\Plc.AgLink\Plc.AgLink.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Reference Include="AGL4DotNET.4">
+			<HintPath>Resources\AgLink\AGL4DotNET.4.dll</HintPath>
+		</Reference>
 	</ItemGroup>
 
 </Project>
