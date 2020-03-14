@@ -26,7 +26,7 @@ namespace Phoenix.Data.Plc.AgLink
 
 		/// <inheritdoc />
 		public DemoAgLinkPlc(AgLinkPlcConnectionData connectionData)
-			: base(new DemoAgLinkAssemblyProvider(connectionData), connectionData)
+			: base(new DemoAgLinkSetupAdapter(), connectionData)
 		{ }
 
 		#endregion
@@ -60,7 +60,7 @@ namespace Phoenix.Data.Plc.AgLink
 			plc.PlcNr = 0;
 			plc.RackNr = ConnectionData.Rack;
 			plc.SlotNr = ConnectionData.Slot;
-			plc.Timeout = (int)Math.Abs(ConnectionData.ConnectionTimeout.TotalMilliseconds);
+			plc.Timeout = (int) Math.Abs(ConnectionData.ConnectionTimeout.TotalMilliseconds);
 
 			// Attach handlers to the event-callbacks when the connection has been interrupted.
 			plc.OnConnectionErrorOccured += this.OnConnectionErrorOccured;

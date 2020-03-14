@@ -17,7 +17,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plc.Monitor.Polling.Test", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plc.Test", "Plc.Test\Plc.Test.csproj", "{7C2A72B6-060D-4EFC-B282-1A7F61EBB835}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{C01573D0-8B5E-4002-BB7B-073EEE9DAD7A}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{C01573D0-8B5E-4002-BB7B-073EEE9DAD7A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Monitor", "Monitor", "{CB3855F0-1EB7-4F87-8FE0-39BE528D748B}"
 EndProject
@@ -37,7 +37,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plc.AgLink.Demo.Test", "Plc
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Monitor Implementation", "Monitor Implementation", "{4B111EAC-C9CC-4370-B487-F4286F1C22D1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plc.AgLink.Demo", "Plc.AgLink.Demo\Plc.AgLink.Demo.csproj", "{541C724F-DBD5-4159-AEEA-62DB002B86D0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plc.AgLink.Demo", "Plc.AgLink.Demo\Plc.AgLink.Demo.csproj", "{541C724F-DBD5-4159-AEEA-62DB002B86D0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -73,6 +73,12 @@ namespace Phoenix.Data.Plc.AgLink
 		#endregion
 
 		#region Methods
+
+		/// <summary>
+		/// Returns a string that represents the current object.
+		/// </summary>
+		public override string ToString() => $"[<{this.GetType().Name}> :: Name: {this.Name} | IP: {this.Ip} | Rack: {this.Rack} | Slot: {this.Slot} | ConnectionTimeOut: {this.ConnectionTimeout}]";
+
 		#endregion
 	}
 }

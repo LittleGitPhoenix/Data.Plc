@@ -22,7 +22,7 @@ namespace Phoenix.Data.Plc.AgLink
 
 		#region Fields
 
-		private readonly IAgLinkAssemblyProvider _agLinkAssemblyProvider;
+		private readonly IDisposable _agLinkAssemblyProvider;
 
 		#endregion
 
@@ -52,19 +52,20 @@ namespace Phoenix.Data.Plc.AgLink
 		/// <summary>
 		/// Constructor
 		/// </summary>
-		/// <param name="agLinkAssemblyProvider"> An <see cref="IAgLinkAssemblyProvider"/> used to load the unmanaged AGLing assembly. </param>
+		/// <param name="agLinkSetupAdapter"> An instance of <see cref="IAgLinkSetupAdapter"/> used for initial setup. </param>
 		/// <param name="connectionData"> <see cref="AgLinkPlcConnectionData"/> </param>
-		protected AgLinkPlc(IAgLinkAssemblyProvider agLinkAssemblyProvider, AgLinkPlcConnectionData connectionData)
+		protected AgLinkPlc(IAgLinkSetupAdapter agLinkSetupAdapter, AgLinkPlcConnectionData connectionData)
 			: base(name: connectionData.Name)
 		{
 			// Save parameters.
-			_agLinkAssemblyProvider = agLinkAssemblyProvider;
 			this.ConnectionData = connectionData;
 
 			// Initialize fields.
 
 			// Setup AGLink.
+			var agLinkAssemblyProvider = new AgLinkResourceProvider(agLinkSetupAdapter, connectionData);
 			agLinkAssemblyProvider.Initialize();
+			_agLinkAssemblyProvider = agLinkAssemblyProvider;
 		}
 		
 		#endregion
