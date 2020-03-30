@@ -36,6 +36,8 @@ namespace Phoenix.Data.Plc
 			{
 				if (this.ConnectionState == PlcConnectionState.Connected) return;
 
+				this.Logger.Info($"Connection to the plc has been established.");
+
 				this.ConnectionState = PlcConnectionState.Connected;
 				this.Connected?.Invoke(this, this.ConnectionState);
 			
@@ -55,6 +57,8 @@ namespace Phoenix.Data.Plc
 			{
 				if (this.ConnectionState == PlcConnectionState.Disconnected) return;
 
+				this.Logger.Info($"Connection to the plc has been disconnected.");
+
 				this.ConnectionState = PlcConnectionState.Disconnected;
 				this.Disconnected?.Invoke(this, this.ConnectionState);
 			}
@@ -71,6 +75,8 @@ namespace Phoenix.Data.Plc
 			lock (_connectionStateChangeLock)
 			{
 				if (this.ConnectionState == PlcConnectionState.Interrupted) return;
+
+				this.Logger.Error($"Connection to the plc has been interrupted.");
 
 				this.ConnectionState = PlcConnectionState.Interrupted;
 				this.Interrupted?.Invoke(this, this.ConnectionState);
@@ -102,7 +108,7 @@ namespace Phoenix.Data.Plc
 		/// Default <see cref="ILogger"/> instance.
 		/// </summary>
 		protected ILogger Logger => _logger.Value;
-		private readonly Lazy<ILogger> _logger = new Lazy<ILogger>(LogManager.GetCurrentClassLogger);
+		private readonly Lazy<ILogger> _logger = new Lazy<ILogger>(LogManager.GetLogger);
 
 		/// <inheritdoc />
 		public string Name { get; }
@@ -252,7 +258,7 @@ namespace Phoenix.Data.Plc
 			await this.ReadItemsAsync(plcItems.IsReadOnly ? new List<IPlcItem>(plcItems) : (IList<IPlcItem>)plcItems, cancellationToken);
 
 			// Since this may be a costly operation, check if logging is even enabled.
-			if (LogManager.IsEnabled)
+			if (LogManager.LogAllReadAndWriteOperations)
 			{
 				foreach (var plcItem in plcItems)
 				{
@@ -298,7 +304,7 @@ namespace Phoenix.Data.Plc
 			var success = await this.WriteItemsAsync(plcItems.IsReadOnly ? new List<IPlcItem>(plcItems) : (IList<IPlcItem>)plcItems, cancellationToken);
 
 			// Since this may be a costly operation, check if logging is even enabled.
-			if (LogManager.IsEnabled)
+			if (LogManager.LogAllReadAndWriteOperations)
 			{
 				foreach (var plcItem in plcItems)
 				{

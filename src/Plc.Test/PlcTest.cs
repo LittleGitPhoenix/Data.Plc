@@ -401,7 +401,7 @@ namespace Phoenix.Data.Plc.Test
 		public async Task Check_Logging_When_Reading()
 		{
 			var logger = new TestLogger();
-			LogManager.LoggerFactory = name => logger;
+			LogManager.LoggerFactory = () => logger;
 
 			// Get the protected and therefore not accessible PlcItemUsageType enumeration.
 			var enumType = typeof(Plc).GetNestedType("PlcItemUsageType", BindingFlags.NonPublic);
@@ -444,7 +444,7 @@ namespace Phoenix.Data.Plc.Test
 		public async Task Check_Logging_When_Writing()
 		{
 			var logger = new TestLogger();
-			LogManager.LoggerFactory = name => logger;
+			LogManager.LoggerFactory = () => logger;
 
 			// Get the protected and therefore not accessible PlcItemUsageType enumeration.
 			var enumType = typeof(Plc).GetNestedType("PlcItemUsageType", BindingFlags.NonPublic);

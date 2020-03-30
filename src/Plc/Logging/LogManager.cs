@@ -20,26 +20,27 @@ namespace Phoenix.Data.Plc.Logging
 
 		#region Fields
 		
-		private static readonly Func<string, ILogger> NullLoggerFactory = name => new NullLogger();
+		private static readonly Func<ILogger> NullLoggerFactory = () => new NullLogger();
 
 		#endregion
 
 		#region Properties
 
 		/// <summary>
-		/// Is logging enabled or not.
+		/// Should every read / write operation be logged.
 		/// </summary>
-		public static bool IsEnabled => LogManager.LoggerFactory != LogManager.NullLoggerFactory;
+		/// <remarks> Default is <c>False</c> because this may be a costly operation. </remarks>
+		public static bool LogAllReadAndWriteOperations { get; set; }
 
 		/// <summary>
 		/// Gets or sets the factory used to create new <see cref="ILogger"/>s.
 		/// </summary>
-		public static Func<string, ILogger> LoggerFactory
+		public static Func<ILogger> LoggerFactory
 		{
 			get => _loggerFactory ?? LogManager.NullLoggerFactory;
 			set => _loggerFactory = value;
 		}
-		private static Func<string, ILogger> _loggerFactory;
+		private static Func<ILogger> _loggerFactory;
 
 		#endregion
 
@@ -48,53 +49,22 @@ namespace Phoenix.Data.Plc.Logging
 		/// <summary>
 		/// Static constructor
 		/// </summary>
-		static LogManager() { }
+		static LogManager()
+		{
+			LogAllReadAndWriteOperations = false;
+		}
 
 		#endregion
 
 		#region Methods
-
+		
 		/// <summary>
-		/// Gets an <see cref="ILogger"/> with the name of the class that invoked this method.
+		/// Get a new <see cref="ILogger"/>.
 		/// </summary>
 		/// <returns> A new <see cref="ILogger"/> instance. </returns>
-		public static ILogger GetCurrentClassLogger()
-			=> LogManager.GetLogger(LogManager.GetClassFullName());
-
-		/// <summary>
-		/// Get a new <see cref="ILogger"/> with the given <paramref name="name"/>.
-		/// </summary>
-		/// <param name="name"> The name of the new <see cref="ILogger"/>. </param>
-		/// <returns> A new <see cref="ILogger"/> instance. </returns>
-		public static ILogger GetLogger(string name)
+		public static ILogger GetLogger()
 		{
-			return LogManager.LoggerFactory.Invoke(name);
-		}
-
-		/// <summary> Gets the fully qualified name of the class invoking the LogManager, including the namespace but not the assembly. </summary>
-		private static string GetClassFullName()
-		{
-			string className;
-			Type declaringType;
-			int framesToSkip = 2;
-
-			do
-			{
-				var frame = new System.Diagnostics.StackFrame(framesToSkip, false);
-
-				var method = frame.GetMethod();
-				declaringType = method.DeclaringType;
-				if (declaringType == null)
-				{
-					className = method.Name;
-					break;
-				}
-
-				framesToSkip++;
-				className = declaringType.FullName;
-			} while (declaringType.Module.Name.Equals("mscorlib.dll", StringComparison.OrdinalIgnoreCase));
-
-			return className;
+			return LogManager.LoggerFactory.Invoke();
 		}
 
 		#endregion
