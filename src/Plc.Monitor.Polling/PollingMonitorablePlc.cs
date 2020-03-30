@@ -12,7 +12,7 @@ using Phoenix.Data.Plc.Items;
 namespace Phoenix.Data.Plc.Monitor.Polling
 {
 	/// <summary>
-	/// Decorator for an <see cref="IPlc"/> that uses the <see cref="PollingPlcMonitor"/> to monitor <see cref="IPlcItem"/>s.
+	/// Wrapper for an <see cref="IPlc"/> that uses the <see cref="PollingPlcMonitor"/> to monitor <see cref="IPlcItem"/>s.
 	/// </summary>
 	public sealed class PollingMonitorablePlc : IMonitorablePlc
 	{
@@ -52,7 +52,7 @@ namespace Phoenix.Data.Plc.Monitor.Polling
 
 		#endregion
 		
-		#region Decorator - IPlc
+		#region Forwarding - IPlc
 
 		/// <summary> The decorated <see cref="IPlc"/> instance. </summary>
 		private readonly IPlc _decoratedPlc;
@@ -113,15 +113,7 @@ namespace Phoenix.Data.Plc.Monitor.Polling
 		#endregion
 
 		#region Read
-
-		///// <inheritdoc />
-		//public async Task<TValue> ReadItemAsync<TValue>(IPlcItem<TValue> plcItem, CancellationToken cancellationToken = default)
-		//	=> await _decoratedPlc.ReadItemAsync(plcItem, cancellationToken);
-
-		///// <inheritdoc />
-		//public async Task<BitCollection> ReadItemAsync(IPlcItem plcItem, CancellationToken cancellationToken = default)
-		//	=> await _decoratedPlc.ReadItemAsync(plcItem, cancellationToken);
-
+		
 		/// <inheritdoc />
 		public async Task ReadItemsAsync(ICollection<IPlcItem> plcItems, CancellationToken cancellationToken = default)
 			=> await _decoratedPlc.ReadItemsAsync(plcItems, cancellationToken);
@@ -129,23 +121,11 @@ namespace Phoenix.Data.Plc.Monitor.Polling
 		#endregion
 
 		#region Write
-
-		///// <inheritdoc />
-		//public async Task<bool> WriteItemAsync(IPlcItem plcItem, CancellationToken cancellationToken = default)
-		//	=> await _decoratedPlc.WriteItemAsync(plcItem, cancellationToken);
-
+		
 		/// <inheritdoc />
 		public async Task<bool> WriteItemsAsync(ICollection<IPlcItem> plcItems, CancellationToken cancellationToken = default)
 			=> await _decoratedPlc.WriteItemsAsync(plcItems, cancellationToken);
-
-		///// <inheritdoc />
-		//public async Task<bool> WriteItemWithValidationAsync(IPlcItem plcItem, CancellationToken cancellationToken = default)
-		//	=> await _decoratedPlc.WriteItemWithValidationAsync(plcItem, cancellationToken);
-
-		///// <inheritdoc />
-		//public async Task<bool> WriteItemsWithValidationAsync(ICollection<IPlcItem> plcItems, CancellationToken cancellationToken = default)
-		//	=> await _decoratedPlc.WriteItemsWithValidationAsync(plcItems, cancellationToken);
-
+		
 		#endregion
 
 		#region IDisposable
