@@ -154,7 +154,7 @@ namespace Phoenix.Data.Plc.Items.Typed
 		/// Creates a deep copy of the current instance.
 		/// </summary>
 		/// <param name="identifier"> A new identifier for the clone. </param>
-		/// <returns> A new <see cref="BitsPlcItem"/>. </returns>
+		/// <returns> A new <see cref="EnumPlcItem{TEnum}"/>. </returns>
 		public new EnumPlcItem<TEnum> Clone(string identifier)
 		{
 			return new EnumPlcItem<TEnum>(base.DataBlock, base.Position, this.Value, identifier);

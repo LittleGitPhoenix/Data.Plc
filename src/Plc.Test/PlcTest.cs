@@ -397,90 +397,56 @@ namespace Phoenix.Data.Plc.Test
 			#endregion
 		}
 
+		/// <summary>
+		/// Checks if read operations are logged if <see cref="LogManager.LogAllReadAndWriteOperations"/> is enabled.
+		/// </summary>
 		[TestMethod]
 		public async Task Check_Logging_When_Reading()
 		{
-			var logger = new TestLogger();
+			// Arrange
+			var logger = Mock.Of<ILogger>();
 			LogManager.LoggerFactory = () => logger;
-
-			// Get the protected and therefore not accessible PlcItemUsageType enumeration.
-			var enumType = typeof(Plc).GetNestedType("PlcItemUsageType", BindingFlags.NonPublic);
-			var plcUsageType = Enum.ToObject(enumType, 0 /* Read */);
-
-			// Create a mock of the abstract PLC base class and setup the needed abstract methods.
-			var plcMock = new Mock<Plc>(behavior: MockBehavior.Strict, args: new object[] { "MockPlc" })
-			{
-				CallBase = true,
-			};
+			LogManager.LogAllReadAndWriteOperations = true;
+			var byteItem = new BytePlcItem(dataBlock: 0, position: 0, initialValue: Byte.MaxValue);
+			ICollection<IPlcItem> items = new IPlcItem[] { byteItem , byteItem .Clone(), byteItem.Clone() };
+			var plcMock = new Mock<Plc>(Guid.NewGuid().ToString());
 			plcMock
-				.Protected()
-				.Setup<bool>("OpenConnection")
-				.Returns(true)
-				.Verifiable()
-				;
-			plcMock
-				.Protected()
-				.Setup<bool>("CloseConnection")
-				.Returns(true)
-				.Verifiable()
-				;
-			plcMock
-				.Protected()
-				.Setup<Task>("PerformReadWriteAsync", ItExpr.IsAny<ICollection<IPlcItem>>(), plcUsageType, CancellationToken.None)
+				.Setup(p => p.ReadItemsAsync(It.IsAny<IList<IPlcItem>>(), CancellationToken.None))
 				.Returns(Task.CompletedTask)
-				.Verifiable()
 				;
-
-			var byteItem = new BytePlcItem(dataBlock: 0, position: 0, initialValue: Byte.MinValue);
 			var plc = plcMock.Object;
-			plc.Connect();
-
-			Assert.IsTrue(String.IsNullOrWhiteSpace(logger.LastMessage));
-			await plc.ReadItemAsync(byteItem);
-			Assert.IsFalse(String.IsNullOrWhiteSpace(logger.LastMessage));
+			
+			// Act
+			await plc.ReadItemsAsync(items);
+			
+			// Assert
+			Mock.Get(logger).Verify(l => l.Trace(It.IsAny<string>(), It.IsAny<object[]>()), Times.Exactly(items.Count));
 		}
 
+		/// <summary>
+		/// Checks if write operations are logged if <see cref="LogManager.LogAllReadAndWriteOperations"/> is enabled.
+		/// </summary>
 		[TestMethod]
 		public async Task Check_Logging_When_Writing()
 		{
-			var logger = new TestLogger();
+			// Arrange
+			var logger = Mock.Of<ILogger>();
 			LogManager.LoggerFactory = () => logger;
-
-			// Get the protected and therefore not accessible PlcItemUsageType enumeration.
-			var enumType = typeof(Plc).GetNestedType("PlcItemUsageType", BindingFlags.NonPublic);
-			var plcUsageType = Enum.ToObject(enumType, 1 /* Write */);
-
-			// Create a mock of the abstract PLC base class and setup the needed abstract methods.
-			var plcMock = new Mock<Plc>(behavior: MockBehavior.Strict, args: new object[] { "MockPlc" })
-			{
-				CallBase = true,
-			};
-			plcMock
-				.Protected()
-				.Setup<bool>("OpenConnection")
-				.Returns(true)
-				.Verifiable()
-				;
-			plcMock
-				.Protected()
-				.Setup<bool>("CloseConnection")
-				.Returns(true)
-				.Verifiable()
-				;
-			plcMock
-				.Protected()
-				.Setup<Task>("PerformReadWriteAsync", ItExpr.IsAny<ICollection<IPlcItem>>(), plcUsageType, CancellationToken.None)
-				.Returns(Task.CompletedTask)
-				.Verifiable()
-				;
-
+			LogManager.LogAllReadAndWriteOperations = true;
 			var byteItem = new BytePlcItem(dataBlock: 0, position: 0, initialValue: Byte.MaxValue);
+			ICollection<IPlcItem> items = new IPlcItem[] { byteItem, byteItem.Clone(), byteItem.Clone() };
+			var plcMock = new Mock<Plc>(Guid.NewGuid().ToString());
+			plcMock
+				.Setup(p => p.WriteItemsAsync(It.IsAny<IList<IPlcItem>>(), CancellationToken.None))
+				.Returns(Task.FromResult(true))
+				;
 			var plc = plcMock.Object;
-			plc.Connect();
 
-			Assert.IsTrue(String.IsNullOrWhiteSpace(logger.LastMessage));
-			await plc.WriteItemAsync(byteItem);
-			Assert.IsFalse(String.IsNullOrWhiteSpace(logger.LastMessage));
+			// Act
+			await plc.WriteItemsAsync(items);
+
+			// Assert
+			Mock.Get(logger).Verify(l => l.Trace(It.IsAny<string>(), It.IsAny<object[]>()), Times.Exactly(items.Count));
 		}
 	}
 }

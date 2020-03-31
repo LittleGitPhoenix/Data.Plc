@@ -144,18 +144,21 @@ namespace Phoenix.Data.Plc.Items
 		/// <summary>
 		/// Constructor
 		/// </summary>
+		/// <param name="automaticallyAdaptSize"> Will the size of the internal storage be adapted automatically according to new values. </param>
 		/// <param name="bytes"> A byte array of booleans that will be interpreted as single <see cref="Boolean"/>s. </param>
 		public BitCollection(bool automaticallyAdaptSize, byte[] bytes) : this(null, bytes, automaticallyAdaptSize) { }
 
 		/// <summary>
 		/// Constructor
 		/// </summary>
+		/// <param name="automaticallyAdaptSize"> Will the size of the internal storage be adapted automatically according to new values. </param>
 		/// <param name="booleans"> A <see cref="bool"/> array of booleans used to initialize the internal collection. </param>
 		public BitCollection(bool automaticallyAdaptSize, params bool[] booleans) : this(booleans, null, automaticallyAdaptSize) { }
 
 		/// <summary>
 		/// Constructor
 		/// </summary>
+		/// <param name="automaticallyAdaptSize"> Will the size of the internal storage be adapted automatically according to new values. </param>
 		/// <param name="bitCollections"> Several other <see cref="BitCollection"/> that will build a new one. </param>
 		public BitCollection(bool automaticallyAdaptSize, params BitCollection[] bitCollections) : this(bitCollections.SelectMany(collection => (bool[])collection).ToArray(), null, automaticallyAdaptSize) { }
 		
@@ -164,7 +167,7 @@ namespace Phoenix.Data.Plc.Items
 		/// </summary>
 		/// <param name="booleans"> A <see cref="bool"/> array used as internal collection. </param>
 		/// <param name="bytes"> A <see cref="Byte"/> array that is synchronized with <paramref name="booleans"/> used for faster casting. </param>
-		///// <param name="bitPosition"> An offset value for the internal collection of bits. </param>
+		/// <param name="automaticallyAdaptSize"> Will the size of the internal storage be adapted automatically according to new values. </param>
 		private BitCollection(bool[] booleans, byte[] bytes, bool automaticallyAdaptSize)
 		{
 			if (booleans is null && bytes is null) throw new ArgumentNullException($"At least one of the two parameters '{nameof(booleans)}' and '{nameof(bytes)}' mustn't be NULL.");
@@ -320,7 +323,10 @@ namespace Phoenix.Data.Plc.Items
 
 		#region IEquatable
 		
-		//! This class has no immutable properties and therefore no proper implementation of 'GetHashCode' can be made.
+		/*!
+		 * This class has no immutable properties and therefore no proper implementation of 'GetHashCode' can be made.
+		 * Equality is not determined via a has code but rather via comparing the sequences of the underlying data.
+		 */
 		/// <inheritdoc />
 		public override int GetHashCode()
 			=> base.GetHashCode();
@@ -406,15 +412,15 @@ namespace Phoenix.Data.Plc.Items
 		#region Casting Operators
 
 		/// <summary>
-		/// Explicit cast operator to <see cref="bool"/> array.
+		/// Implicit cast operator to <see cref="bool"/> array.
 		/// </summary>
 		public static implicit operator bool[] (BitCollection bitCollection)
 		{
 			return bitCollection.Bits;
 		}
-
+		
 		/// <summary>
-		/// Explicit cast operator to <see cref="Byte"/> array.
+		/// Implicit cast operator to <see cref="Byte"/> array.
 		/// </summary>
 		public static implicit operator byte[] (BitCollection bitCollection)
 		{

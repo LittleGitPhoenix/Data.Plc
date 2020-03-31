@@ -255,7 +255,7 @@ namespace Phoenix.Data.Plc
 		/// <inheritdoc />
 		public async Task ReadItemsAsync(ICollection<IPlcItem> plcItems, CancellationToken cancellationToken = default)
 		{
-			await this.ReadItemsAsync(plcItems.IsReadOnly ? new List<IPlcItem>(plcItems) : (IList<IPlcItem>)plcItems, cancellationToken);
+			await this.ReadItemsAsync(plcItems.IsReadOnly ? new List<IPlcItem>(plcItems) : (IList<IPlcItem>) plcItems, cancellationToken);
 
 			// Since this may be a costly operation, check if logging is even enabled.
 			if (LogManager.LogAllReadAndWriteOperations)
@@ -269,7 +269,8 @@ namespace Phoenix.Data.Plc
 			}
 		}
 
-		private async Task ReadItemsAsync(IList<IPlcItem> plcItems, CancellationToken cancellationToken = default)
+		[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+		internal virtual async Task ReadItemsAsync(IList<IPlcItem> plcItems, CancellationToken cancellationToken = default)
 		{
 			// Get and iterate all dynamic items.
 			var flexiblePlcItems = new List<IPlcItem>();
@@ -324,7 +325,8 @@ namespace Phoenix.Data.Plc
 			return success;
 		}
 
-		private async Task<bool> WriteItemsAsync(IList<IPlcItem> plcItems, CancellationToken cancellationToken = default)
+		[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+		internal virtual async Task<bool> WriteItemsAsync(IList<IPlcItem> plcItems, CancellationToken cancellationToken = default)
 		{
 			// Get and iterate all dynamic items.
 			var lengthPlcItems = new List<IPlcItem>();

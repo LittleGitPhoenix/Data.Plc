@@ -1,32 +1,26 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+	<PropertyGroup>
+		<TargetFramework>netcoreapp3.0</TargetFramework>
+		<IsPackable>false</IsPackable>
+		<LangVersion>latest</LangVersion>
+		<AssemblyName>Phoenix.Data.Plc.Test</AssemblyName>
+		<RootNamespace>Phoenix.Data.Plc.Test</RootNamespace>
+		<Authors>Felix Leistner</Authors>
+		<Company>Little Phoenix</Company>
+	</PropertyGroup>
 
-    <IsPackable>false</IsPackable>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.3.0" />
+		<PackageReference Include="Moq" Version="4.13.1" />
+		<PackageReference Include="MSTest.TestAdapter" Version="1.4.0" />
+		<PackageReference Include="MSTest.TestFramework" Version="1.4.0" />
+	</ItemGroup>
 
-    <LangVersion>latest</LangVersion>
-
-    <AssemblyName>Phoenix.Data.Plc.Test</AssemblyName>
-
-    <RootNamespace>Phoenix.Data.Plc.Test</RootNamespace>
-
-    <Authors>Felix Leistner</Authors>
-
-    <Company>Little Phoenix</Company>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.3.0" />
-    <PackageReference Include="Moq" Version="4.13.1" />
-    <PackageReference Include="MSTest.TestAdapter" Version="1.4.0" />
-    <PackageReference Include="MSTest.TestFramework" Version="1.4.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Plc.Monitor.Polling\Plc.Monitor.Polling.csproj" />
-    <ProjectReference Include="..\Plc.Monitor\Plc.Monitor.csproj" />
-    <ProjectReference Include="..\Plc\Plc.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Plc.Monitor.Polling\Plc.Monitor.Polling.csproj" />
+		<ProjectReference Include="..\Plc.Monitor\Plc.Monitor.csproj" />
+		<ProjectReference Include="..\Plc\Plc.csproj" />
+	</ItemGroup>
 
 </Project>
