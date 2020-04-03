@@ -2,6 +2,8 @@
 //! This file is subject to the terms and conditions defined in file 'LICENSE.md', which is part of this source code package.
 #endregion
 
+using System;
+using System.Linq;
 
 namespace Phoenix.Data.Plc.Items.Typed
 {
@@ -26,10 +28,18 @@ namespace Phoenix.Data.Plc.Items.Typed
 
 		/// <inheritdoc />
 		public DynamicBytesPlcItem(INumericPlcItem numericPlcItem, string identifier = default)
-			: this(numericPlcItem, new byte[0], identifier) { }
+			: this(numericPlcItem, new byte[0], null, identifier) { }
+
+		/// <inheritdoc />
+		public DynamicBytesPlcItem(INumericPlcItem numericPlcItem, uint? lengthLimit, string identifier = default)
+			: this(numericPlcItem, new byte[0], lengthLimit, identifier) { }
 
 		/// <inheritdoc />
 		public DynamicBytesPlcItem(INumericPlcItem numericPlcItem, byte[] initialValue, string identifier = default)
+			: this(numericPlcItem, initialValue, null, identifier) { }
+
+		/// <inheritdoc />
+		public DynamicBytesPlcItem(INumericPlcItem numericPlcItem, byte[] initialValue, uint? lengthLimit, string identifier = default)
 			: base
 			(
 				numericPlcItem,
@@ -42,6 +52,7 @@ namespace Phoenix.Data.Plc.Items.Typed
 						initialValue: initialValue,
 						identifier: name
 					),
+				lengthLimit,
 				identifier
 			)
 		{ }
@@ -62,7 +73,7 @@ namespace Phoenix.Data.Plc.Items.Typed
 		/// <returns> A new <see cref="DynamicBytesPlcItem"/>. </returns>
 		public new DynamicBytesPlcItem Clone(string identifier)
 		{
-			return new DynamicBytesPlcItem(base.LengthPlcItem, this.Value, identifier);
+			return new DynamicBytesPlcItem(base.LengthPlcItem, this.Value, base.LengthLimit, identifier);
 		}
 
 		#endregion

@@ -35,14 +35,20 @@ namespace Phoenix.Data.Plc.Items.Builder
 	{
 		IUtf8PlcItemCreator WithLength(ushort length);
 		IUtf8PlcItemCreator WithInitialValue(string initialValue);
-		IDynamicUtf8PlcItemCreator WithDynamicItem<TNumericPlcItem>() where TNumericPlcItem : INumericPlcItem;
-		IDynamicUtf8PlcItemCreator WithDynamicItemFromInitialValue(string initialValue);
+		ILengthLimiterUtf8PlcItemConstructor WithDynamicItem<TNumericPlcItem>() where TNumericPlcItem : INumericPlcItem;
+		ILengthLimiterUtf8PlcItemConstructor WithDynamicItemFromInitialValue(string initialValue);
 	}
 
 	[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
 	public interface IUtf8PlcItemCreator
 	{
 		Utf8PlcItem Build();
+	}
+
+	[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+	public interface ILengthLimiterUtf8PlcItemConstructor : IDynamicUtf8PlcItemCreator
+	{
+		IDynamicUtf8PlcItemCreator WithLengthLimit(uint lengthLimit);
 	}
 
 	[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
@@ -57,6 +63,7 @@ namespace Phoenix.Data.Plc.Items.Builder
 			IUtf8DataBlockPlcItemConstructor,
 			IUtf8PositionPlcItemConstructor,
 			IUtf8LengthPlcItemConstructor,
+			ILengthLimiterUtf8PlcItemConstructor,
 			IUtf8PlcItemCreator,
 			IDynamicUtf8PlcItemCreator
 	{
@@ -70,6 +77,8 @@ namespace Phoenix.Data.Plc.Items.Builder
 		
 		private Type _numericPlcItemType;
 
+		private uint? _lengthLimit;
+
 		#endregion
 
 		#region Properties
@@ -81,7 +90,8 @@ namespace Phoenix.Data.Plc.Items.Builder
 			: base(identifier)
 		{
 			// Save parameters.
-			
+			_lengthLimit = null;
+
 			// Set default values.
 			base.ForData();
 		}
@@ -98,14 +108,14 @@ namespace Phoenix.Data.Plc.Items.Builder
 
 		public new IUtf8PlcItemCreator WithInitialValue(string initialValue) => (IUtf8PlcItemCreator) base.WithInitialValue(initialValue);
 		
-		public IDynamicUtf8PlcItemCreator WithDynamicItem<TNumericPlcItem>() where TNumericPlcItem : INumericPlcItem
+		public ILengthLimiterUtf8PlcItemConstructor WithDynamicItem<TNumericPlcItem>() where TNumericPlcItem : INumericPlcItem
 		{
 			base.ForByteAmount(0);
 			_numericPlcItemType = typeof(TNumericPlcItem);
 			return this;
 		}
 
-		public IDynamicUtf8PlcItemCreator WithDynamicItemFromInitialValue(string initialValue)
+		public ILengthLimiterUtf8PlcItemConstructor WithDynamicItemFromInitialValue(string initialValue)
 		{
 			var length = Encoding.UTF8.GetBytes(initialValue).Length;
 
@@ -117,6 +127,13 @@ namespace Phoenix.Data.Plc.Items.Builder
 			else if (length - UInt32.MaxValue <= 0) _numericPlcItemType = typeof(UInt32PlcItem);
 			else throw new NotSupportedException($"The currently maximum length of dynamic plc items is '{UInt32.MaxValue}' which is exceeded by the initial values length of '{length}'.");
 			
+			return this;
+		}
+		
+		/// <inheritdoc />
+		public IDynamicUtf8PlcItemCreator WithLengthLimit(uint lengthLimit)
+		{
+			_lengthLimit = lengthLimit;
 			return this;
 		}
 
@@ -151,7 +168,7 @@ namespace Phoenix.Data.Plc.Items.Builder
 			else if (_numericPlcItemType == typeof(DWordPlcItem)) numericPlcItem = new DWordPlcItem(base.DataBlock.Value, base.Position.Value, initialValue: (UInt32) base.ByteAmount);
 			else throw new NotSupportedException($"The numeric part of any dynamic plc item must be an {nameof(INumericPlcItem)}. Currently supported are the following concrete items: {nameof(BytePlcItem)}, {nameof(UInt16PlcItem)}, {nameof(UInt32PlcItem)}, {nameof(WordPlcItem)}, {nameof(DWordPlcItem)}");
 
-			return new DynamicUtf8PlcItem(numericPlcItem, base.InitialValue, base.Identifier);
+			return new DynamicUtf8PlcItem(numericPlcItem, _lengthLimit, base.InitialValue, base.Identifier);
 			// ReSharper restore PossibleInvalidOperationException
 		}
 
