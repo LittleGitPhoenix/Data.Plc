@@ -114,5 +114,128 @@ namespace Phoenix.Data.Plc.Test
 			var actualTimePerConversion = (stopWatch.ElapsedMilliseconds / iterations);
 			Assert.IsTrue(actualTimePerConversion <= targetTimePerConversion, $"The target conversion time should be {targetTimePerConversion}ms but actually was {actualTimePerConversion}ms.");
 		}
+
+		[TestMethod]
+		public void Check_Data_To_UInt16_Conversion()
+		{
+			// Arrange
+			var value = new byte[] {255, 0};
+			var target = (ushort) byte.MaxValue;
+
+			// Act
+			var actual = DataConverter.ToUInt16(value, DataConverter.Endianness.LittleEndian);
+
+			// Assert
+			Assert.AreEqual(actual, target);
+		}
+
+		[TestMethod]
+		public void Swap_Short()
+		{
+			// Arrange
+			var value = (short) byte.MaxValue;
+			var target = (short) ((byte.MaxValue + 1) * -1);
+
+			// Act
+			var actual = DataConverter.SwapBytes(value);
+
+			// Assert
+			Assert.AreEqual(actual, target);
+		}
+
+		[TestMethod]
+		public void Swap_Int()
+		{
+			// Arrange
+			var value = (int) ushort.MaxValue;
+			var target = (int) ((ushort.MaxValue + 1) * -1);
+
+			// Act
+			var actual = DataConverter.SwapBytes(value);
+
+			// Assert
+			Assert.AreEqual(actual, target);
+		}
+
+		[TestMethod]
+		public void Swap_Long()
+		{
+			// Arrange
+			var value = (long) uint.MaxValue;
+			var target = ((long) uint.MaxValue + 1) * -1;
+
+			// Act
+			var actual = DataConverter.SwapBytes(value);
+
+			// Assert
+			Assert.AreEqual(actual, target);
+		}
+
+		[TestMethod]
+		public void Swap_UShort()
+		{
+			// Arrange
+			var value = (ushort) byte.MaxValue;
+			var target = ushort.MaxValue - byte.MaxValue;
+
+			// Act
+			var actual = DataConverter.SwapBytes(value);
+
+			// Assert
+			Assert.AreEqual(actual, target);
+		}
+
+		[TestMethod]
+		public void Swap_UInt()
+		{
+			// Arrange
+			var value = (uint) ushort.MaxValue;
+			var target = uint.MaxValue - ushort.MaxValue;
+
+			// Act
+			var actual = DataConverter.SwapBytes(value);
+
+			// Assert
+			Assert.AreEqual(actual, target);
+		}
+
+		[TestMethod]
+		public void Swap_ULong()
+		{
+			// Arrange
+			var value = (ulong) uint.MaxValue;
+			var target = ulong.MaxValue - uint.MaxValue;
+
+			// Act
+			var actual = DataConverter.SwapBytes(value);
+
+			// Assert
+			Assert.AreEqual(actual, target);
+		}
+
+		[TestMethod]
+		public void Measure_Swap_Performance()
+		{
+			var stopWatch = new Stopwatch();
+			stopWatch.Start();
+			for (ulong i = 0; i < 30000000; i++)
+			{
+#pragma warning disable CS0612 // Type or member is obsolete
+				DataConverter.SwapBytes_old(i);
+#pragma warning restore CS0612 // Type or member is obsolete
+			}
+			stopWatch.Stop();
+			var oldTime = stopWatch.ElapsedTicks;
+
+			stopWatch.Restart();
+			for (ulong i = 0; i < 30000000; i++)
+			{
+				DataConverter.SwapBytes(i);
+			}
+			stopWatch.Stop();
+			var newTime = stopWatch.ElapsedTicks;
+
+			Assert.IsTrue(newTime < oldTime);
+		}
 	}
 }

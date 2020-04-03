@@ -41,7 +41,7 @@ namespace Phoenix.Data.Plc.Items.Typed
 		/// <inheritdoc />
 		public override ulong ConvertFromData(BitCollection data)
 		{
-			// PLC uses littleENDIAN, so toggle the bytes.
+			// PLC uses BigEndian, so toggle the bytes.
 			byte[] bytes = data;
 			Array.Reverse(bytes);
 
@@ -51,10 +51,11 @@ namespace Phoenix.Data.Plc.Items.Typed
 		/// <inheritdoc />
 		public override BitCollection ConvertToData(ulong value)
 		{
+			// PLC uses BigEndian, so toggle the bytes.
+			value = DataConverter.SwapBytes(value);
 			byte[] bytes = BitConverter.GetBytes(value);
-			Array.Reverse(bytes);
+			//Array.Reverse(bytes);
 
-			// PLC uses littleENDIAN, so toggle the bytes.
 			return new BitCollection(false, bytes);
 		}
 

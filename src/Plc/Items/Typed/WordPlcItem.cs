@@ -41,26 +41,39 @@ namespace Phoenix.Data.Plc.Items.Typed
 		/// <inheritdoc />
 		public override ushort ConvertFromData(BitCollection data)
 		{
-			// PLC uses littleENDIAN, so toggle the bytes.
+			// PLC uses BigEndian, so toggle the bytes.
 			byte[] bytes = data;
-			Array.Reverse(bytes);
+			return DataConverter.ToUInt16(bytes, DataConverter.Endianness.BigEndian);
 
-			return BitConverter.ToUInt16(bytes, 0);
+//#if NETSTANDARD2_1
+//			return System.Buffers.Binary.BinaryPrimitives.ReadUInt16BigEndian(bytes.AsSpan());
+//#else
+//			Array.Reverse(bytes);
+//			return BitConverter.ToUInt16(bytes, 0);
+//#endif
 		}
 
 		/// <inheritdoc />
 		public override BitCollection ConvertToData(ushort value)
 		{
-			byte[] bytes = BitConverter.GetBytes(value);
-			Array.Reverse(bytes);
+			// PLC uses BigEndian, so toggle the bytes.
+			var bytes = DataConverter.ToBytes(value, DataConverter.Endianness.BigEndian);
 
-			// PLC uses littleENDIAN, so toggle the bytes.
+//#if NETSTANDARD2_1
+//			var bytes = new byte[sizeof(ushort)];
+//			System.Buffers.Binary.BinaryPrimitives.WriteUInt16BigEndian(bytes.AsSpan(), value);
+//#else
+//			// PLC uses BigEndian, so toggle the bytes.
+//			value = DataConverter.SwapBytes(value);
+//			var bytes = BitConverter.GetBytes(value);
+//			//Array.Reverse(bytes);
+//#endif
 			return new BitCollection(false, bytes);
 		}
 
-		#endregion
+#endregion
 
-		#region Clone
+#region Clone
 
 		/// <inheritdoc />
 		INumericPlcItem INumericPlcItem.Clone(string identifier) => this.Clone(identifier);
@@ -78,8 +91,8 @@ namespace Phoenix.Data.Plc.Items.Typed
 			return new WordPlcItem(base.DataBlock, base.Position, this.Value, identifier);
 		}
 
-		#endregion
+#endregion
 
-		#endregion
+#endregion
 	}
 }
