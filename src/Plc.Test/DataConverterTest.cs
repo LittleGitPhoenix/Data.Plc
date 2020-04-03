@@ -1,16 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace Phoenix.Data.Plc.Test
 {
-	[TestClass]
+	[TestFixture]
 	public class DataConverterTest : DataTest
 	{
-		[TestMethod]
+		[Test]
 		public void Converter_Booleans_To_Byte()
 		{
 			for (int index = 0; index < base.Booleans.Length; index += 8)
@@ -23,25 +21,25 @@ namespace Phoenix.Data.Plc.Test
 			}
 		}
 
-		[TestMethod]
+		[Test]
 		public void Converter_Booleans_To_Byte_Throws()
 		{
 			var booleans = base.Booleans.Take(9).ToArray();
 			var targetByte = base.Bytes[0];
 
-			Assert.ThrowsException<ArgumentOutOfRangeException>(() => DataConverter.ToByte(booleans));
+			Assert.Throws<ArgumentOutOfRangeException>(() => DataConverter.ToByte(booleans));
 		}
 		
-		[TestMethod]
+		[Test]
 		public void Converter_Booleans_To_Bytes()
 		{
 			var actualBytes = DataConverter.ToBytes(base.Booleans);
 
-			Assert.IsTrue(base.Bytes.Length * 8 == base.Booleans.Length);
-			Assert.IsTrue(base.Bytes.SequenceEqual(actualBytes));
+			Assert.True(base.Bytes.Length * 8 == base.Booleans.Length);
+			Assert.True(base.Bytes.SequenceEqual(actualBytes));
 		}
 
-		[TestMethod]
+		[Test]
 		public void Converter_Booleans_To_Bytes_Performance()
 		{
 			var random = new Random();
@@ -63,10 +61,10 @@ namespace Phoenix.Data.Plc.Test
 			} while (++iteration <= iterations);
 
 			var actualTimePerConversion = (stopWatch.ElapsedMilliseconds / iterations);
-			Assert.IsTrue(actualTimePerConversion <= targetTimePerConversion, $"The target conversion time should be {targetTimePerConversion}ms but actually was {actualTimePerConversion}ms.");
+			Assert.True(actualTimePerConversion <= targetTimePerConversion, $"The target conversion time should be {targetTimePerConversion}ms but actually was {actualTimePerConversion}ms.");
 		}
 
-		[TestMethod]
+		[Test]
 		public void Converter_Byte_To_Booleans()
 		{
 			for (int index = 0; index < base.Bytes.Length; index++)
@@ -75,21 +73,21 @@ namespace Phoenix.Data.Plc.Test
 				var targetBooleans = base.Booleans.Skip(index*8).Take(8).ToArray();
 				var actualBooleans = DataConverter.ToBooleans(@byte);
 
-				Assert.IsTrue(actualBooleans.Length == 8);
-				Assert.IsTrue(targetBooleans.SequenceEqual(actualBooleans));
+				Assert.True(actualBooleans.Length == 8);
+				Assert.True(targetBooleans.SequenceEqual(actualBooleans));
 			}
 		}
 
-		[TestMethod]
+		[Test]
 		public void Converter_Bytes_To_Booleans()
 		{
 			var actualBooleans = DataConverter.ToBooleans(base.Bytes);
 			
-			Assert.IsTrue(actualBooleans.Length == base.Bytes.Length * 8);
-			Assert.IsTrue(base.Booleans.SequenceEqual(actualBooleans));
+			Assert.True(actualBooleans.Length == base.Bytes.Length * 8);
+			Assert.True(base.Booleans.SequenceEqual(actualBooleans));
 		}
 
-		[TestMethod]
+		[Test]
 		public void Converter_Bytes_To_Booleans_Performance()
 		{
 			var random = new Random();
@@ -112,7 +110,7 @@ namespace Phoenix.Data.Plc.Test
 			} while (++iteration <= iterations);
 
 			var actualTimePerConversion = (stopWatch.ElapsedMilliseconds / iterations);
-			Assert.IsTrue(actualTimePerConversion <= targetTimePerConversion, $"The target conversion time should be {targetTimePerConversion}ms but actually was {actualTimePerConversion}ms.");
+			Assert.True(actualTimePerConversion <= targetTimePerConversion, $"The target conversion time should be {targetTimePerConversion}ms but actually was {actualTimePerConversion}ms.");
 		}
 	}
 }

@@ -2,17 +2,17 @@
 using System.Linq;
 using System.Text;
 using Phoenix.Data.Plc.Items.Builder;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using Phoenix.Data.Plc.Items;
 using Phoenix.Data.Plc.Items.Typed;
 
 namespace Phoenix.Data.Plc.Test.ItemTests
 {
-	[TestClass]
-	[TestCategory("Item Test")]
+	[TestFixture]
+	[Category("Item Test")]
 	public sealed class DynamicUtf8PlcItemTest
 	{
-		[TestMethod]
+		[Test]
 		public void Check_ItemBuilder()
 		{
 			// With predefined length-item.
@@ -24,7 +24,7 @@ namespace Phoenix.Data.Plc.Test.ItemTests
 				.BuildDynamic()
 				;
 			System.Diagnostics.Debug.WriteLine(item.ToString());
-			Assert.IsTrue(item.LengthPlcItem is UInt32PlcItem);
+			Assert.True(item.LengthPlcItem is UInt32PlcItem);
 			Assert.AreEqual(default(UInt32), ((UInt32PlcItem) item.LengthPlcItem).Value);
 			Assert.IsNotNull(item.Value);
 			Assert.AreEqual(String.Empty, item.Value);
@@ -39,12 +39,12 @@ namespace Phoenix.Data.Plc.Test.ItemTests
 				.BuildDynamic()
 				;
 			System.Diagnostics.Debug.WriteLine(item.ToString());
-			Assert.IsTrue(item.LengthPlcItem is BytePlcItem);
+			Assert.True(item.LengthPlcItem is BytePlcItem);
 			Assert.AreEqual(Encoding.UTF8.GetBytes(initialValue).Length, ((BytePlcItem) item.LengthPlcItem).Value);
 			Assert.AreEqual(initialValue, item.Value);
 		}
 
-		[TestMethod]
+		[Test]
 		public void Check_Clone()
 		{
 			var item = new DynamicUtf8PlcItem(new UInt16PlcItem(dataBlock: 0, position: 0), "DynamicText");
@@ -54,13 +54,13 @@ namespace Phoenix.Data.Plc.Test.ItemTests
 			Assert.AreEqual(item, clone);
 
 			// Check the value.
-			Assert.IsTrue(item.Value == clone.Value);
+			Assert.True(item.Value == clone.Value);
 
 			// Check if both items are different references.
-			Assert.IsFalse(Object.ReferenceEquals(item, clone));
+			Assert.False(Object.ReferenceEquals(item, clone));
 		}
 
-		[TestMethod]
+		[Test]
 		public void Check_ToData()
 		{
 			var target = "Message";
@@ -73,11 +73,11 @@ namespace Phoenix.Data.Plc.Test.ItemTests
 			// Check: Bytes → Data
 			item.Value = target;
 			Assert.AreEqual(target, item.Value);
-			Assert.IsTrue(targetData.SequenceEqual((byte[])((IPlcItem)item).Value));
+			Assert.True(targetData.SequenceEqual((byte[])((IPlcItem)item).Value));
 			Assert.AreEqual(targetData.Length, ((UInt16PlcItem) item.LengthPlcItem).Value);
 		}
 
-		[TestMethod]
+		[Test]
 		public void Check_FromData()
 		{
 			var target = "Message";
@@ -90,7 +90,7 @@ namespace Phoenix.Data.Plc.Test.ItemTests
 			// Check: Data → Bytes
 			((IPlcItem) item).Value.TransferValuesFrom(targetData);
 			Assert.AreEqual(target, item.Value);
-			Assert.IsTrue(targetData.SequenceEqual((byte[]) ((IPlcItem) item).Value));
+			Assert.True(targetData.SequenceEqual((byte[]) ((IPlcItem) item).Value));
 			Assert.AreEqual(targetData.Length, ((UInt16PlcItem)item.LengthPlcItem).Value);
 		}
 	}

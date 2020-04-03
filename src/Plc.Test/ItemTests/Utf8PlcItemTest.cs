@@ -1,18 +1,18 @@
 ﻿using System;
 using System.Linq;
 using System.Text;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using Phoenix.Data.Plc.Items;
 using Phoenix.Data.Plc.Items.Builder;
 using Phoenix.Data.Plc.Items.Typed;
 
 namespace Phoenix.Data.Plc.Test.ItemTests
 {
-	[TestClass]
-	[TestCategory("Item Test")]
+	[TestFixture]
+	[Category("Item Test")]
 	public sealed class Utf8PlcItemTest
 	{
-		[TestMethod]
+		[Test]
 		public void Check_ItemBuilder()
 		{
 			Utf8PlcItem item = new PlcItemBuilder()
@@ -27,7 +27,7 @@ namespace Phoenix.Data.Plc.Test.ItemTests
 			System.Diagnostics.Debug.WriteLine(item.ToString());
 		}
 
-		[TestMethod]
+		[Test]
 		public void Check_Clone()
 		{
 			var item = new Utf8PlcItem(0, 0, "Some test message.");
@@ -40,10 +40,10 @@ namespace Phoenix.Data.Plc.Test.ItemTests
 			Assert.AreEqual(item.Value,  clone.Value);
 
 			// Check if both items are different references.
-			Assert.IsFalse(Object.ReferenceEquals(item, clone));
+			Assert.False(Object.ReferenceEquals(item, clone));
 		}
 
-		[TestMethod]
+		[Test]
 		public void Check_ToData()
 		{
 			var target = Guid.NewGuid().ToString();
@@ -55,10 +55,10 @@ namespace Phoenix.Data.Plc.Test.ItemTests
 			// Check: String → Data
 			item.Value = target;
 			Assert.AreEqual(target, item.Value);
-			Assert.IsTrue(targetData.SequenceEqual((byte[]) ((IPlcItem) item).Value));
+			Assert.True(targetData.SequenceEqual((byte[]) ((IPlcItem) item).Value));
 		}
 
-		[TestMethod]
+		[Test]
 		public void Check_FromData()
 		{
 			var target = Guid.NewGuid().ToString();
@@ -71,10 +71,10 @@ namespace Phoenix.Data.Plc.Test.ItemTests
 			
 			((IPlcItem)item).Value.TransferValuesFrom(targetData);
 			Assert.AreEqual(target, item.Value);
-			Assert.IsTrue(targetData.SequenceEqual((byte[])((IPlcItem)item).Value));
+			Assert.True(targetData.SequenceEqual((byte[])((IPlcItem)item).Value));
 		}
 
-		[TestMethod]
+		[Test]
 		public void Check_Null_Assignment()
 		{
 			var item = new Utf8PlcItem(0, 0, 0);
@@ -91,7 +91,7 @@ namespace Phoenix.Data.Plc.Test.ItemTests
 			// Set the value to null.
 			item.Value = null;
 			Assert.AreEqual(String.Empty, item.Value); // The value should now be an empty string.
-			Assert.IsTrue(((IPlcItem)item).Value.ContainsOnlyZeros); // The underlying BitCollection should contain a zero filled boolean array.
+			Assert.True(((IPlcItem)item).Value.ContainsOnlyZeros); // The underlying BitCollection should contain a zero filled boolean array.
 			Assert.AreEqual(byteLength, ((IPlcItem)item).Value.ByteLength); // The size of the underlying BitCollection should not have changed.
 		}
 	}

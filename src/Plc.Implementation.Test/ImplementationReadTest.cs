@@ -3,7 +3,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Phoenix.Data.Plc.Items.Builder;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using Phoenix.Data.Plc.Items;
 using Phoenix.Data.Plc.Items.Typed;
 using Phoenix.Data.Plc.Test;
@@ -37,7 +37,7 @@ namespace Phoenix.Data.Plc.Implementation.Test
 
 		#region Tests
 
-		[TestMethod]
+		[Test]
 		public void ReadBit()
 		{
 			var bitItem = new BitPlcItem(dataBlock: this.Data.Datablock, position: this.Data.StartOfFixedBytes, bitPosition: BitPosition.X4);
@@ -55,19 +55,19 @@ namespace Phoenix.Data.Plc.Implementation.Test
 				async (plc) =>
 				{
 					var result = await plc.ReadItemAsync(bitItem);
-					Assert.IsTrue(bitItem.Value == result);
-					Assert.IsTrue(bitItem.Value == true);
+					Assert.True(bitItem.Value == result);
+					Assert.True(bitItem.Value == true);
 
 					Assert.IsNotNull(oldValue);
-					Assert.IsTrue(oldValue.Value == false);
+					Assert.True(oldValue.Value == false);
 
 					Assert.IsNotNull(newValue);
-					Assert.IsTrue(newValue.Value == true);
+					Assert.True(newValue.Value == true);
 				}
 			);
 		}
 
-		[TestMethod]
+		[Test]
 		public void ReadBits()
 		{
 			var bitsItem = new BitsPlcItem(dataBlock: this.Data.Datablock, position: 1, bitPosition: BitPosition.X1, bitAmount: 5);
@@ -77,19 +77,19 @@ namespace Phoenix.Data.Plc.Implementation.Test
 				async (plc) =>
 				{
 					var result = await plc.ReadItemAsync(bitsItem);
-					Assert.IsTrue(bitsItem.Value == result);
+					Assert.True(bitsItem.Value == result);
 
 					// Get the target value.
 					var booleans = DataConverter.ToBooleans(this.Data.TargetBytes);
 					var relevantBooleans = booleans.Skip(bitsItem.Position * 8 + ((byte)bitsItem.BitPosition)).Take((int)bitsItem.Value.Length).ToArray();
 					var target = new BitCollection(false, relevantBooleans);
 
-					Assert.IsTrue(result == target);
+					Assert.True(result == target);
 				}
 			);
 		}
 
-		[TestMethod]
+		[Test]
 		public void ReadByte()
 		{
 			var byteItem = new BytePlcItem(dataBlock: this.Data.Datablock, position: 0);
@@ -100,13 +100,13 @@ namespace Phoenix.Data.Plc.Implementation.Test
 				{
 					var result = await plc.ReadItemAsync(byteItem);
 					//var result = await PlcExtensions.ReadItemAsync(plc, byteItem);
-					Assert.IsTrue(byteItem.Value == result);
-					Assert.IsTrue(byteItem.Value == this.Data.TargetBytes[0]);
+					Assert.True(byteItem.Value == result);
+					Assert.True(byteItem.Value == this.Data.TargetBytes[0]);
 				}
 			);
 		}
 
-		[TestMethod]
+		[Test]
 		public void ReadBytes()
 		{
 			var bytesItem = new BytesPlcItem(dataBlock: this.Data.Datablock, position: 0, byteAmount: (ushort) this.Data.TargetBytes.Length);
@@ -116,13 +116,13 @@ namespace Phoenix.Data.Plc.Implementation.Test
 				async (plc) =>
 				{
 					var result = await plc.ReadItemAsync(bytesItem);
-					Assert.IsTrue(bytesItem.Value == result); //! Because of the conversion, this is sequentially equal, but not referential.
-					Assert.IsTrue(result.SequenceEqual(this.Data.TargetBytes));
+					Assert.True(bytesItem.Value == result); //! Because of the conversion, this is sequentially equal, but not referential.
+					Assert.True(result.SequenceEqual(this.Data.TargetBytes));
 				}
 			);
 		}
 
-		[TestMethod]
+		[Test]
 		public void ReadMultipleSingleBytes()
 		{
 			var bytePlcItems = this.Data.TargetBytes
@@ -136,12 +136,12 @@ namespace Phoenix.Data.Plc.Implementation.Test
 				{
 					await plc.ReadItemsAsync(bytePlcItems);
 					var actualData = bytePlcItems.Select(plcItem => plcItem.Value).ToArray();
-					Assert.IsTrue(actualData.SequenceEqual(this.Data.TargetBytes));
+					Assert.True(actualData.SequenceEqual(this.Data.TargetBytes));
 				}
 			);
 		}
 
-		[TestMethod]
+		[Test]
 		public void ReadText()
 		{
 			var asciiItem = new Utf8PlcItem(dataBlock: this.Data.Datablock, position: 0, length: (ushort) this.Data.TargetBytes.Length);
@@ -152,13 +152,13 @@ namespace Phoenix.Data.Plc.Implementation.Test
 				{
 					var result = await plc.ReadItemAsync(asciiItem);
 					Assert.AreEqual((int) ((IPlcItem) asciiItem).Value.ByteLength, result.Length);
-					Assert.IsTrue(asciiItem.Value.Equals(result, StringComparison.Ordinal));
+					Assert.True(asciiItem.Value.Equals(result, StringComparison.Ordinal));
 					Assert.AreEqual("ROCK", asciiItem.Value);
 				}
 			);
 		}
 
-		[TestMethod]
+		[Test]
 		public void ReadDynamicText()
 		{
 			var itemBuilder = new Items.Builder.PlcItemBuilder();
@@ -188,7 +188,7 @@ namespace Phoenix.Data.Plc.Implementation.Test
 				async (plc) =>
 				{
 					var success = await plc.WriteItemAsync(bytesItem);
-					Assert.IsTrue(success);
+					Assert.True(success);
 					
 					// Read the dynamic item.
 					var result = await plc.ReadItemAsync(dynamicTextItem);
