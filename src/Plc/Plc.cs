@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 using Phoenix.Data.Plc.Items;
 using Phoenix.Data.Plc.Logging;
 
@@ -26,7 +25,7 @@ namespace Phoenix.Data.Plc
 
 		/// <inheritdoc />
 		public event EventHandler<PlcConnectionState> Connected;
-		
+
 		/// <summary>
 		/// Invoked if the connection to the plc has been established.
 		/// </summary>
@@ -40,7 +39,7 @@ namespace Phoenix.Data.Plc
 
 				this.ConnectionState = PlcConnectionState.Connected;
 				this.Connected?.Invoke(this, this.ConnectionState);
-			
+
 				this.RestartHandleTasks();
 			}
 		}
@@ -99,7 +98,7 @@ namespace Phoenix.Data.Plc
 
 		/// <summary> Contains <see cref="CancellationTokenSource"/> objects for all <see cref="IPlcItem"/>s whose handling has been put on hold. </summary>
 		private readonly ConcurrentQueue<CancellationTokenSource> _waitQueue;
-		
+
 		#endregion
 
 		#region Properties
@@ -123,7 +122,7 @@ namespace Phoenix.Data.Plc
 		/// <summary>
 		/// Usage types of <see cref="IPlcItem"/>.
 		/// </summary>
-		protected enum PlcItemUsageType : byte
+		protected internal enum PlcItemUsageType : byte
 		{
 			/// <summary> The plc item will be read. </summary>
 			Read,
@@ -174,17 +173,17 @@ namespace Phoenix.Data.Plc
 		/// Establishes a connection to the plc.
 		/// </summary>
 		/// <returns> <c>True</c> on success, otherwise <c>False</c>. </returns>
-		protected abstract bool OpenConnection();
+		protected internal abstract bool OpenConnection();
 
 		#endregion
 
 		#region Disconnect
-		
+
 		/// <inheritdoc />
 		public bool Disconnect()
 		{
 			lock (_connectionStateChangeLock)
-			{				
+			{
 				var success = this.CloseConnection();
 				if (success) this.OnDisconnected();
 				return success;
@@ -195,7 +194,7 @@ namespace Phoenix.Data.Plc
 		/// Disconnects the link to the plc.
 		/// </summary>
 		/// <returns> <c>True</c> on success, otherwise <c>False</c>. </returns>
-		protected abstract bool CloseConnection();
+		protected internal abstract bool CloseConnection();
 
 		#endregion
 
@@ -224,7 +223,7 @@ namespace Phoenix.Data.Plc
 				do
 				{
 					if (this.ConnectionState != PlcConnectionState.Interrupted) break;
-					
+
 					// Directly close the connection to prevent change notifications.
 					lock (_connectionStateChangeLock)
 					{
@@ -242,7 +241,7 @@ namespace Phoenix.Data.Plc
 
 				_isReconnecting = 0;
 			});
-			
+
 			//TODO Check if this functions leaves even though the above task still runs. This should be the case because the task is not awaited.
 		}
 
@@ -255,14 +254,14 @@ namespace Phoenix.Data.Plc
 		/// <inheritdoc />
 		public async Task ReadItemsAsync(ICollection<IPlcItem> plcItems, CancellationToken cancellationToken = default)
 		{
-			await this.ReadItemsAsync(plcItems.IsReadOnly ? new List<IPlcItem>(plcItems) : (IList<IPlcItem>) plcItems, cancellationToken);
+			await this.ReadItemsAsync(plcItems.IsReadOnly ? new List<IPlcItem>(plcItems) : (IList<IPlcItem>)plcItems, cancellationToken);
 
 			// Since this may be a costly operation, check if logging is even enabled.
 			if (LogManager.LogAllReadAndWriteOperations)
 			{
 				foreach (var plcItem in plcItems)
 				{
-					var value = String.Join(",", (byte[]) plcItem.Value);
+					var value = String.Join(",", (byte[])plcItem.Value);
 					var message = $"Reading {{0}} returned '{{1}}'.";
 					this.Logger.Trace(message, plcItem, value);
 				}
@@ -290,11 +289,11 @@ namespace Phoenix.Data.Plc
 
 			if (cancellationToken.IsCancellationRequested) return;
 			await this.ExecuteReadWriteAsync(plcItems, PlcItemUsageType.Read, cancellationToken);
-			
+
 			if (cancellationToken.IsCancellationRequested) return;
 			await this.ExecuteReadWriteAsync(flexiblePlcItems, PlcItemUsageType.Read, cancellationToken);
 		}
-		
+
 		#endregion
 
 		#region Write
@@ -346,17 +345,17 @@ namespace Phoenix.Data.Plc
 
 			if (cancellationToken.IsCancellationRequested) return false;
 			var success = await this.ExecuteReadWriteAsync(plcItems, PlcItemUsageType.Write, cancellationToken);
-			
+
 			if (cancellationToken.IsCancellationRequested) return false;
 			success &= await this.ExecuteReadWriteAsync(lengthPlcItems, PlcItemUsageType.Write, cancellationToken);
-			
+
 			return success;
 		}
-		
+
 		#endregion
 
 		#region Read / Write
-		
+
 		/// <summary>
 		/// Reads or writes the <paramref name="plcItems"/> according to <paramref name="usageType"/> with automatic reconnection attempts.
 		/// </summary>
@@ -406,7 +405,7 @@ namespace Phoenix.Data.Plc
 					var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 					_waitQueue.Enqueue(cancellationTokenSource);
 					var sleepCancellationToken = cancellationTokenSource.Token;
-					
+
 					// Check if a reconnection could be useful.
 					lock (_connectionStateChangeLock)
 					{
@@ -443,10 +442,10 @@ namespace Phoenix.Data.Plc
 		/// <param name="plcItems"> The <see cref="IPlcItem"/>s to write. </param>
 		/// <param name="usageType"> The <see cref="PlcItemUsageType"/> defining whether a read or a write operation is performed. </param>
 		/// <param name="cancellationToken"> A <see cref="CancellationToken"/> for cancelling the operation. </param>
-		protected abstract Task PerformReadWriteAsync(ICollection<IPlcItem> plcItems, PlcItemUsageType usageType, CancellationToken cancellationToken);
+		protected internal abstract Task PerformReadWriteAsync(ICollection<IPlcItem> plcItems, PlcItemUsageType usageType, CancellationToken cancellationToken);
 
 		#endregion
-		
+
 		#region Helper
 
 		/// <summary>

@@ -1,13 +1,13 @@
 ﻿using System;
 using Phoenix.Data.Plc.Items.Builder;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using Phoenix.Data.Plc.Items;
 using Phoenix.Data.Plc.Items.Typed;
 
 namespace Phoenix.Data.Plc.Test.ItemTests
 {
-	[TestClass]
-	[TestCategory("Item Test")]
+	[TestFixture]
+	[Category("Item Test")]
 	public sealed class EnumPlcItemTest
 	{
 		public enum TestEnumeration : byte
@@ -28,7 +28,7 @@ namespace Phoenix.Data.Plc.Test.ItemTests
 			Undefined = 0
 		}
 
-		[TestMethod]
+		[Test]
 		public void Check_ItemBuilder()
 		{
 			EnumPlcItem<TestEnumeration> item = new Items.Builder.PlcItemBuilder()
@@ -43,7 +43,7 @@ namespace Phoenix.Data.Plc.Test.ItemTests
 			System.Diagnostics.Debug.WriteLine(item.ToString());
 		}
 
-		[TestMethod]
+		[Test]
 		public void Check_Clone()
 		{
 			var item = new EnumPlcItem<TestEnumeration>(dataBlock: 0, position: 0);
@@ -53,13 +53,13 @@ namespace Phoenix.Data.Plc.Test.ItemTests
 			Assert.AreEqual(item, clone);
 			
 			// Check the value.
-			Assert.IsTrue(item.Value == clone.Value);
+			Assert.True(item.Value == clone.Value);
 			
 			// Check if both items are different references.
-			Assert.IsFalse(Object.ReferenceEquals(item, clone));
+			Assert.False(Object.ReferenceEquals(item, clone));
 		}
 
-		[TestMethod]
+		[Test]
 		public void Check_ToData()
 		{
 			var item = new EnumPlcItem<TestEnumeration>(dataBlock: 0, position: 0);
@@ -71,7 +71,7 @@ namespace Phoenix.Data.Plc.Test.ItemTests
 			Assert.AreEqual((byte) target, ((byte[]) ((IPlcItem) item).Value)[0]);
 		}
 
-		[TestMethod]
+		[Test]
 		public void Check_FromData()
 		{
 			var item = new EnumPlcItem<TestEnumeration>(dataBlock: 0, position: (ushort)0);
@@ -83,16 +83,16 @@ namespace Phoenix.Data.Plc.Test.ItemTests
 			Assert.AreEqual((byte) target, ((byte[]) ((IPlcItem) item).Value)[0]);
 		}
 
-		[TestMethod]
+		[Test]
 		public void Check_NotDefined()
 		{
 			var item = new EnumPlcItem<TestEnumeration>(dataBlock: 0, position: (ushort)0);
 
 			// Check: Undefined
-			Assert.ThrowsException<ArgumentOutOfRangeException>(() => ((IPlcItem)item).Value.TransferValuesFrom(new byte[] { byte.MaxValue }));
+			Assert.Throws<ArgumentOutOfRangeException>(() => ((IPlcItem)item).Value.TransferValuesFrom(new byte[] { byte.MaxValue }));
 		}
 
-		[TestMethod]
+		[Test]
 		public void Check_Unknown()
 		{
 			var item = new EnumPlcItem<UnknownEnumeration>(dataBlock: 0, position: (ushort)0);
@@ -103,7 +103,7 @@ namespace Phoenix.Data.Plc.Test.ItemTests
 			Assert.AreEqual(byte.MaxValue, ((byte[]) ((IPlcItem) item).Value)[0]);
 		}
 
-		[TestMethod]
+		[Test]
 		public void Check_Undefined()
 		{
 			var item = new EnumPlcItem<UndefinedEnumeration>(dataBlock: 0, position: (ushort)0);

@@ -1,18 +1,18 @@
 ﻿using System;
 using System.Linq;
 using System.Text;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using Phoenix.Data.Plc.Items;
 using Phoenix.Data.Plc.Items.Builder;
 using Phoenix.Data.Plc.Items.Typed;
 
 namespace Phoenix.Data.Plc.Test.ItemTests
 {
-	[TestClass]
-	[TestCategory("Item Test")]
+	[TestFixture]
+	[Category("Item Test")]
 	public sealed class BitsPlcItemTest
 	{
-		[TestMethod]
+		[Test]
 		public void Check_ItemBuilder()
 		{
 			BitsPlcItem item = new PlcItemBuilder()
@@ -29,7 +29,7 @@ namespace Phoenix.Data.Plc.Test.ItemTests
 			System.Diagnostics.Debug.WriteLine(item.ToString());
 		}
 
-		[TestMethod]
+		[Test]
 		public void Check_Clone()
 		{
 			var item = new BitsPlcItem(0, 0, BitPosition.X3, 13);
@@ -42,10 +42,10 @@ namespace Phoenix.Data.Plc.Test.ItemTests
 			Assert.AreEqual(item.Value, clone.Value);
 
 			// Check if both items are different references.
-			Assert.IsFalse(Object.ReferenceEquals(item, clone));
+			Assert.False(Object.ReferenceEquals(item, clone));
 		}
 
-		[TestMethod]
+		[Test]
 		public void Check_ToData()
 		{
 			var item = new BitsPlcItem(0, 0, BitPosition.X3, 13);
@@ -53,11 +53,11 @@ namespace Phoenix.Data.Plc.Test.ItemTests
 			// Check: Boolean → Data
 			var target = Enumerable.Range(0, 13).Select(i => true).ToList();
 			item.Value.SetAllBitsTo(true);
-			Assert.IsTrue(((bool[]) item.Value).SequenceEqual(target));
+			Assert.True(((bool[]) item.Value).SequenceEqual(target));
 
 			target = Enumerable.Range(0, 13).Select(i => false).ToList();
 			item.Value.SetAllBitsTo(false);
-			Assert.IsTrue(((bool[])item.Value).SequenceEqual(target));
+			Assert.True(((bool[])item.Value).SequenceEqual(target));
 		}
 	}
 }

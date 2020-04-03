@@ -3,7 +3,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Phoenix.Data.Plc.Items.Builder;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using Phoenix.Data.Plc.Items;
 using Phoenix.Data.Plc.Items.Typed;
 using Phoenix.Data.Plc.Test;
@@ -37,7 +37,7 @@ namespace Phoenix.Data.Plc.Implementation.Test
 
 		#region Tests
 
-		[TestMethod]
+		[Test]
 		public void WriteBit()
 		{
 			var writeItem = new BitPlcItem(dataBlock: this.Data.Datablock, position: 4, bitPosition: 0, initialValue: false);
@@ -47,17 +47,17 @@ namespace Phoenix.Data.Plc.Implementation.Test
 				async (plc) =>
 				{
 					var result = await plc.WriteItemWithValidationAsync(writeItem);
-					Assert.IsTrue(result);
+					Assert.True(result);
 
 					// Toggle the bit.
 					writeItem.Value = true;
 					result = await plc.WriteItemWithValidationAsync(writeItem);
-					Assert.IsTrue(result);
+					Assert.True(result);
 				}
 			);
 		}
 
-		[TestMethod]
+		[Test]
 		public void WriteBits()
 		{
 			var allFalse = new BitCollection(false, new[] {false, false, false, false, false, false});
@@ -78,25 +78,25 @@ namespace Phoenix.Data.Plc.Implementation.Test
 					await plc.WriteItemAsync(fullItem);
 
 					var result = await plc.WriteItemWithValidationAsync(writeItem);
-					Assert.IsTrue(result);
+					Assert.True(result);
 
 					// Set everything to false.
 					writeItem.Value.SetAllBitsTo(false);
 					result = await plc.WriteItemWithValidationAsync(writeItem);
-					Assert.IsTrue(result);
+					Assert.True(result);
 
 					// Make only a part true.
 					result = await plc.WriteItemAsync(partialWriteItem);
-					Assert.IsTrue(result);
+					Assert.True(result);
 
 					// Read everything and compare those two.
 					var mirror = await plc.ReadItemAsync(fullItem);
-					Assert.IsTrue(mirror.SequenceEqual(mixed));
+					Assert.True(mirror.SequenceEqual(mixed));
 				}
 			);
 		}
 
-		[TestMethod]
+		[Test]
 		public void WriteByte()
 		{
 			var writeItem = new BytePlcItem(dataBlock: this.Data.Datablock, position: 4, initialValue: this.Data.WriteBytes[0]);
@@ -106,12 +106,12 @@ namespace Phoenix.Data.Plc.Implementation.Test
 				async (plc) =>
 				{
 					var result = await plc.WriteItemWithValidationAsync(writeItem);
-					Assert.IsTrue(result);
+					Assert.True(result);
 				}
 			);
 		}
 
-		[TestMethod]
+		[Test]
 		public void WriteBytes()
 		{
 			var writeItem = new BytesPlcItem(dataBlock: this.Data.Datablock, position: 4, initialValue: this.Data.WriteBytes);
@@ -122,12 +122,12 @@ namespace Phoenix.Data.Plc.Implementation.Test
 				async (plc) =>
 				{
 					var result = await plc.WriteItemWithValidationAsync(writeItem);
-					Assert.IsTrue(result);
+					Assert.True(result);
 				}
 			);
 		}
 
-		[TestMethod]
+		[Test]
 		public void WriteMultipleSingleBytes()
 		{
 			var bytePlcItems = this.Data.TargetBytes
@@ -140,12 +140,12 @@ namespace Phoenix.Data.Plc.Implementation.Test
 				async (plc) =>
 				{
 					var result = await plc.WriteItemsWithValidationAsync(bytePlcItems);
-					Assert.IsTrue(result);
+					Assert.True(result);
 				}
 			);
 		}
 
-		[TestMethod]
+		[Test]
 		public void WriteText()
 		{
 			var target = System.Text.Encoding.ASCII.GetString(this.Data.WriteBytes);
@@ -156,12 +156,12 @@ namespace Phoenix.Data.Plc.Implementation.Test
 				async (plc) =>
 				{
 					var result = await plc.WriteItemWithValidationAsync(writeItem);
-					Assert.IsTrue(result);
+					Assert.True(result);
 				}
 			);
 		}
 
-		[TestMethod]
+		[Test]
 		public void WriteDynamic()
 		{
 			var itemBuilder = new Items.Builder.PlcItemBuilder();
@@ -192,11 +192,11 @@ namespace Phoenix.Data.Plc.Implementation.Test
 				{
 					// Clear the bytes.
 					var result = await plc.WriteItemWithValidationAsync(bytesItem);
-					Assert.IsTrue(result);
+					Assert.True(result);
 
 					// Write the whole dynamic item.
 					result = await plc.WriteItemWithValidationAsync(dynamicTextItem);
-					Assert.IsTrue(result);
+					Assert.True(result);
 				}
 			);
 		}
