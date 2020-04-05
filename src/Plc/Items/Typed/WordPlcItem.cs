@@ -4,7 +4,6 @@
 
 
 using System;
-using Phoenix.Data.Plc.Items.Builder;
 
 namespace Phoenix.Data.Plc.Items.Typed
 {
@@ -30,50 +29,13 @@ namespace Phoenix.Data.Plc.Items.Typed
 		/// <inheritdoc />
 		/// <param name="position"> The position where the <c>S7-Word</c> within the <see cref="IPlcItem.DataBlock"/> begins. </param>
 		public WordPlcItem(ushort dataBlock, ushort position, ushort initialValue = ushort.MinValue, string identifier = default)
-			: base(dataBlock, position, initialValue, identifier) { }
+			: base(dataBlock, position, DataConverter.Endianness.BigEndian, initialValue, identifier) { }
 
 		#endregion
 
 		#region Methods
 
-		#region Convert
-
-		/// <inheritdoc />
-		public override ushort ConvertFromData(BitCollection data)
-		{
-			// PLC uses BigEndian, so toggle the bytes.
-			byte[] bytes = data;
-			return DataConverter.ToUInt16(bytes, DataConverter.Endianness.BigEndian);
-
-//#if NETSTANDARD2_1
-//			return System.Buffers.Binary.BinaryPrimitives.ReadUInt16BigEndian(bytes.AsSpan());
-//#else
-//			Array.Reverse(bytes);
-//			return BitConverter.ToUInt16(bytes, 0);
-//#endif
-		}
-
-		/// <inheritdoc />
-		public override BitCollection ConvertToData(ushort value)
-		{
-			// PLC uses BigEndian, so toggle the bytes.
-			var bytes = DataConverter.ToBytes(value, DataConverter.Endianness.BigEndian);
-
-//#if NETSTANDARD2_1
-//			var bytes = new byte[sizeof(ushort)];
-//			System.Buffers.Binary.BinaryPrimitives.WriteUInt16BigEndian(bytes.AsSpan(), value);
-//#else
-//			// PLC uses BigEndian, so toggle the bytes.
-//			value = DataConverter.SwapBytes(value);
-//			var bytes = BitConverter.GetBytes(value);
-//			//Array.Reverse(bytes);
-//#endif
-			return new BitCollection(false, bytes);
-		}
-
-#endregion
-
-#region Clone
+		#region Clone
 
 		/// <inheritdoc />
 		INumericPlcItem INumericPlcItem.Clone(string identifier) => this.Clone(identifier);

@@ -27,4 +27,8 @@
 		<None Include="..\..\LICENSE.md" Pack="true" PackagePath="" />
 	</ItemGroup>
 
+	<ItemGroup Condition="$(TargetFramework.StartsWith('net4')) Or $(TargetFramework.StartsWith('netstandard1')) Or $(TargetFramework.Equals('netstandard2.0'))">
+	  <PackageReference Include="System.Memory" Version="4.5.4" />
+	</ItemGroup>
+
 </Project>

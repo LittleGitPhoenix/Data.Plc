@@ -4,7 +4,6 @@
 
 
 using System;
-using Phoenix.Data.Plc.Items.Builder;
 
 namespace Phoenix.Data.Plc.Items.Typed
 {
@@ -20,6 +19,9 @@ namespace Phoenix.Data.Plc.Items.Typed
 		#endregion
 
 		#region Fields
+
+		private readonly DataConverter.Endianness _endianness;
+
 		#endregion
 
 		#region Properties
@@ -30,6 +32,18 @@ namespace Phoenix.Data.Plc.Items.Typed
 		/// <inheritdoc />
 		/// <param name="position"> The position where the <see cref="UInt32"/> within the <see cref="IPlcItem.DataBlock"/> begins. </param>
 		public UInt32PlcItem(ushort dataBlock, ushort position, uint initialValue = uint.MinValue, string identifier = default)
+			: this
+			(
+				dataBlock,
+				position,
+				DataConverter.Endianness.LittleEndian,
+				initialValue,
+				identifier
+			) { }
+
+		/// <inheritdoc />
+		/// <param name="position"> The position where the <see cref="UInt32"/> within the <see cref="IPlcItem.DataBlock"/> begins. </param>
+		protected UInt32PlcItem(ushort dataBlock, ushort position, DataConverter.Endianness endianness, uint initialValue = uint.MinValue, string identifier = default)
 			: base
 			(
 				PlcItemType.Data,
@@ -40,7 +54,10 @@ namespace Phoenix.Data.Plc.Items.Typed
 				false,
 				initialValue,
 				identifier
-			) { }
+			)
+		{
+			_endianness = endianness;
+		}
 
 		#endregion
 
@@ -51,13 +68,14 @@ namespace Phoenix.Data.Plc.Items.Typed
 		/// <inheritdoc />
 		public override uint ConvertFromData(BitCollection data)
 		{
-			return BitConverter.ToUInt32(data, 0);
+			return DataConverter.ToUInt32(data, _endianness);
 		}
 
 		/// <inheritdoc />
 		public override BitCollection ConvertToData(uint value)
 		{
-			return new BitCollection(false, BitConverter.GetBytes(value));
+			var bytes = DataConverter.ToBytes(value, _endianness);
+			return new BitCollection(false, bytes);
 		}
 
 		#endregion
@@ -77,7 +95,7 @@ namespace Phoenix.Data.Plc.Items.Typed
 		/// <returns> A new <see cref="UInt32PlcItem"/>. </returns>
 		public new UInt32PlcItem Clone(string identifier)
 		{
-			return new UInt32PlcItem(base.DataBlock, base.Position, this.Value, identifier);
+			return new UInt32PlcItem(base.DataBlock, base.Position, _endianness, this.Value, identifier);
 		}
 
 		#endregion

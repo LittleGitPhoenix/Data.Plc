@@ -113,21 +113,174 @@ namespace Phoenix.Data.Plc.Test
 			Assert.True(actualTimePerConversion <= targetTimePerConversion, $"The target conversion time should be {targetTimePerConversion}ms but actually was {actualTimePerConversion}ms.");
 		}
 
-		[TestMethod]
-		public void Check_Data_To_UInt16_Conversion()
-		{
-			// Arrange
-			var value = new byte[] {255, 0};
-			var target = (ushort) byte.MaxValue;
+		#region Value ⇒ Data conversion
 
+		[Test]
+		[Category("Value ⇒ Data conversion")]
+		[TestCase((short)((byte.MaxValue + 1) * -1), DataConverter.Endianness.LittleEndian, new byte[] { 0, 255 })]
+		[TestCase((short)((byte.MaxValue + 1) * -1), DataConverter.Endianness.BigEndian, new byte[] { 255, 0 })]
+		public void Check_Int16_To_Data_Conversion(short value, DataConverter.Endianness endianness, byte[] target)
+		{
 			// Act
-			var actual = DataConverter.ToUInt16(value, DataConverter.Endianness.LittleEndian);
+			var actual = DataConverter.ToBytes(value, endianness);
 
 			// Assert
 			Assert.AreEqual(actual, target);
 		}
 
-		[TestMethod]
+		[Test]
+		[Category("Value ⇒ Data conversion")]
+		[TestCase((int)((ushort.MaxValue + 1) * -1), DataConverter.Endianness.LittleEndian, new byte[] { 0, 0, 255, 255 })]
+		[TestCase((int)((ushort.MaxValue + 1) * -1), DataConverter.Endianness.BigEndian, new byte[] { 255, 255, 0, 0 })]
+		public void Check_Int32_To_Data_Conversion(int value, DataConverter.Endianness endianness, byte[] target)
+		{
+			// Act
+			var actual = DataConverter.ToBytes(value, endianness);
+
+			// Assert
+			Assert.AreEqual(actual, target);
+		}
+
+		[Test]
+		[Category("Value ⇒ Data conversion")]
+		[TestCase(((long)uint.MaxValue + 1) * -1, DataConverter.Endianness.LittleEndian, new byte[] { 0, 0, 0, 0, 255, 255, 255, 255 })]
+		[TestCase(((long)uint.MaxValue + 1) * -1, DataConverter.Endianness.BigEndian, new byte[] { 255, 255, 255, 255, 0, 0, 0, 0 })]
+		public void Check_Int64_To_Data_Conversion(long value, DataConverter.Endianness endianness, byte[] target)
+		{
+			// Act
+			var actual = DataConverter.ToBytes(value, endianness);
+
+			// Assert
+			Assert.AreEqual(actual, target);
+		}
+
+		[Test]
+		[Category("Value ⇒ Data conversion")]
+		[TestCase((short)((byte.MaxValue + 1) * -1), DataConverter.Endianness.LittleEndian, new byte[] { 0, 255 })]
+		[TestCase((short)((byte.MaxValue + 1) * -1), DataConverter.Endianness.BigEndian, new byte[] { 255, 0 })]
+		public void Check_UInt16_To_Data_Conversion(short value, DataConverter.Endianness endianness, byte[] target)
+		{
+			// Act
+			var actual = DataConverter.ToBytes(value, endianness);
+
+			// Assert
+			Assert.AreEqual(actual, target);
+		}
+
+		[Test]
+		[Category("Value ⇒ Data conversion")]
+		[TestCase((uint)ushort.MaxValue, DataConverter.Endianness.LittleEndian, new byte[] { 255, 255, 0, 0 })]
+		[TestCase((uint)ushort.MaxValue, DataConverter.Endianness.BigEndian, new byte[] { 0, 0, 255, 255 })]
+		public void Check_UInt32_To_Data_Conversion(uint value, DataConverter.Endianness endianness, byte[] target)
+		{
+			// Act
+			var actual = DataConverter.ToBytes(value, endianness);
+
+			// Assert
+			Assert.AreEqual(actual, target);
+		}
+
+		[Test]
+		[Category("Value ⇒ Data conversion")]
+		[TestCase((ulong)uint.MaxValue, DataConverter.Endianness.LittleEndian, new byte[] { 255, 255, 255, 255, 0, 0, 0, 0 })]
+		[TestCase((ulong)uint.MaxValue, DataConverter.Endianness.BigEndian, new byte[] { 0, 0, 0, 0, 255, 255, 255, 255 })]
+		public void Check_UInt64_To_Data_Conversion(ulong value, DataConverter.Endianness endianness, byte[] target)
+		{
+			// Act
+			var actual = DataConverter.ToBytes(value, endianness);
+
+			// Assert
+			Assert.AreEqual(actual, target);
+		}
+
+		#endregion
+
+		#region Data ⇒ Value conversion
+
+		[Test]
+		[Category("Data ⇒ Value conversion")]
+		[TestCase(new byte[] { 0, 255 }, DataConverter.Endianness.LittleEndian, (short)((byte.MaxValue + 1) * -1))]
+		[TestCase(new byte[] { 255, 0 }, DataConverter.Endianness.BigEndian, (short)((byte.MaxValue + 1) * -1))]
+		public void Check_Data_To_Int16_Conversion(byte[] value, DataConverter.Endianness endianness, short target)
+		{
+			// Act
+			var actual = DataConverter.ToInt16(value, endianness);
+
+			// Assert
+			Assert.AreEqual(actual, target);
+		}
+
+		[Test]
+		[Category("Data ⇒ Value conversion")]
+		[TestCase(new byte[] { 0, 0, 255, 255 }, DataConverter.Endianness.LittleEndian, (int)((ushort.MaxValue + 1) * -1))]
+		[TestCase(new byte[] { 255, 255, 0, 0 }, DataConverter.Endianness.BigEndian, (int)((ushort.MaxValue + 1) * -1))]
+		public void Check_Data_To_Int32_Conversion(byte[] value, DataConverter.Endianness endianness, int target)
+		{
+			// Act
+			var actual = DataConverter.ToInt32(value, endianness);
+
+			// Assert
+			Assert.AreEqual(actual, target);
+		}
+
+		[Test]
+		[Category("Data ⇒ Value conversion")]
+		[TestCase(new byte[] { 0, 0, 0, 0, 255, 255, 255, 255 }, DataConverter.Endianness.LittleEndian, ((long)uint.MaxValue + 1) * -1)]
+		[TestCase(new byte[] { 255, 255, 255, 255, 0, 0, 0, 0 }, DataConverter.Endianness.BigEndian, ((long)uint.MaxValue + 1) * -1)]
+		public void Check_Data_To_Int64_Conversion(byte[] value, DataConverter.Endianness endianness, long target)
+		{
+			// Act
+			var actual = DataConverter.ToInt64(value, endianness);
+
+			// Assert
+			Assert.AreEqual(actual, target);
+		}
+
+		[Test]
+		[Category("Data ⇒ Value conversion")]
+		[TestCase(new byte[] { 255, 0 }, DataConverter.Endianness.LittleEndian, (ushort) byte.MaxValue)]
+		[TestCase(new byte[] { 0, 255 }, DataConverter.Endianness.BigEndian, (ushort) byte.MaxValue)]
+		public void Check_Data_To_UInt16_Conversion(byte[] value, DataConverter.Endianness endianness, ushort target)
+		{
+			// Act
+			var actual = DataConverter.ToUInt16(value, endianness);
+
+			// Assert
+			Assert.AreEqual(actual, target);
+		}
+
+		[Test]
+		[Category("Data ⇒ Value conversion")]
+		[TestCase(new byte[] { 255, 255, 0, 0 }, DataConverter.Endianness.LittleEndian, (uint) ushort.MaxValue)]
+		[TestCase(new byte[] { 0, 0, 255, 255 }, DataConverter.Endianness.BigEndian, (uint) ushort.MaxValue)]
+		public void Check_Data_To_UInt32_Conversion(byte[] value, DataConverter.Endianness endianness, uint target)
+		{
+			// Act
+			var actual = DataConverter.ToUInt32(value, endianness);
+
+			// Assert
+			Assert.AreEqual(actual, target);
+		}
+
+		[Test]
+		[Category("Data ⇒ Value conversion")]
+		[TestCase(new byte[] { 255, 255, 255, 255, 0, 0, 0, 0 }, DataConverter.Endianness.LittleEndian, (ulong) uint.MaxValue)]
+		[TestCase(new byte[] { 0, 0, 0, 0, 255, 255, 255, 255 }, DataConverter.Endianness.BigEndian, (ulong) uint.MaxValue)]
+		public void Check_Data_To_UInt64_Conversion(byte[] value, DataConverter.Endianness endianness, ulong target)
+		{
+			// Act
+			var actual = DataConverter.ToUInt64(value, endianness);
+
+			// Assert
+			Assert.AreEqual(actual, target);
+		}
+
+		#endregion
+
+		#region Endianness Conversion
+
+		[Test]
+		[Category("Endianness Conversion")]
 		public void Swap_Short()
 		{
 			// Arrange
@@ -141,7 +294,8 @@ namespace Phoenix.Data.Plc.Test
 			Assert.AreEqual(actual, target);
 		}
 
-		[TestMethod]
+		[Test]
+		[Category("Endianness Conversion")]
 		public void Swap_Int()
 		{
 			// Arrange
@@ -155,7 +309,8 @@ namespace Phoenix.Data.Plc.Test
 			Assert.AreEqual(actual, target);
 		}
 
-		[TestMethod]
+		[Test]
+		[Category("Endianness Conversion")]
 		public void Swap_Long()
 		{
 			// Arrange
@@ -169,7 +324,8 @@ namespace Phoenix.Data.Plc.Test
 			Assert.AreEqual(actual, target);
 		}
 
-		[TestMethod]
+		[Test]
+		[Category("Endianness Conversion")]
 		public void Swap_UShort()
 		{
 			// Arrange
@@ -183,7 +339,8 @@ namespace Phoenix.Data.Plc.Test
 			Assert.AreEqual(actual, target);
 		}
 
-		[TestMethod]
+		[Test]
+		[Category("Endianness Conversion")]
 		public void Swap_UInt()
 		{
 			// Arrange
@@ -197,7 +354,8 @@ namespace Phoenix.Data.Plc.Test
 			Assert.AreEqual(actual, target);
 		}
 
-		[TestMethod]
+		[Test]
+		[Category("Endianness Conversion")]
 		public void Swap_ULong()
 		{
 			// Arrange
@@ -211,7 +369,8 @@ namespace Phoenix.Data.Plc.Test
 			Assert.AreEqual(actual, target);
 		}
 
-		[TestMethod]
+		[Test]
+		[Category("Endianness Conversion")]
 		public void Measure_Swap_Performance()
 		{
 			var stopWatch = new Stopwatch();
@@ -219,7 +378,9 @@ namespace Phoenix.Data.Plc.Test
 			for (ulong i = 0; i < 30000000; i++)
 			{
 #pragma warning disable CS0612 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
 				DataConverter.SwapBytes_old(i);
+#pragma warning restore CS0618 // Type or member is obsolete
 #pragma warning restore CS0612 // Type or member is obsolete
 			}
 			stopWatch.Stop();
@@ -235,5 +396,7 @@ namespace Phoenix.Data.Plc.Test
 
 			Assert.IsTrue(newTime < oldTime);
 		}
+
+		#endregion
 	}
 }

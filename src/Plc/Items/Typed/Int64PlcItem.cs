@@ -4,7 +4,6 @@
 
 
 using System;
-using Phoenix.Data.Plc.Items.Builder;
 
 namespace Phoenix.Data.Plc.Items.Typed
 {
@@ -51,13 +50,14 @@ namespace Phoenix.Data.Plc.Items.Typed
 		/// <inheritdoc />
 		public override long ConvertFromData(BitCollection data)
 		{
-			return BitConverter.ToInt64(data, 0);
+			return DataConverter.ToInt64(data, DataConverter.Endianness.LittleEndian);
 		}
 
 		/// <inheritdoc />
 		public override BitCollection ConvertToData(long value)
 		{
-			return new BitCollection(false, BitConverter.GetBytes(value));
+			var bytes = DataConverter.ToBytes(value, DataConverter.Endianness.LittleEndian);
+			return new BitCollection(false, bytes);
 		}
 
 		#endregion

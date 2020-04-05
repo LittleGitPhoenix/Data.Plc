@@ -5,7 +5,6 @@
 
 using System;
 using System.Linq;
-using Phoenix.Data.Plc.Items.Builder;
 
 namespace Phoenix.Data.Plc.Items.Typed
 {
@@ -83,7 +82,7 @@ namespace Phoenix.Data.Plc.Items.Typed
 		{
 			var byteAmount = (int) ((IPlcItem) this).Value.ByteLength;
 			var numerical = Convert.ToInt64(value);
-			var data = BitConverter.GetBytes(numerical);
+			var data = DataConverter.ToBytes(numerical, DataConverter.Endianness.LittleEndian);
 			return new BitCollection(false, data.Take(byteAmount).ToArray());
 		}
 
@@ -106,15 +105,15 @@ namespace Phoenix.Data.Plc.Items.Typed
 			}
 			else if (underlyingType == typeof(Int16))
 			{
-				numerical = BitConverter.ToInt16(data, 0);
+				numerical = DataConverter.ToInt16(data, DataConverter.Endianness.LittleEndian);
 			}
 			else if (underlyingType == typeof(Int32))
 			{
-				numerical = BitConverter.ToInt32(data, 0);
+				numerical = DataConverter.ToInt32(data, DataConverter.Endianness.LittleEndian);
 			}
 			else if (underlyingType == typeof(Int64))
 			{
-				numerical = BitConverter.ToInt64(data, 0);
+				numerical = DataConverter.ToInt64(data, DataConverter.Endianness.LittleEndian);
 			}
 			else if (underlyingType == typeof(Byte))
 			{
@@ -122,15 +121,15 @@ namespace Phoenix.Data.Plc.Items.Typed
 			}
 			else if (underlyingType == typeof(UInt16))
 			{
-				numerical = BitConverter.ToUInt16(data, 0);
+				numerical = DataConverter.ToUInt16(data, DataConverter.Endianness.LittleEndian);
 			}
 			else if (underlyingType == typeof(UInt32))
 			{
-				numerical = BitConverter.ToUInt32(data, 0);
+				numerical = DataConverter.ToUInt32(data, DataConverter.Endianness.LittleEndian);
 			}
 			else if (underlyingType == typeof(UInt64))
 			{
-				numerical = BitConverter.ToUInt64(data, 0);
+				numerical = DataConverter.ToUInt64(data, DataConverter.Endianness.LittleEndian);
 			}
 
 			if (numerical is null) return false;

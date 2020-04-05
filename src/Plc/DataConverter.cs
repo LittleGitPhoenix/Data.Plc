@@ -70,7 +70,7 @@ namespace Phoenix.Data.Plc
 
 		#endregion
 
-		#region Value ⇒ Byte-Array
+		#region Value ⇒ Data
 
 		/// <summary>
 		/// Converts the passed <paramref name="booleans"/> into a <see cref="Byte"/> array.
@@ -102,21 +102,28 @@ namespace Phoenix.Data.Plc
 		/// <returns> A <see cref="Byte"/> array. </returns>
 		public static byte[] ToBytes(short value, Endianness endianness)
 		{
-#if NETSTANDARD2_1
 			var bytes = new byte[sizeof(short)];
+			ToBytes(value, endianness, bytes.AsSpan());
+			return bytes;
+		}
+
+		/// <summary>
+		/// Converts the <paramref name="value"/> into a <see cref="Byte"/> array.
+		/// </summary>
+		/// <param name="value"> The <see cref="short"/> to convert. </param>
+		/// <param name="endianness"> The <see cref="Endianness"/> to use when converting. </param>
+		/// <param name="destination"> The <see cref="Span{T}"/> where the result will be written to. </param>
+		/// <returns> <c>True</c> on success, otherwise <c>False</c>. </returns>
+		public static bool ToBytes(short value, Endianness endianness, Span<byte> destination)
+		{
 			if (endianness == Endianness.LittleEndian)
 			{
-				System.Buffers.Binary.BinaryPrimitives.WriteInt16LittleEndian(bytes.AsSpan(), value);
+				return System.Buffers.Binary.BinaryPrimitives.TryWriteInt16LittleEndian(destination, value);
 			}
 			else
 			{
-				System.Buffers.Binary.BinaryPrimitives.WriteInt16BigEndian(bytes.AsSpan(), value);
+				return System.Buffers.Binary.BinaryPrimitives.TryWriteInt16BigEndian(destination, value);
 			}
-#else
-			if (DataConverter.MustSwap(endianness)) value = DataConverter.SwapBytes(value);
-			var bytes = BitConverter.GetBytes(value);
-#endif
-			return bytes;
 		}
 
 		/// <summary>
@@ -127,21 +134,28 @@ namespace Phoenix.Data.Plc
 		/// <returns> A <see cref="Byte"/> array. </returns>
 		public static byte[] ToBytes(int value, Endianness endianness)
 		{
-#if NETSTANDARD2_1
 			var bytes = new byte[sizeof(int)];
+			ToBytes(value, endianness, bytes.AsSpan());
+			return bytes;
+		}
+
+		/// <summary>
+		/// Converts the <paramref name="value"/> into a <see cref="Byte"/> array.
+		/// </summary>
+		/// <param name="value"> The <see cref="int"/> to convert. </param>
+		/// <param name="endianness"> The <see cref="Endianness"/> to use when converting. </param>
+		/// <param name="destination"> The <see cref="Span{T}"/> where the result will be written to. </param>
+		/// <returns> <c>True</c> on success, otherwise <c>False</c>. </returns>
+		public static bool ToBytes(int value, Endianness endianness, Span<byte> destination)
+		{
 			if (endianness == Endianness.LittleEndian)
 			{
-				System.Buffers.Binary.BinaryPrimitives.WriteInt32LittleEndian(bytes.AsSpan(), value);
+				return System.Buffers.Binary.BinaryPrimitives.TryWriteInt32LittleEndian(destination, value);
 			}
 			else
 			{
-				System.Buffers.Binary.BinaryPrimitives.WriteInt32BigEndian(bytes.AsSpan(), value);
+				return System.Buffers.Binary.BinaryPrimitives.TryWriteInt32BigEndian(destination, value);
 			}
-#else
-			if (DataConverter.MustSwap(endianness)) value = DataConverter.SwapBytes(value);
-			var bytes = BitConverter.GetBytes(value);
-#endif
-			return bytes;
 		}
 
 		/// <summary>
@@ -152,21 +166,28 @@ namespace Phoenix.Data.Plc
 		/// <returns> A <see cref="Byte"/> array. </returns>
 		public static byte[] ToBytes(long value, Endianness endianness)
 		{
-#if NETSTANDARD2_1
 			var bytes = new byte[sizeof(long)];
+			ToBytes(value, endianness, bytes.AsSpan());
+			return bytes;
+		}
+
+		/// <summary>
+		/// Converts the <paramref name="value"/> into a <see cref="Byte"/> array.
+		/// </summary>
+		/// <param name="value"> The <see cref="long"/> to convert. </param>
+		/// <param name="endianness"> The <see cref="Endianness"/> to use when converting. </param>
+		/// <param name="destination"> The <see cref="Span{T}"/> where the result will be written to. </param>
+		/// <returns> <c>True</c> on success, otherwise <c>False</c>. </returns>
+		public static bool ToBytes(long value, Endianness endianness, Span<byte> destination)
+		{
 			if (endianness == Endianness.LittleEndian)
 			{
-				System.Buffers.Binary.BinaryPrimitives.WriteInt64LittleEndian(bytes.AsSpan(), value);
+				return System.Buffers.Binary.BinaryPrimitives.TryWriteInt64LittleEndian(destination, value);
 			}
 			else
 			{
-				System.Buffers.Binary.BinaryPrimitives.WriteInt64BigEndian(bytes.AsSpan(), value);
+				return System.Buffers.Binary.BinaryPrimitives.TryWriteInt64BigEndian(destination, value);
 			}
-#else
-			if (DataConverter.MustSwap(endianness)) value = DataConverter.SwapBytes(value);
-			var bytes = BitConverter.GetBytes(value);
-#endif
-			return bytes;
 		}
 
 		#endregion
@@ -181,21 +202,28 @@ namespace Phoenix.Data.Plc
 		/// <returns> A <see cref="Byte"/> array. </returns>
 		public static byte[] ToBytes(ushort value, Endianness endianness)
 		{
-#if NETSTANDARD2_1
 			var bytes = new byte[sizeof(ushort)];
+			ToBytes(value, endianness, bytes.AsSpan());
+			return bytes;
+		}
+
+		/// <summary>
+		/// Converts the <paramref name="value"/> into a <see cref="Byte"/> array.
+		/// </summary>
+		/// <param name="value"> The <see cref="ushort"/> to convert. </param>
+		/// <param name="endianness"> The <see cref="Endianness"/> to use when converting. </param>
+		/// <param name="destination"> The <see cref="Span{T}"/> where the result will be written to. </param>
+		/// <returns> <c>True</c> on success, otherwise <c>False</c>. </returns>
+		public static bool ToBytes(ushort value, Endianness endianness, Span<byte> destination)
+		{
 			if (endianness == Endianness.LittleEndian)
 			{
-				System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(), value);
+				return System.Buffers.Binary.BinaryPrimitives.TryWriteUInt16LittleEndian(destination, value);
 			}
 			else
 			{
-				System.Buffers.Binary.BinaryPrimitives.WriteUInt16BigEndian(bytes.AsSpan(), value);
+				return System.Buffers.Binary.BinaryPrimitives.TryWriteUInt16BigEndian(destination, value);
 			}
-#else
-			if (DataConverter.MustSwap(endianness)) value = DataConverter.SwapBytes(value);
-			var bytes = BitConverter.GetBytes(value);
-#endif
-			return bytes;
 		}
 
 		/// <summary>
@@ -206,21 +234,28 @@ namespace Phoenix.Data.Plc
 		/// <returns> A <see cref="Byte"/> array. </returns>
 		public static byte[] ToBytes(uint value, Endianness endianness)
 		{
-#if NETSTANDARD2_1
 			var bytes = new byte[sizeof(uint)];
+			ToBytes(value, endianness, bytes.AsSpan());
+			return bytes;
+		}
+
+		/// <summary>
+		/// Converts the <paramref name="value"/> into a <see cref="Byte"/> array.
+		/// </summary>
+		/// <param name="value"> The <see cref="uint"/> to convert. </param>
+		/// <param name="endianness"> The <see cref="Endianness"/> to use when converting. </param>
+		/// <param name="destination"> The <see cref="Span{T}"/> where the result will be written to. </param>
+		/// <returns> <c>True</c> on success, otherwise <c>False</c>. </returns>
+		public static bool ToBytes(uint value, Endianness endianness, Span<byte> destination)
+		{
 			if (endianness == Endianness.LittleEndian)
 			{
-				System.Buffers.Binary.BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(), value);
+				return System.Buffers.Binary.BinaryPrimitives.TryWriteUInt32LittleEndian(destination, value);
 			}
 			else
 			{
-				System.Buffers.Binary.BinaryPrimitives.WriteUInt32BigEndian(bytes.AsSpan(), value);
+				return System.Buffers.Binary.BinaryPrimitives.TryWriteUInt32BigEndian(destination, value);
 			}
-#else
-			if (DataConverter.MustSwap(endianness)) value = DataConverter.SwapBytes(value);
-			var bytes = BitConverter.GetBytes(value);
-#endif
-			return bytes;
 		}
 
 		/// <summary>
@@ -231,28 +266,35 @@ namespace Phoenix.Data.Plc
 		/// <returns> A <see cref="Byte"/> array. </returns>
 		public static byte[] ToBytes(ulong value, Endianness endianness)
 		{
-#if NETSTANDARD2_1
 			var bytes = new byte[sizeof(ulong)];
+			ToBytes(value, endianness, bytes.AsSpan());
+			return bytes;
+		}
+
+		/// <summary>
+		/// Converts the <paramref name="value"/> into a <see cref="Byte"/> array.
+		/// </summary>
+		/// <param name="value"> The <see cref="ulong"/> to convert. </param>
+		/// <param name="endianness"> The <see cref="Endianness"/> to use when converting. </param>
+		/// <param name="destination"> The <see cref="Span{T}"/> where the result will be written to. </param>
+		/// <returns> <c>True</c> on success, otherwise <c>False</c>. </returns>
+		public static bool ToBytes(ulong value, Endianness endianness, Span<byte> destination)
+		{
 			if (endianness == Endianness.LittleEndian)
 			{
-				System.Buffers.Binary.BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(), value);
+				return System.Buffers.Binary.BinaryPrimitives.TryWriteUInt64LittleEndian(destination, value);
 			}
 			else
 			{
-				System.Buffers.Binary.BinaryPrimitives.WriteUInt64BigEndian(bytes.AsSpan(), value);
+				return System.Buffers.Binary.BinaryPrimitives.TryWriteUInt64BigEndian(destination, value);
 			}
-#else
-			if (DataConverter.MustSwap(endianness)) value = DataConverter.SwapBytes(value);
-			var bytes = BitConverter.GetBytes(value);
-#endif
-			return bytes;
 		}
 
 		#endregion
 
 		#endregion
 
-		#region Byte-Array ⇒ Value
+		#region Data ⇒ Value
 
 		#region Signed
 
@@ -263,20 +305,24 @@ namespace Phoenix.Data.Plc
 		/// <param name="endianness"> The <see cref="Endianness"/> to use when converting. </param>
 		/// <returns> A <see cref="short"/>. </returns>
 		public static short ToInt16(byte[] data, Endianness endianness)
+			=> ToInt16(data.AsSpan(), endianness);
+
+		/// <summary>
+		/// Converts the <paramref name="span"/> into a <see cref="short"/>.
+		/// </summary>
+		/// <param name="span"> The <see cref="ReadOnlySpan{T}"/> to convert. </param>
+		/// <param name="endianness"> The <see cref="Endianness"/> to use when converting. </param>
+		/// <returns> A <see cref="short"/>. </returns>
+		public static short ToInt16(ReadOnlySpan<byte> span, Endianness endianness)
 		{
-#if NETSTANDARD2_1
 			if (endianness == Endianness.LittleEndian)
 			{
-				return System.Buffers.Binary.BinaryPrimitives.ReadInt16LittleEndian(data.AsSpan());
+				return System.Buffers.Binary.BinaryPrimitives.ReadInt16LittleEndian(span);
 			}
 			else
 			{
-				return System.Buffers.Binary.BinaryPrimitives.ReadInt16BigEndian(data.AsSpan());
+				return System.Buffers.Binary.BinaryPrimitives.ReadInt16BigEndian(span);
 			}
-#else
-			if (DataConverter.MustSwap(endianness)) Array.Reverse(data);
-			return BitConverter.ToInt16(data, 0);
-#endif
 		}
 
 		/// <summary>
@@ -286,20 +332,24 @@ namespace Phoenix.Data.Plc
 		/// <param name="endianness"> The <see cref="Endianness"/> to use when converting. </param>
 		/// <returns> A <see cref="int"/>. </returns>
 		public static int ToInt32(byte[] data, Endianness endianness)
+			=> ToInt32(data.AsSpan(), endianness);
+
+		/// <summary>
+		/// Converts the <paramref name="span"/> into a <see cref="int"/>.
+		/// </summary>
+		/// <param name="span"> The <see cref="ReadOnlySpan{T}"/> to convert. </param>
+		/// <param name="endianness"> The <see cref="Endianness"/> to use when converting. </param>
+		/// <returns> A <see cref="int"/>. </returns>
+		public static int ToInt32(ReadOnlySpan<byte> span, Endianness endianness)
 		{
-#if NETSTANDARD2_1
 			if (endianness == Endianness.LittleEndian)
 			{
-				return System.Buffers.Binary.BinaryPrimitives.ReadInt32LittleEndian(data.AsSpan());
+				return System.Buffers.Binary.BinaryPrimitives.ReadInt32LittleEndian(span);
 			}
 			else
 			{
-				return System.Buffers.Binary.BinaryPrimitives.ReadInt32BigEndian(data.AsSpan());
+				return System.Buffers.Binary.BinaryPrimitives.ReadInt32BigEndian(span);
 			}
-#else
-			if (DataConverter.MustSwap(endianness)) Array.Reverse(data);
-			return BitConverter.ToInt32(data, 0);
-#endif
 		}
 
 		/// <summary>
@@ -309,20 +359,24 @@ namespace Phoenix.Data.Plc
 		/// <param name="endianness"> The <see cref="Endianness"/> to use when converting. </param>
 		/// <returns> A <see cref="long"/>. </returns>
 		public static long ToInt64(byte[] data, Endianness endianness)
+			=> ToInt64(data.AsSpan(), endianness);
+
+		/// <summary>
+		/// Converts the <paramref name="span"/> into a <see cref="long"/>.
+		/// </summary>
+		/// <param name="span"> The <see cref="ReadOnlySpan{T}"/> to convert. </param>
+		/// <param name="endianness"> The <see cref="Endianness"/> to use when converting. </param>
+		/// <returns> A <see cref="long"/>. </returns>
+		public static long ToInt64(ReadOnlySpan<byte> span, Endianness endianness)
 		{
-#if NETSTANDARD2_1
 			if (endianness == Endianness.LittleEndian)
 			{
-				return System.Buffers.Binary.BinaryPrimitives.ReadInt64LittleEndian(data.AsSpan());
+				return System.Buffers.Binary.BinaryPrimitives.ReadInt64LittleEndian(span);
 			}
 			else
 			{
-				return System.Buffers.Binary.BinaryPrimitives.ReadInt64BigEndian(data.AsSpan());
+				return System.Buffers.Binary.BinaryPrimitives.ReadInt64BigEndian(span);
 			}
-#else
-			if (DataConverter.MustSwap(endianness)) Array.Reverse(data);
-			return BitConverter.ToInt64(data, 0);
-#endif
 		}
 
 		#endregion
@@ -336,20 +390,24 @@ namespace Phoenix.Data.Plc
 		/// <param name="endianness"> The <see cref="Endianness"/> to use when converting. </param>
 		/// <returns> A <see cref="ushort"/>. </returns>
 		public static ushort ToUInt16(byte[] data, Endianness endianness)
+			=> ToUInt16(data.AsSpan(), endianness);
+
+		/// <summary>
+		/// Converts the <paramref name="span"/> into a <see cref="ushort"/>.
+		/// </summary>
+		/// <param name="span"> The <see cref="ReadOnlySpan{T}"/> to convert. </param>
+		/// <param name="endianness"> The <see cref="Endianness"/> to use when converting. </param>
+		/// <returns> A <see cref="ushort"/>. </returns>
+		public static ushort ToUInt16(ReadOnlySpan<byte> span, Endianness endianness)
 		{
-#if NETSTANDARD2_1
 			if (endianness == Endianness.LittleEndian)
 			{
-				return System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(data.AsSpan());
+				return System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(span);
 			}
 			else
 			{
-				return System.Buffers.Binary.BinaryPrimitives.ReadUInt16BigEndian(data.AsSpan());
+				return System.Buffers.Binary.BinaryPrimitives.ReadUInt16BigEndian(span);
 			}
-#else
-			if (DataConverter.MustSwap(endianness)) Array.Reverse(data);
-			return BitConverter.ToUInt16(data, 0);
-#endif
 		}
 
 		/// <summary>
@@ -359,20 +417,24 @@ namespace Phoenix.Data.Plc
 		/// <param name="endianness"> The <see cref="Endianness"/> to use when converting. </param>
 		/// <returns> A <see cref="uint"/>. </returns>
 		public static uint ToUInt32(byte[] data, Endianness endianness)
+			=> ToUInt32(data.AsSpan(), endianness);
+
+		/// <summary>
+		/// Converts the <paramref name="span"/> into a <see cref="uint"/>.
+		/// </summary>
+		/// <param name="span"> The <see cref="ReadOnlySpan{T}"/> to convert. </param>
+		/// <param name="endianness"> The <see cref="Endianness"/> to use when converting. </param>
+		/// <returns> A <see cref="uint"/>. </returns>
+		public static uint ToUInt32(ReadOnlySpan<byte> span, Endianness endianness)
 		{
-#if NETSTANDARD2_1
 			if (endianness == Endianness.LittleEndian)
 			{
-				return System.Buffers.Binary.BinaryPrimitives.ReadUInt32LittleEndian(data.AsSpan());
+				return System.Buffers.Binary.BinaryPrimitives.ReadUInt32LittleEndian(span);
 			}
 			else
 			{
-				return System.Buffers.Binary.BinaryPrimitives.ReadUInt32BigEndian(data.AsSpan());
+				return System.Buffers.Binary.BinaryPrimitives.ReadUInt32BigEndian(span);
 			}
-#else
-			if (DataConverter.MustSwap(endianness)) Array.Reverse(data);
-			return BitConverter.ToUInt32(data, 0);
-#endif
 		}
 
 		/// <summary>
@@ -382,29 +444,33 @@ namespace Phoenix.Data.Plc
 		/// <param name="endianness"> The <see cref="Endianness"/> to use when converting. </param>
 		/// <returns> A <see cref="ulong"/>. </returns>
 		public static ulong ToUInt64(byte[] data, Endianness endianness)
+			=> ToUInt64(data.AsSpan(), endianness);
+
+		/// <summary>
+		/// Converts the <paramref name="span"/> into a <see cref="ulong"/>.
+		/// </summary>
+		/// <param name="span"> The <see cref="ReadOnlySpan{T}"/> to convert. </param>
+		/// <param name="endianness"> The <see cref="Endianness"/> to use when converting. </param>
+		/// <returns> A <see cref="ulong"/>. </returns>
+		public static ulong ToUInt64(ReadOnlySpan<byte> span, Endianness endianness)
 		{
-#if NETSTANDARD2_1
 			if (endianness == Endianness.LittleEndian)
 			{
-				return System.Buffers.Binary.BinaryPrimitives.ReadUInt64LittleEndian(data.AsSpan());
+				return System.Buffers.Binary.BinaryPrimitives.ReadUInt64LittleEndian(span);
 			}
 			else
 			{
-				return System.Buffers.Binary.BinaryPrimitives.ReadUInt64BigEndian(data.AsSpan());
+				return System.Buffers.Binary.BinaryPrimitives.ReadUInt64BigEndian(span);
 			}
-#else
-			if (DataConverter.MustSwap(endianness)) Array.Reverse(data);
-			return BitConverter.ToUInt64(data, 0);
-#endif
 		}
 
 		#endregion
 
 		#endregion
 
-		#region Endianess Conversion
+		#region Endianness Conversion
 
-#region Signed
+		#region Signed
 
 		/// <summary>
 		/// Swaps the bytes of <paramref name="value"/> so it can be used in BigEndian systems (Siemens plc).
@@ -436,9 +502,9 @@ namespace Phoenix.Data.Plc
 			return (long) SwapBytes((ulong) value);
 		}
 
-#endregion
+		#endregion
 
-#region Unsigned
+		#region Unsigned
 
 		/// <summary>
 		/// Swaps the bytes of <paramref name="value"/> so it can be used in BigEndian systems (Siemens plc).
@@ -499,17 +565,6 @@ namespace Phoenix.Data.Plc
 		}
 
 		#endregion
-
-		#endregion
-
-		#region Helper
-		
-#if !NETSTANDARD2_1
-		private static bool MustSwap(Endianness endianness)
-		{
-			return (BitConverter.IsLittleEndian && endianness == Endianness.BigEndian) || (!BitConverter.IsLittleEndian && endianness == Endianness.LittleEndian);
-		}
-#endif
 
 		#endregion
 	}
