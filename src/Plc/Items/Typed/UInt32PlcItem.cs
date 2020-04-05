@@ -49,7 +49,6 @@ namespace Phoenix.Data.Plc.Items.Typed
 				PlcItemType.Data,
 				dataBlock,
 				position,
-				//byteAmount: (ushort) System.Runtime.InteropServices.Marshal.SizeOf<uint>(),
 				byteAmount: sizeof(uint),
 				false,
 				initialValue,
