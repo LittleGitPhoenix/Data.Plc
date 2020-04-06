@@ -4,7 +4,6 @@
 
 
 using System;
-using Phoenix.Data.Plc.Items.Builder;
 
 namespace Phoenix.Data.Plc.Items.Typed
 {
@@ -50,7 +49,7 @@ namespace Phoenix.Data.Plc.Items.Typed
 		/// <inheritdoc />
 		public override byte ConvertFromData(BitCollection data)
 		{
-			return ((byte[])data)[0];
+			return ((byte[]) data)[0];
 		}
 
 		/// <inheritdoc />

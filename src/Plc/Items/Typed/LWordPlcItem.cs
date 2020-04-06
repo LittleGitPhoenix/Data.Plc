@@ -4,7 +4,6 @@
 
 
 using System;
-using Phoenix.Data.Plc.Items.Builder;
 
 namespace Phoenix.Data.Plc.Items.Typed
 {
@@ -30,35 +29,11 @@ namespace Phoenix.Data.Plc.Items.Typed
 		/// <inheritdoc />
 		/// <param name="position"> The position where the <c>S7-LWord</c> within the <see cref="IPlcItem.DataBlock"/> begins. </param>
 		public LWordPlcItem(ushort dataBlock, ushort position, ulong initialValue = ulong.MinValue, string identifier = default)
-			: base(dataBlock, position, initialValue, identifier) { }
+			: base(dataBlock, position, DataConverter.Endianness.BigEndian, initialValue, identifier) { }
 
 		#endregion
 
 		#region Methods
-
-		#region Convert
-
-		/// <inheritdoc />
-		public override ulong ConvertFromData(BitCollection data)
-		{
-			// PLC uses littleENDIAN, so toggle the bytes.
-			byte[] bytes = data;
-			Array.Reverse(bytes);
-
-			return BitConverter.ToUInt64(bytes, 0);
-		}
-
-		/// <inheritdoc />
-		public override BitCollection ConvertToData(ulong value)
-		{
-			byte[] bytes = BitConverter.GetBytes(value);
-			Array.Reverse(bytes);
-
-			// PLC uses littleENDIAN, so toggle the bytes.
-			return new BitCollection(false, bytes);
-		}
-
-		#endregion
 
 		/// <inheritdoc />
 		public new LWordPlcItem Clone() => this.Clone(null);

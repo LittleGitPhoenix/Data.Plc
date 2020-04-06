@@ -81,8 +81,13 @@ namespace Phoenix.Data.Plc.Items.Builder
 			: base(identifier)
 		{
 			// Set default values.
-			//base.ForBitAmount((ushort)System.Runtime.InteropServices.Marshal.SizeOf<bool>()); //! This is 4 and therefore wrong.
-			base.ForBitAmount(1); //! This is 4 and therefore wrong.
+			/*!
+			 * Using Marshal.SizeOf for 'bool' will not give the expected result of 1, as marshaling will get the size of the underlying unmanaged type 'BOOL' that has a size of 4.
+			 * Same goes for 'char' that should have a size of 2 but its unmanged type 'SBYTE' has a size of 1.
+			 * See: docs.microsoft.com/en-us/dotnet/api/system.runtime.interopservices.unmanagedtype
+			 */
+			//base.ForBitAmount((ushort)System.Runtime.InteropServices.Marshal.SizeOf<bool>());
+			base.ForBitAmount(sizeof(bool));
 		}
 
 		#endregion

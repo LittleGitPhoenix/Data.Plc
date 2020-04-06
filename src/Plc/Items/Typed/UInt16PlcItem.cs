@@ -4,7 +4,6 @@
 
 
 using System;
-using Phoenix.Data.Plc.Items.Builder;
 
 namespace Phoenix.Data.Plc.Items.Typed
 {
@@ -20,6 +19,9 @@ namespace Phoenix.Data.Plc.Items.Typed
 		#endregion
 
 		#region Fields
+
+		private readonly DataConverter.Endianness _endianness;
+
 		#endregion
 
 		#region Properties
@@ -30,17 +32,32 @@ namespace Phoenix.Data.Plc.Items.Typed
 		/// <inheritdoc />
 		/// <param name="position"> The position where the <see cref="UInt16"/> within the <see cref="IPlcItem.DataBlock"/> begins. </param>
 		public UInt16PlcItem(ushort dataBlock, ushort position, ushort initialValue = ushort.MinValue, string identifier = default)
+			: this
+			(
+				dataBlock,
+				position,
+				DataConverter.Endianness.LittleEndian,
+				initialValue,
+				identifier
+			) { }
+
+
+		/// <inheritdoc />
+		/// <param name="position"> The position where the <see cref="UInt16"/> within the <see cref="IPlcItem.DataBlock"/> begins. </param>
+		protected UInt16PlcItem(ushort dataBlock, ushort position, DataConverter.Endianness endianness, ushort initialValue = ushort.MinValue, string identifier = default)
 			: base
 			(
 				PlcItemType.Data,
 				dataBlock,
 				position,
-				//byteAmount: (ushort) System.Runtime.InteropServices.Marshal.SizeOf<ushort>(),
 				byteAmount: sizeof(ushort),
 				false,
 				initialValue,
 				identifier
-			) { }
+			)
+		{
+			_endianness = endianness;
+		}
 
 		#endregion
 
@@ -51,13 +68,14 @@ namespace Phoenix.Data.Plc.Items.Typed
 		/// <inheritdoc />
 		public override ushort ConvertFromData(BitCollection data)
 		{
-			return BitConverter.ToUInt16(data, 0);
+			return DataConverter.ToUInt16(data, _endianness);
 		}
 
 		/// <inheritdoc />
 		public override BitCollection ConvertToData(ushort value)
 		{
-			return new BitCollection(false, BitConverter.GetBytes(value));
+			var bytes = DataConverter.ToBytes(value, _endianness);
+			return new BitCollection(false, bytes);
 		}
 
 		#endregion
@@ -77,7 +95,7 @@ namespace Phoenix.Data.Plc.Items.Typed
 		/// <returns> A new <see cref="UInt16PlcItem"/>. </returns>
 		public new UInt16PlcItem Clone(string identifier)
 		{
-			return new UInt16PlcItem( base.DataBlock, base.Position, this.Value, identifier);
+			return new UInt16PlcItem( base.DataBlock, base.Position, _endianness, this.Value, identifier);
 		}
 
 		#endregion

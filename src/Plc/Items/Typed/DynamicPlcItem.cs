@@ -220,11 +220,11 @@ namespace Phoenix.Data.Plc.Items.Typed
 				}
 				case 2:
 				{
-					return BitConverter.ToUInt16(data, 0);
+					return DataConverter.ToUInt16(data, DataConverter.Endianness.LittleEndian);
 				}
 				case 4:
 				{
-					return BitConverter.ToUInt32(data, 0);
+					return DataConverter.ToUInt32(data, DataConverter.Endianness.LittleEndian);
 				}
 				default:
 				{
