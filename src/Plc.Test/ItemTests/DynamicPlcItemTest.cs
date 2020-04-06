@@ -1,21 +1,19 @@
 ﻿using System;
 using System.Linq;
-using System.Text;
-using Phoenix.Data.Plc.Items.Builder;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using Phoenix.Data.Plc.Items;
 using Phoenix.Data.Plc.Items.Typed;
 
 namespace Phoenix.Data.Plc.Test.ItemTests
 {
-	[TestClass]
-	[TestCategory("Item Test")]
+	[TestFixture]
+	[Category("Item Test")]
 	public sealed class DynamicPlcItemTest
 	{
 		/// <summary>
 		/// Checks if a custom <see cref="IDynamicPlcItem.LengthLimit"/> is respected when reading such an item.
 		/// </summary>
-		[TestMethod]
+		[Test]
 		public void Check_If_Limit_Is_Respected_When_Reading()
 		{
 			// Arrange
@@ -41,7 +39,7 @@ namespace Phoenix.Data.Plc.Test.ItemTests
 		/// <summary>
 		/// Checks if a custom <see cref="IDynamicPlcItem.LengthLimit"/> is respected when writing such an item.
 		/// </summary>
-		[TestMethod]
+		[Test]
 		public void Check_If_Limit_Is_Respected_When_Writing()
 		{
 			// Arrange
@@ -55,14 +53,14 @@ namespace Phoenix.Data.Plc.Test.ItemTests
 			
 			// Assert
 			Assert.AreEqual(numericItem.Value, limit);
-			Assert.IsTrue(new [] {byte.MaxValue, byte.MaxValue}.SequenceEqual(dynamicPlcItem.FlexiblePlcItem.Value));
+			Assert.True(new [] {byte.MaxValue, byte.MaxValue}.SequenceEqual(dynamicPlcItem.FlexiblePlcItem.Value));
 
 			// Act
 			dynamicPlcItem.FlexiblePlcItem.Value = new[] { byte.MinValue };
 
 			// Assert
 			Assert.AreEqual(numericItem.Value, 1);
-			Assert.IsTrue(new[] { byte.MinValue }.SequenceEqual(dynamicPlcItem.FlexiblePlcItem.Value));
+			Assert.True(new[] { byte.MinValue }.SequenceEqual(dynamicPlcItem.FlexiblePlcItem.Value));
 		}
 	}
 }
