@@ -14,11 +14,11 @@ namespace Phoenix.Data.Plc.Items.Typed
 	public class DynamicPlcItem<TValue> : IDynamicPlcItem, IPlcItem<TValue>
 	{
 		#region Delegates / Events
-		
+
 		/// <inheritdoc />
 		event EventHandler<BitsChangedEventArgs> IPlcItem.ValueChanged
 		{
-			add => ((IPlcItem) this.FlexiblePlcItem).ValueChanged += value;
+			add => ((IPlcItem)this.FlexiblePlcItem).ValueChanged += value;
 			remove => ((IPlcItem)this.FlexiblePlcItem).ValueChanged -= value;
 		}
 
@@ -28,7 +28,7 @@ namespace Phoenix.Data.Plc.Items.Typed
 			add => this.FlexiblePlcItem.ValueChanged += value;
 			remove => this.FlexiblePlcItem.ValueChanged -= value;
 		}
-		
+
 		#endregion
 
 		#region Constants
@@ -38,6 +38,7 @@ namespace Phoenix.Data.Plc.Items.Typed
 
 		private readonly Func<string, IPlcItem<TValue>> _flexiblePlcItemFactory;
 
+
 		#endregion
 
 		#region Properties
@@ -45,7 +46,36 @@ namespace Phoenix.Data.Plc.Items.Typed
 		#region Implementation of IDynamicPlcItem
 
 		/// <inheritdoc />
-		public uint? LengthLimit { get; }
+		uint? IDynamicPlcItem.LengthLimit => this.LengthLimit == uint.MaxValue ? (uint?) null : this.LengthLimit;
+
+		/// <inheritdoc cref="IDynamicPlcItem.LengthLimit"/>
+		public uint LengthLimit
+		{
+			get
+			{
+				checked
+				{
+					try
+					{
+						return _lengthLimit * this.LengthFactor;
+					}
+					catch (OverflowException)
+					{
+						return uint.MaxValue;
+					}
+				}
+			}
+			set => _lengthLimit = value;
+		}
+		private uint _lengthLimit;
+
+		/// <inheritdoc />
+		public byte LengthFactor
+		{
+			get => Math.Max((byte) 1, _lengthFactor);
+			set => _lengthFactor = value;
+		}
+		private byte _lengthFactor;
 
 		/// <inheritdoc />
 		public INumericPlcItem LengthPlcItem { get; }
@@ -80,7 +110,7 @@ namespace Phoenix.Data.Plc.Items.Typed
 
 		/// <inheritdoc />
 		/// <remarks> Accessing the value via <see cref="IPlcItem"/> will return the value of the <see cref="FlexiblePlcItem"/>. </remarks>
-		BitCollection IPlcItem.Value => ((IPlcItem) this.FlexiblePlcItem).Value;
+		BitCollection IPlcItem.Value => ((IPlcItem)this.FlexiblePlcItem).Value;
 
 		/// <inheritdoc />
 		/// <remarks> Accessing the value will return the value of the <see cref="FlexiblePlcItem"/>. </remarks>
@@ -103,18 +133,19 @@ namespace Phoenix.Data.Plc.Items.Typed
 		/// <param name="flexiblePlcItemFactory"> <see cref="IDynamicPlcItem.FlexiblePlcItem"/> </param>
 		/// <param name="lengthLimit"> <see cref="IDynamicPlcItem.LengthLimit"/> </param>
 		/// <param name="identifier"> <see cref="IPlcItem.Identifier"/> </param>
-		protected internal DynamicPlcItem(INumericPlcItem lengthPlcItem, Func<string, IPlcItem<TValue>> flexiblePlcItemFactory, uint? lengthLimit, string identifier = default)
-			: this(lengthPlcItem, flexiblePlcItemFactory.Invoke(identifier), lengthLimit)
+		protected internal DynamicPlcItem(INumericPlcItem lengthPlcItem, Func<string, IPlcItem<TValue>> flexiblePlcItemFactory, uint? lengthLimit, byte lengthFactor, string identifier = default)
+			: this(lengthPlcItem, flexiblePlcItemFactory.Invoke(identifier), lengthLimit, lengthFactor)
 		{
 			_flexiblePlcItemFactory = flexiblePlcItemFactory;
 		}
 
-		private DynamicPlcItem(INumericPlcItem lengthPlcItem, IPlcItem<TValue> flexiblePlcItem, uint? lengthLimit)
+		private DynamicPlcItem(INumericPlcItem lengthPlcItem, IPlcItem<TValue> flexiblePlcItem, uint? lengthLimit, byte lengthFactor)
 		{
 			if (lengthPlcItem.Value.ByteLength > 4) throw new NotSupportedException($"An {nameof(IDynamicPlcItem)} may currently not have a dynamic length longer than {uint.MaxValue} due to limitations of the item that stores the actual length.");
 
 			// Save parameters.
-			this.LengthLimit = lengthLimit;
+			this.LengthFactor = lengthFactor;
+			this.LengthLimit = lengthLimit ?? uint.MaxValue;
 			this.LengthPlcItem = lengthPlcItem;
 			this.FlexiblePlcItem = flexiblePlcItem;
 
@@ -123,14 +154,14 @@ namespace Phoenix.Data.Plc.Items.Typed
 			this.LengthPlcItem.ValueChanged += (sender, args) =>
 			{
 				// Get the new value and change the length of the data item accordingly.
-				var newLength = DynamicPlcItem<TValue>.GetLength(this.LengthPlcItem, this.LengthLimit);
-				((IPlcItem) this.FlexiblePlcItem).Value.Resize(newLength * 8);
+				var newLength = DynamicPlcItem<TValue>.GetLength(this.LengthPlcItem, this.LengthLimit, this.LengthFactor);
+				((IPlcItem)this.FlexiblePlcItem).Value.Resize(newLength * 8);
 			};
 
 			this.FlexiblePlcItem.ValueChanged += (sender, args) =>
 			{
 				// Get the new length and change the value of the length item accordingly.
-				var newLength = DynamicPlcItem<TValue>.GetLength(this.FlexiblePlcItem, this.LengthLimit);
+				var newLength = DynamicPlcItem<TValue>.GetLength(this.FlexiblePlcItem, this.LengthLimit, this.LengthFactor);
 				this.LengthPlcItem.Value.TransferValuesFrom(BitConverter.GetBytes(newLength));
 				//this.LengthPlcItem.Value.TransferValuesFrom(BitConverter.GetBytes(((IPlcItem)this.FlexiblePlcItem).Value.ByteLength));
 			};
@@ -178,10 +209,10 @@ namespace Phoenix.Data.Plc.Items.Typed
 
 		/// <inheritdoc/>
 		/// <returns> A new <see cref="IDynamicPlcItem"/>. </returns>
-		IPlcItem IDeepCloneable<IPlcItem>.Clone() => (IPlcItem) this.Clone();
+		IPlcItem IDeepCloneable<IPlcItem>.Clone() => (IPlcItem)this.Clone();
 
-		IPlcItem IPlcItem.Clone(string identifier) => (IPlcItem) this.Clone(identifier);
-		
+		IPlcItem IPlcItem.Clone(string identifier) => (IPlcItem)this.Clone(identifier);
+
 		/// <summary>
 		/// Creates a deep copy of the current instance. 
 		/// </summary>
@@ -194,8 +225,7 @@ namespace Phoenix.Data.Plc.Items.Typed
 		/// <returns> A new <see cref="IDynamicPlcItem"/>. </returns>
 		public IDynamicPlcItem Clone(string identifier)
 		{
-			//return new DynamicPlcItem<TValue>(this.LengthPlcItem.Clone(identifier), this.FlexiblePlcItem.Clone(identifier));
-			return new DynamicPlcItem<TValue>(this.LengthPlcItem.Clone(identifier), _flexiblePlcItemFactory.Invoke(identifier), this.LengthLimit);
+			return new DynamicPlcItem<TValue>(this.LengthPlcItem.Clone(identifier), _flexiblePlcItemFactory.Invoke(identifier), ((IDynamicPlcItem)this).LengthLimit, this.LengthFactor);
 		}
 
 		#endregion
@@ -215,7 +245,7 @@ namespace Phoenix.Data.Plc.Items.Typed
 
 		#region Helper
 
-		internal static uint GetLength(INumericPlcItem lengthPlcItem, uint? lengthLimit)
+		internal static uint GetLength(INumericPlcItem lengthPlcItem, uint lengthLimit, byte lengthFactor)
 		{
 			// Get the length of the length item.
 			uint newLength;
@@ -241,14 +271,14 @@ namespace Phoenix.Data.Plc.Items.Typed
 				}
 			}
 
-			return Math.Min(newLength, lengthLimit ?? UInt32.MaxValue);
+			return Math.Min(newLength * lengthFactor, lengthLimit);
 		}
 
-		internal static uint GetLength(IPlcItem dataPlcItem, uint? lengthLimit)
+		internal static uint GetLength(IPlcItem dataPlcItem, uint lengthLimit, byte lengthFactor)
 		{
 			// Get the amount of bytes of the flexible item.
 			var newLength = dataPlcItem.Value.ByteLength;
-			return Math.Min(newLength, lengthLimit ?? UInt32.MaxValue);
+			return Math.Min(newLength * lengthFactor, lengthLimit);
 		}
 
 		private string BuildPlcString()
@@ -258,7 +288,7 @@ namespace Phoenix.Data.Plc.Items.Typed
 			var position = this.Position;
 			var fixedLength = this.LengthPlcItem.Value.ByteLength;
 			var dynamicLength = ((IPlcItem) this.FlexiblePlcItem).Value.ByteLength;
-
+			
 			return $"{(type == PlcItemType.Data ? $"DB{dataBlock}" : $"{type}")},B{position},[{fixedLength}+{dynamicLength}]";
 		}
 

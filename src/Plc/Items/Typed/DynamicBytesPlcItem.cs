@@ -28,18 +28,18 @@ namespace Phoenix.Data.Plc.Items.Typed
 
 		/// <inheritdoc />
 		public DynamicBytesPlcItem(INumericPlcItem numericPlcItem, string identifier = default)
-			: this(numericPlcItem, new byte[0], null, identifier) { }
+			: this(numericPlcItem, new byte[0], null, 1, identifier) { }
 
 		/// <inheritdoc />
-		public DynamicBytesPlcItem(INumericPlcItem numericPlcItem, uint? lengthLimit, string identifier = default)
-			: this(numericPlcItem, new byte[0], lengthLimit, identifier) { }
+		public DynamicBytesPlcItem(INumericPlcItem numericPlcItem, uint? lengthLimit, byte lengthFactor, string identifier = default)
+			: this(numericPlcItem, new byte[0], lengthLimit, lengthFactor, identifier) { }
 
 		/// <inheritdoc />
 		public DynamicBytesPlcItem(INumericPlcItem numericPlcItem, byte[] initialValue, string identifier = default)
-			: this(numericPlcItem, initialValue, null, identifier) { }
+			: this(numericPlcItem, initialValue, null, 1, identifier) { }
 
 		/// <inheritdoc />
-		public DynamicBytesPlcItem(INumericPlcItem numericPlcItem, byte[] initialValue, uint? lengthLimit, string identifier = default)
+		public DynamicBytesPlcItem(INumericPlcItem numericPlcItem, byte[] initialValue, uint? lengthLimit, byte lengthFactor, string identifier = default)
 			: base
 			(
 				numericPlcItem,
@@ -53,6 +53,7 @@ namespace Phoenix.Data.Plc.Items.Typed
 						identifier: name
 					),
 				lengthLimit,
+				lengthFactor,
 				identifier
 			)
 		{ }
@@ -73,7 +74,7 @@ namespace Phoenix.Data.Plc.Items.Typed
 		/// <returns> A new <see cref="DynamicBytesPlcItem"/>. </returns>
 		public new DynamicBytesPlcItem Clone(string identifier)
 		{
-			return new DynamicBytesPlcItem(base.LengthPlcItem, this.Value, base.LengthLimit, identifier);
+			return new DynamicBytesPlcItem(base.LengthPlcItem, this.Value, ((IDynamicPlcItem)this).LengthLimit, base.LengthFactor, identifier);
 		}
 
 		#endregion
