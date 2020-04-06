@@ -29,11 +29,20 @@ namespace Phoenix.Data.Plc.Items.Typed
 
 		/// <inheritdoc />
 		public DynamicUtf8PlcItem(INumericPlcItem numericPlcItem, string identifier = default)
-			: this(numericPlcItem, String.Empty, identifier)
+			: this(numericPlcItem, null, String.Empty, identifier)
+		{ }
+
+		/// <inheritdoc />
+		public DynamicUtf8PlcItem(INumericPlcItem numericPlcItem, uint? lengthLimit, string identifier = default)
+			: this(numericPlcItem, lengthLimit, String.Empty, identifier)
 		{ }
 
 		/// <inheritdoc />
 		public DynamicUtf8PlcItem(INumericPlcItem numericPlcItem, string initialValue = default, string identifier = default)
+			: this(numericPlcItem, null, initialValue, identifier) { }
+
+		/// <inheritdoc />
+		public DynamicUtf8PlcItem(INumericPlcItem numericPlcItem, uint? lengthLimit, string initialValue = default, string identifier = default)
 			: base
 			(
 				numericPlcItem,
@@ -46,6 +55,7 @@ namespace Phoenix.Data.Plc.Items.Typed
 						canChangeSize: true,
 						identifier: name
 					),
+				lengthLimit,
 				identifier
 			)
 		{ }
@@ -66,7 +76,7 @@ namespace Phoenix.Data.Plc.Items.Typed
 		/// <returns> A new <see cref="DynamicUtf8PlcItem"/>. </returns>
 		public new DynamicUtf8PlcItem Clone(string identifier)
 		{
-			return new DynamicUtf8PlcItem(base.LengthPlcItem, this.Value, identifier);
+			return new DynamicUtf8PlcItem(base.LengthPlcItem, base.LengthLimit, this.Value, identifier);
 		}
 
 		#endregion

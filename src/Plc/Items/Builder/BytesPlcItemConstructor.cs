@@ -43,14 +43,20 @@ namespace Phoenix.Data.Plc.Items.Builder
 	{
 		IBytesPlcItemCreator ForByteAmount(uint byteAmount);
 		IBytesPlcItemCreator WithInitialValue(byte[] initialValue);
-		IDynamicBytesPlcItemCreator WithDynamicItem<TNumericPlcItem>() where TNumericPlcItem : INumericPlcItem;
-		IDynamicBytesPlcItemCreator WithDynamicItemFromInitialValue(byte[] initialValue);
+		ILengthLimiterPlcItemConstructor WithDynamicItem<TNumericPlcItem>() where TNumericPlcItem : INumericPlcItem;
+		ILengthLimiterPlcItemConstructor WithDynamicItemFromInitialValue(byte[] initialValue);
 	}
 
 	[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
 	public interface IBytesPlcItemCreator
 	{
 		BytesPlcItem Build();
+	}
+
+	[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+	public interface ILengthLimiterPlcItemConstructor : IDynamicBytesPlcItemCreator
+	{
+		IDynamicBytesPlcItemCreator WithLengthLimit(uint lengthLimit);
 	}
 
 	[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
@@ -66,6 +72,7 @@ namespace Phoenix.Data.Plc.Items.Builder
 			IBytesDataBlockPlcItemConstructor,
 			IBytesPositionPlcItemConstructor,
 			IBytesLengthPlcItemConstructor,
+			ILengthLimiterPlcItemConstructor,
 			IBytesPlcItemCreator,
 			IDynamicBytesPlcItemCreator
 	{
@@ -79,6 +86,8 @@ namespace Phoenix.Data.Plc.Items.Builder
 
 		private Type _numericPlcItemType;
 
+		private uint? _lengthLimit;
+
 		#endregion
 
 		#region Properties
@@ -87,36 +96,49 @@ namespace Phoenix.Data.Plc.Items.Builder
 		#region (De)Constructors
 
 		public BytesPlcItemConstructor(string identifier)
-			: base(identifier) { }
+			: base(identifier)
+		{
+			_lengthLimit = null;
+		}
 
 		#endregion
 
 		#region Methods
 
+		/// <inheritdoc />
 		public new IBytesDataBlockPlcItemConstructor ForData() => (IBytesDataBlockPlcItemConstructor) base.ForData();
 
+		/// <inheritdoc />
 		public new IBytesPositionPlcItemConstructor ForFlags() => (IBytesPositionPlcItemConstructor) base.ForFlags();
 
+		/// <inheritdoc />
 		public new IBytesPositionPlcItemConstructor ForInput() => (IBytesPositionPlcItemConstructor) base.ForInput();
 
+		/// <inheritdoc />
 		public new IBytesPositionPlcItemConstructor ForOutput() => (IBytesPositionPlcItemConstructor) base.ForOutput();
 
+		/// <inheritdoc />
 		public new IBytesPositionPlcItemConstructor AtDatablock(ushort dataBlock) => (IBytesPositionPlcItemConstructor) base.AtDatablock(dataBlock);
 
+		/// <inheritdoc />
 		public new IBytesLengthPlcItemConstructor AtPosition(ushort bytePosition) => (IBytesLengthPlcItemConstructor) base.AtPosition(bytePosition);
-		
+
+		/// <inheritdoc />
 		public new IBytesPlcItemCreator ForByteAmount(uint byteAmount) => (IBytesPlcItemCreator) base.ForByteAmount(byteAmount);
 
+		/// <inheritdoc />
 		public new IBytesPlcItemCreator WithInitialValue(byte[] initialValue) => (IBytesPlcItemCreator) base.WithInitialValue(initialValue);
 
-		public IDynamicBytesPlcItemCreator WithDynamicItem<TNumericPlcItem>() where TNumericPlcItem : INumericPlcItem
+		/// <inheritdoc />
+		public ILengthLimiterPlcItemConstructor WithDynamicItem<TNumericPlcItem>() where TNumericPlcItem : INumericPlcItem
 		{
 			base.ForByteAmount(0);
 			_numericPlcItemType = typeof(TNumericPlcItem);
 			return this;
 		}
 
-		public IDynamicBytesPlcItemCreator WithDynamicItemFromInitialValue(byte[] initialValue)
+		/// <inheritdoc />
+		public ILengthLimiterPlcItemConstructor WithDynamicItemFromInitialValue(byte[] initialValue)
 		{
 			var length = initialValue.Length;
 
@@ -128,6 +150,13 @@ namespace Phoenix.Data.Plc.Items.Builder
 			else if (length - UInt32.MaxValue <= 0) _numericPlcItemType = typeof(UInt32PlcItem);
 			else throw new NotSupportedException($"The currently maximum length of dynamic plc items is '{UInt32.MaxValue}' which is exceeded by the initial values length of '{length}'.");
 
+			return this;
+		}
+
+		/// <inheritdoc />
+		public IDynamicBytesPlcItemCreator WithLengthLimit(uint lengthLimit)
+		{
+			_lengthLimit = lengthLimit;
 			return this;
 		}
 
@@ -161,10 +190,10 @@ namespace Phoenix.Data.Plc.Items.Builder
 			else if (_numericPlcItemType == typeof(DWordPlcItem)) numericPlcItem = new DWordPlcItem(base.DataBlock.Value, base.Position.Value, initialValue: (UInt32)base.ByteAmount);
 			else throw new NotSupportedException($"The numeric part of any dynamic plc item must be an {nameof(INumericPlcItem)}. Currently supported are the following concrete items: {nameof(BytePlcItem)}, {nameof(UInt16PlcItem)}, {nameof(UInt32PlcItem)}, {nameof(WordPlcItem)}, {nameof(DWordPlcItem)}");
 
-			return new DynamicBytesPlcItem(numericPlcItem, base.InitialValue, base.Identifier);
+			return new DynamicBytesPlcItem(numericPlcItem, base.InitialValue, _lengthLimit, base.Identifier);
 			// ReSharper restore PossibleInvalidOperationException
 		}
-
+		
 		#endregion
 	}
 }
