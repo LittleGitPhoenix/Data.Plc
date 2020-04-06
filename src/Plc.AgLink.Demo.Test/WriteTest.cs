@@ -1,12 +1,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using Phoenix.Data.Plc.Implementation.Test;
 
 namespace Phoenix.Data.Plc.AgLink.Test
 {
-	[TestClass]
+	[TestFixture]
 	public sealed class ImplementationWriteTest : ImplementationWriteTest<DemoAgLinkPlc>
 	{
 		public ImplementationWriteTest()

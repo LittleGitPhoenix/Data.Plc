@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using Phoenix.Data.Plc.Implementation.Test;
 
 namespace Phoenix.Data.Plc.Mock.Test
 {
-	[TestClass]
+	[TestFixture]
 	public sealed class ImplementationConnectionTest : ImplementationConnectionTest<MockPlc>
 	{
 		public ImplementationConnectionTest()

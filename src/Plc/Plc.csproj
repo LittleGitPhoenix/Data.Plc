@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
+		<TargetFrameworks>netstandard2.0;netstandard2.1;net45</TargetFrameworks>
 		<LangVersion>latest</LangVersion>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<AssemblyName>Phoenix.Data.Plc</AssemblyName>
@@ -25,6 +25,10 @@
 		<None Include="..\..\..\nuget.png" Pack="true" PackagePath="" />
 		<None Include="..\..\README.md" Pack="true" PackagePath="" />
 		<None Include="..\..\LICENSE.md" Pack="true" PackagePath="" />
+	</ItemGroup>
+
+	<ItemGroup Condition="$(TargetFramework.StartsWith('net4')) Or $(TargetFramework.StartsWith('netstandard1')) Or $(TargetFramework.Equals('netstandard2.0'))">
+	  <PackageReference Include="System.Memory" Version="4.5.4" />
 	</ItemGroup>
 
 </Project>

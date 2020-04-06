@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using Moq;
 using Phoenix.Data.Plc.Items;
 using Phoenix.Data.Plc.Items.Typed;
@@ -11,7 +11,7 @@ using Phoenix.Data.Plc.Test;
 
 namespace Phoenix.Data.Plc.Monitor.Polling.Test
 {
-	[TestClass]
+	[TestFixture]
 	public class PollingPlcMonitorTest
 	{
 		public Data.Plc.Test.Data Data { get; }
@@ -21,7 +21,7 @@ namespace Phoenix.Data.Plc.Monitor.Polling.Test
 			this.Data = new Data.Plc.Test.Data();
 		}
 
-		[TestMethod]
+		[Test]
 		public async Task MonitorChanges()
 		{
 			var changes = 100;
@@ -88,7 +88,7 @@ namespace Phoenix.Data.Plc.Monitor.Polling.Test
 			}
 		}
 
-		[TestMethod]
+		[Test]
 		public async Task MonitorDifferentIntervals()
 		{
 			var monitoredChangesOfFirstItem = 0;
@@ -151,7 +151,7 @@ namespace Phoenix.Data.Plc.Monitor.Polling.Test
 
 				// Check if all changes where registered.
 				Assert.AreEqual(changes, monitoredChangesOfFirstItem);
-				Assert.IsTrue(monitoredChangesOfSecondItem >= secondChanges);
+				Assert.True(monitoredChangesOfSecondItem >= secondChanges);
 			}
 			finally
 			{
@@ -159,7 +159,7 @@ namespace Phoenix.Data.Plc.Monitor.Polling.Test
 			}
 		}
 
-		[TestMethod]
+		[Test]
 		public async Task MonitorDifferentIdenticalItems()
 		{
 			var firstMonitoredItem = new BytesPlcItem(dataBlock: Data.Datablock, position: Data.StartOfFixedBytes, byteAmount: 2);

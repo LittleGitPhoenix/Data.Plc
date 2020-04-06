@@ -1,5 +1,5 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using Phoenix.Data.Plc.Test;
 
 namespace Phoenix.Data.Plc.Implementation.Test {
@@ -30,7 +30,7 @@ namespace Phoenix.Data.Plc.Implementation.Test {
 
 		#region Tests
 
-		[TestMethod]
+		[Test]
 		public void Connect()
 		{
 			var connectedCounter = 0;
@@ -65,29 +65,29 @@ namespace Phoenix.Data.Plc.Implementation.Test {
 			var success = false;
 
 			success = plc.Disconnect();
-			Assert.IsTrue(success);
-			Assert.IsTrue(disconnectedCounter == 0); // Should still be null, as the event shouldn't be raised because the initial state is already 'Disconnected'.
-			Assert.IsTrue(connectedCounter == 0);
-			Assert.IsTrue(interruptedCounter == 0);
+			Assert.True(success);
+			Assert.True(disconnectedCounter == 0); // Should still be null, as the event shouldn't be raised because the initial state is already 'Disconnected'.
+			Assert.True(connectedCounter == 0);
+			Assert.True(interruptedCounter == 0);
 
 			success = plc.Connect();
-			Assert.IsTrue(success);
-			Assert.IsTrue(disconnectedCounter == 0);
-			Assert.IsTrue(connectedCounter == 1);
-			Assert.IsTrue(interruptedCounter == 0);
+			Assert.True(success);
+			Assert.True(disconnectedCounter == 0);
+			Assert.True(connectedCounter == 1);
+			Assert.True(interruptedCounter == 0);
 
 			success = plc.Disconnect();
-			Assert.IsTrue(success);
-			Assert.IsTrue(disconnectedCounter == 1);
-			Assert.IsTrue(connectedCounter == 1);
-			Assert.IsTrue(interruptedCounter == 0);
+			Assert.True(success);
+			Assert.True(disconnectedCounter == 1);
+			Assert.True(connectedCounter == 1);
+			Assert.True(interruptedCounter == 0);
 
 			plc.Connected -= PlcConnectionStateChanged;
 			plc.Disconnected -= PlcConnectionStateChanged;
 			plc.Interrupted -= PlcConnectionStateChanged;
 		}
 
-		[TestMethod]
+		[Test]
 		public void Disconnect()
 		{
 			var connectedCounter = 0;
@@ -122,16 +122,16 @@ namespace Phoenix.Data.Plc.Implementation.Test {
 			var success = false;
 
 			success = plc.Connect();
-			Assert.IsTrue(success);
-			Assert.IsTrue(disconnectedCounter == 0);
-			Assert.IsTrue(connectedCounter == 1);
-			Assert.IsTrue(interruptedCounter == 0);
+			Assert.True(success);
+			Assert.True(disconnectedCounter == 0);
+			Assert.True(connectedCounter == 1);
+			Assert.True(interruptedCounter == 0);
 
 			success = plc.Disconnect();
-			Assert.IsTrue(success);
-			Assert.IsTrue(disconnectedCounter == 1);
-			Assert.IsTrue(connectedCounter == 1);
-			Assert.IsTrue(interruptedCounter == 0);
+			Assert.True(success);
+			Assert.True(disconnectedCounter == 1);
+			Assert.True(connectedCounter == 1);
+			Assert.True(interruptedCounter == 0);
 
 			plc.Connected -= PlcConnectionStateChanged;
 			plc.Disconnected -= PlcConnectionStateChanged;

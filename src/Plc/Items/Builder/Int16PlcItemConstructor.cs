@@ -68,7 +68,6 @@ namespace Phoenix.Data.Plc.Items.Builder
 		{
 			// Set default values.
 			base.ForData();
-			//base.ForByteAmount((ushort) System.Runtime.InteropServices.Marshal.SizeOf<short>());
 			base.ForByteAmount(sizeof(short));
 		}
 

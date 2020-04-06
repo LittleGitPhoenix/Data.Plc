@@ -1,18 +1,18 @@
 ﻿using System;
 using System.Linq;
 using System.Text;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using Phoenix.Data.Plc.Items;
 using Phoenix.Data.Plc.Items.Builder;
 using Phoenix.Data.Plc.Items.Typed;
 
 namespace Phoenix.Data.Plc.Test.ItemTests
 {
-	[TestClass]
-	[TestCategory("Item Test")]
+	[TestFixture]
+	[Category("Item Test")]
 	public sealed class BitPlcItemTest
 	{
-		[TestMethod]
+		[Test]
 		public void Check_ItemBuilder()
 		{
 			BitPlcItem item = new PlcItemBuilder()
@@ -29,7 +29,7 @@ namespace Phoenix.Data.Plc.Test.ItemTests
 			System.Diagnostics.Debug.WriteLine(item.ToString());
 		}
 
-		[TestMethod]
+		[Test]
 		public void Check_Clone()
 		{
 			var item = new BitPlcItem(0, 0, BitPosition.X3, true);
@@ -42,10 +42,10 @@ namespace Phoenix.Data.Plc.Test.ItemTests
 			Assert.AreEqual(item.Value, clone.Value);
 
 			// Check if both items are different references.
-			Assert.IsFalse(Object.ReferenceEquals(item, clone));
+			Assert.False(Object.ReferenceEquals(item, clone));
 		}
 
-		[TestMethod]
+		[Test]
 		public void Check_ToData()
 		{
 			var item = new BitPlcItem(0, 0, BitPosition.X4);

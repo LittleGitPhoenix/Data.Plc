@@ -1,28 +1,27 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+	<PropertyGroup>
+		<TargetFrameworks>netcoreapp3.0;net45</TargetFrameworks>
+		<IsPackable>false</IsPackable>
+		<RootNamespace>Phoenix.Data.Plc.Mock.Test</RootNamespace>
+		<AssemblyName>Phoenix.Data.Plc.Mock.Test</AssemblyName>
+		<Authors>Felix Leistner</Authors>
+		<Company>Little Phoenix</Company>
+	</PropertyGroup>
 
-    <IsPackable>false</IsPackable>
+	<ItemGroup>
+		<PackageReference Include="Moq" Version="4.13.1" />
+		<PackageReference Include="nunit" Version="3.12.0" />
+		<PackageReference Include="NUnit3TestAdapter" Version="3.16.1">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
+	</ItemGroup>
 
-    <RootNamespace>Phoenix.Data.Plc.Mock.Test</RootNamespace>
-
-    <AssemblyName>Phoenix.Data.Plc.Mock.Test</AssemblyName>
-
-    <Authors>Felix Leistner</Authors>
-
-    <Company>Little Phoenix</Company>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.3.0" />
-    <PackageReference Include="MSTest.TestAdapter" Version="1.4.0" />
-    <PackageReference Include="MSTest.TestFramework" Version="1.4.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Plc.Implementation.Test\Plc.Implementation.Test.csproj" />
-    <ProjectReference Include="..\Plc.Mock\Plc.Mock.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Plc.Implementation.Test\Plc.Implementation.Test.csproj" />
+		<ProjectReference Include="..\Plc.Mock\Plc.Mock.csproj" />
+	</ItemGroup>
 
 </Project>

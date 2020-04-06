@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Linq;
 using Phoenix.Data.Plc.Items.Builder;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using Phoenix.Data.Plc.Items;
 using Phoenix.Data.Plc.Items.Typed;
 
 namespace Phoenix.Data.Plc.Test.ItemTests
 {
-	[TestClass]
-	[TestCategory("Item Test")]
+	[TestFixture]
+	[Category("Item Test")]
 	public sealed class DynamicBytesPlcItemTest
 	{
-		[TestMethod]
+		[Test]
 		public void Check_ItemBuilder()
 		{
 			// With predefined length-item.
@@ -24,10 +24,10 @@ namespace Phoenix.Data.Plc.Test.ItemTests
 				.BuildDynamic()
 				;
 			System.Diagnostics.Debug.WriteLine(item.ToString());
-			Assert.IsTrue(item.LengthPlcItem is UInt32PlcItem);
+			Assert.True(item.LengthPlcItem is UInt32PlcItem);
 			Assert.AreEqual(default(UInt32), ((UInt32PlcItem)item.LengthPlcItem).Value);
 			Assert.IsNotNull(item.Value);
-			Assert.IsTrue(new byte[0].SequenceEqual(item.Value));
+			Assert.True(new byte[0].SequenceEqual(item.Value));
 
 			// With initial value.
 			var initialValue = new byte[] { Byte.MinValue, Byte.MaxValue, 10, 20, 30, 40, 50 };
@@ -40,12 +40,12 @@ namespace Phoenix.Data.Plc.Test.ItemTests
 				.BuildDynamic()
 				;
 			System.Diagnostics.Debug.WriteLine(item.ToString());
-			Assert.IsTrue(item.LengthPlcItem is BytePlcItem);
+			Assert.True(item.LengthPlcItem is BytePlcItem);
 			Assert.AreEqual(initialValue.Length, ((BytePlcItem)item.LengthPlcItem).Value);
-			Assert.IsTrue(initialValue.SequenceEqual(item.Value));
+			Assert.True(initialValue.SequenceEqual(item.Value));
 		}
 
-		[TestMethod]
+		[Test]
 		public void Check_Clone()
 		{
 			var item = new DynamicBytesPlcItem(new UInt16PlcItem(dataBlock: 0, position: 0), "DynamicBytes");
@@ -55,29 +55,29 @@ namespace Phoenix.Data.Plc.Test.ItemTests
 			Assert.AreEqual(item, clone);
 
 			// Check the value.
-			Assert.IsTrue(item.Value == clone.Value);
+			Assert.True(item.Value == clone.Value);
 
 			// Check if both items are different references.
-			Assert.IsFalse(Object.ReferenceEquals(item, clone));
+			Assert.False(Object.ReferenceEquals(item, clone));
 		}
 
-		[TestMethod]
+		[Test]
 		public void Check_ToData()
 		{
 			var target = new byte[] {Byte.MinValue, Byte.MaxValue, 10, 20, 30, 40, 50};
 
 			var item = new DynamicBytesPlcItem(new UInt16PlcItem(dataBlock: 0, position: 0), "DynamicBytes");
 			Assert.AreEqual(0, ((UInt16PlcItem)item.LengthPlcItem).Value);
-			Assert.IsTrue(new byte[0].SequenceEqual(item.Value));
+			Assert.True(new byte[0].SequenceEqual(item.Value));
 
 			// Check: Bytes → Data
 			item.Value = target;
-			Assert.IsTrue(target.SequenceEqual(item.Value));
-			Assert.IsTrue(target.SequenceEqual((byte[])((IPlcItem)item).Value));
+			Assert.True(target.SequenceEqual(item.Value));
+			Assert.True(target.SequenceEqual((byte[])((IPlcItem)item).Value));
 			Assert.AreEqual((ushort) target.Length, ((UInt16PlcItem) item.LengthPlcItem).Value);
 		}
 
-		[TestMethod]
+		[Test]
 		public void Check_FromData()
 		{
 			var target = new byte[] {50, 40, 30, 20, 10, Byte.MaxValue, Byte.MinValue};
@@ -86,8 +86,8 @@ namespace Phoenix.Data.Plc.Test.ItemTests
 
 			// Check: Data → Bytes
 			((IPlcItem) item).Value.TransferValuesFrom(target);
-			Assert.IsTrue(target.SequenceEqual(item.Value));
-			Assert.IsTrue(target.SequenceEqual((byte[])((IPlcItem)item).Value));
+			Assert.True(target.SequenceEqual(item.Value));
+			Assert.True(target.SequenceEqual((byte[])((IPlcItem)item).Value));
 			Assert.AreEqual((ushort)target.Length, ((UInt16PlcItem)item.LengthPlcItem).Value);
 		}
 	}

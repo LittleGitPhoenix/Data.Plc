@@ -1,18 +1,15 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.Serialization;
 using System.Text;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using Phoenix.Data.Plc.Items;
 using Phoenix.Data.Plc.Items.Builder;
 using Phoenix.Data.Plc.Items.Typed;
 
 namespace Phoenix.Data.Plc.Test
 {
-	[TestClass]
+	[TestFixture]
 	public class ItemTest
 	{
 		public Data Data { get; }
@@ -22,7 +19,7 @@ namespace Phoenix.Data.Plc.Test
 			this.Data = new Data();
 		}
 
-		[TestMethod]
+		[Test]
 		public void CheckItemIdentifierAndPlcString()
 		{
 			IPlcItem plcItem;
@@ -44,28 +41,28 @@ namespace Phoenix.Data.Plc.Test
 			Assert.AreEqual(plcItem.Identifier, plcItem.PlcString);
 		}
 
-		[TestMethod]
+		[Test]
 		public void CheckClone()
 		{
 			IPlcItem plcItem = new BytesPlcItem(dataBlock: 1234, position: 10, initialValue: Data.TargetBytes); // Explicitly cast this to 'IPlcItem' so that its 'Value' is a 'BitCollection'.
 			IPlcItem clonedPlcItem = plcItem.Clone();
 			
-			Assert.IsTrue(plcItem.Equals(clonedPlcItem));
-			Assert.IsFalse( Object.ReferenceEquals(plcItem, clonedPlcItem));
-			Assert.IsTrue(plcItem.Value.Equals(clonedPlcItem.Value));
+			Assert.True(plcItem.Equals(clonedPlcItem));
+			Assert.False( Object.ReferenceEquals(plcItem, clonedPlcItem));
+			Assert.True(plcItem.Value.Equals(clonedPlcItem.Value));
 		}
 		
-		[TestMethod]
+		[Test]
 		public void CheckTypedValueEquality()
 		{
 			var plcItem = new BytesPlcItem(dataBlock: 1234, position: 10, initialValue: Data.TargetBytes);
 			var typedValue = plcItem.Value;
 			var underlyingValue = (byte[]) ((IPlcItem) plcItem).Value;
 			
-			Assert.IsTrue(typedValue.SequenceEqual(underlyingValue));
+			Assert.True(typedValue.SequenceEqual(underlyingValue));
 		}
 
-		[TestMethod]
+		[Test]
 		public void CheckItemBuilder()
 		{
 			var itemBuilder = new PlcItemBuilder();
@@ -115,7 +112,7 @@ namespace Phoenix.Data.Plc.Test
 				.WithInitialValue(Byte.MaxValue)
 				.Build()
 				;
-			Assert.AreEqual((uint) System.Runtime.InteropServices.Marshal.SizeOf<Byte>(), ((IPlcItem) byteItem).Value.ByteLength);
+			Assert.AreEqual((uint) sizeof(Byte), ((IPlcItem) byteItem).Value.ByteLength);
 
 			Int16PlcItem int16Item = itemBuilder
 				.ConstructInt16PlcItem("Int16")
@@ -124,7 +121,7 @@ namespace Phoenix.Data.Plc.Test
 				.WithoutInitialValue()
 				.Build()
 				;
-			Assert.AreEqual((uint) System.Runtime.InteropServices.Marshal.SizeOf<Int16>(), ((IPlcItem) int16Item).Value.ByteLength);
+			Assert.AreEqual((uint) sizeof(Int16), ((IPlcItem) int16Item).Value.ByteLength);
 			
 			Int32PlcItem int32Item = itemBuilder
 				.ConstructInt32PlcItem("Int32")
@@ -133,7 +130,7 @@ namespace Phoenix.Data.Plc.Test
 				.WithInitialValue(int.MinValue)
 				.Build()
 				;
-			Assert.AreEqual((uint) System.Runtime.InteropServices.Marshal.SizeOf<Int32>(), ((IPlcItem) int32Item).Value.ByteLength);
+			Assert.AreEqual((uint) sizeof(Int32), ((IPlcItem) int32Item).Value.ByteLength);
 			
 			Int64PlcItem int64Item = itemBuilder
 				.ConstructInt64PlcItem("Int64")
@@ -142,7 +139,7 @@ namespace Phoenix.Data.Plc.Test
 				.WithInitialValue(long.MinValue)
 				.Build()
 				;
-			Assert.AreEqual((uint) System.Runtime.InteropServices.Marshal.SizeOf<Int64>(), ((IPlcItem) int64Item).Value.ByteLength);
+			Assert.AreEqual((uint) sizeof(Int64), ((IPlcItem) int64Item).Value.ByteLength);
 			
 			UInt16PlcItem uInt16Item = itemBuilder
 				.ConstructUInt16PlcItem("UInt16")
@@ -151,7 +148,7 @@ namespace Phoenix.Data.Plc.Test
 				.WithoutInitialValue()
 				.Build()
 				;
-			Assert.AreEqual((uint) System.Runtime.InteropServices.Marshal.SizeOf<UInt16>(), ((IPlcItem) uInt16Item).Value.ByteLength);
+			Assert.AreEqual((uint) sizeof(UInt16), ((IPlcItem) uInt16Item).Value.ByteLength);
 
 			UInt32PlcItem uInt32PlcItem = itemBuilder
 				.ConstructUInt32PlcItem("UInt32")
@@ -160,7 +157,7 @@ namespace Phoenix.Data.Plc.Test
 				.WithInitialValue(uint.MaxValue)
 				.Build()
 				;
-			Assert.AreEqual((uint) System.Runtime.InteropServices.Marshal.SizeOf<UInt32>(), ((IPlcItem) uInt32PlcItem).Value.ByteLength);
+			Assert.AreEqual((uint) sizeof(UInt32), ((IPlcItem) uInt32PlcItem).Value.ByteLength);
 
 			UInt64PlcItem uInt64PlcItem = itemBuilder
 				.ConstructUInt64PlcItem("UInt64")
@@ -169,7 +166,7 @@ namespace Phoenix.Data.Plc.Test
 				.WithInitialValue(ulong.MaxValue)
 				.Build()
 				;
-			Assert.AreEqual((uint) System.Runtime.InteropServices.Marshal.SizeOf<UInt64>(), ((IPlcItem) uInt64PlcItem).Value.ByteLength);
+			Assert.AreEqual((uint) sizeof(UInt64), ((IPlcItem) uInt64PlcItem).Value.ByteLength);
 
 			WordPlcItem wordItem = itemBuilder
 				.ConstructWordPlcItem("Word")

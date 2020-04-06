@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace Phoenix.Data.Plc.Test
 {
-	[TestClass]
+	[TestFixture]
 	public class DataHelperTest : DataTest
 	{
-		[TestMethod]
+		[Test]
 		public void Helper_Is_Bit_In_Byte_Set()
 		{
 			for (int index = 0; index < base.Bytes.Length; index++)
@@ -24,13 +24,13 @@ namespace Phoenix.Data.Plc.Test
 			}
 		}
 		
-		[TestMethod]
+		[Test]
 		public void Helper_Is_Bit_In_Byte_Set_Throws()
 		{
-			Assert.ThrowsException<ArgumentOutOfRangeException>(() => DataHelper.IsBitSet(0, 9));
+			Assert.Throws<ArgumentOutOfRangeException>(() => DataHelper.IsBitSet(0, 9));
 		}
 
-		[TestMethod]
+		[Test]
 		public void Helper_Is_Bit_In_Bytes_Set()
 		{
 			for (int index = 0; index < base.Bytes.Length; index += 8)
@@ -47,10 +47,10 @@ namespace Phoenix.Data.Plc.Test
 			}
 		}
 
-		[TestMethod]
+		[Test]
 		public void Helper_Is_Bit_In_Bytes_Set_Throws()
 		{
-			Assert.ThrowsException<ArgumentOutOfRangeException>(() => DataHelper.IsBitSet(new byte[0], 1, 0));
+			Assert.Throws<ArgumentOutOfRangeException>(() => DataHelper.IsBitSet(new byte[0], 1, 0));
 		}
 	}
 }

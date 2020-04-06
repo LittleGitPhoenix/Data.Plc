@@ -4,8 +4,6 @@
 
 
 using System;
-using System.ComponentModel;
-using Phoenix.Data.Plc.Items.Builder;
 
 namespace Phoenix.Data.Plc.Items.Typed
 {
@@ -21,6 +19,9 @@ namespace Phoenix.Data.Plc.Items.Typed
 		#endregion
 
 		#region Fields
+
+		private readonly DataConverter.Endianness _endianness;
+
 		#endregion
 
 		#region Properties
@@ -31,17 +32,31 @@ namespace Phoenix.Data.Plc.Items.Typed
 		/// <inheritdoc />
 		/// <param name="position"> The position where the <see cref="UInt64"/> within the <see cref="IPlcItem.DataBlock"/> begins. </param>
 		public UInt64PlcItem(ushort dataBlock, ushort position, ulong initialValue = ulong.MinValue, string identifier = default)
+			: this
+			(
+				dataBlock,
+				position,
+				DataConverter.Endianness.LittleEndian,
+				initialValue,
+				identifier
+			) { }
+
+		/// <inheritdoc />
+		/// <param name="position"> The position where the <see cref="UInt64"/> within the <see cref="IPlcItem.DataBlock"/> begins. </param>
+		protected UInt64PlcItem(ushort dataBlock, ushort position, DataConverter.Endianness endianness, ulong initialValue = ulong.MinValue, string identifier = default)
 			: base
 			(
 				PlcItemType.Data,
 				dataBlock,
 				position,
-				//byteAmount: (ushort) System.Runtime.InteropServices.Marshal.SizeOf<ulong>(),
 				byteAmount: sizeof(ulong),
 				false,
 				initialValue,
 				identifier
-			) { }
+			)
+		{
+			_endianness = endianness;
+		}
 
 		#endregion
 
@@ -52,13 +67,14 @@ namespace Phoenix.Data.Plc.Items.Typed
 		/// <inheritdoc />
 		public override ulong ConvertFromData(BitCollection data)
 		{
-			return BitConverter.ToUInt64(data, 0);
+			return DataConverter.ToUInt64(data, _endianness);
 		}
 
 		/// <inheritdoc />
 		public override BitCollection ConvertToData(ulong value)
 		{
-			return new BitCollection(false, BitConverter.GetBytes(value));
+			var bytes = DataConverter.ToBytes(value, _endianness);
+			return new BitCollection(false, bytes);
 		}
 
 		#endregion
@@ -75,7 +91,7 @@ namespace Phoenix.Data.Plc.Items.Typed
 		/// <returns> A new <see cref="UInt64PlcItem"/>. </returns>
 		public new UInt64PlcItem Clone(string identifier)
 		{
-			return new UInt64PlcItem(base.DataBlock, base.Position, this.Value, identifier);
+			return new UInt64PlcItem(base.DataBlock, base.Position, _endianness, this.Value, identifier);
 		}
 
 		#endregion

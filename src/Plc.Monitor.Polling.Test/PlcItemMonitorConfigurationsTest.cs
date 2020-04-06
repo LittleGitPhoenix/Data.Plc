@@ -1,16 +1,16 @@
 using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using Phoenix.Data.Plc.Items;
 
 namespace Phoenix.Data.Plc.Monitor.Polling.Test
 {
-	[TestClass]
+	[TestFixture]
 	public class PlcItemMonitorConfigurationsTest
 	{
 		/// <summary>
 		/// Checks if the <see cref="PlcItemMonitorConfigurations.DefaultPollingFrequency"/> is used for items that don't provide a custom <see cref="PlcItemMonitorConfiguration"/>.
 		/// </summary>
-		[TestMethod]
+		[Test]
 		public void Check_Default_Frequency()
 		{
 			//Arrange
@@ -28,7 +28,7 @@ namespace Phoenix.Data.Plc.Monitor.Polling.Test
 		/// <summary>
 		/// Checks if a custom polling frequency is returned if a custom <see cref="PlcItemMonitorConfiguration"/> has been provided for an <see cref="IPlcItem"/>.
 		/// </summary>
-		[TestMethod]
+		[Test]
 		public void Check_Custom_Frequency()
 		{
 			//Arrange
@@ -48,7 +48,7 @@ namespace Phoenix.Data.Plc.Monitor.Polling.Test
 		/// <summary>
 		/// Checks if the <see cref="PlcItemMonitorConfigurations.MinimumPollingFrequency"/> cannot be undershot.
 		/// </summary>
-		[TestMethod]
+		[Test]
 		public void Polling_Frequency_Cannot_Be_Undershot()
 		{
 			// Act

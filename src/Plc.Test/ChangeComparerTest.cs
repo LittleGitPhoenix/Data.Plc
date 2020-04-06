@@ -1,13 +1,13 @@
 using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using Phoenix.Data.Plc.Items;
 
 namespace Phoenix.Data.Plc.Test
 {
-	[TestClass]
+	[TestFixture]
 	public class ChangeComparerTest
 	{
-		//[TestMethod]
+		//[Test]
 		//[DataRow(new object(), new object())]
 		//public void ChangeComparer_ReferenceQuality(object x, object y)
 		//{
@@ -16,10 +16,10 @@ namespace Phoenix.Data.Plc.Test
 		//	var object1 = new object();
 		//	var object2 = object1;
 			
-		//	Assert.IsTrue(comparer.Equals(x, y));
+		//	Assert.True(comparer.Equals(x, y));
 		//}
 
-		[TestMethod]
+		[Test]
 		public void ChangeComparer_ReferenceEquality()
 		{
 			var comparer = new ChangeComparer();
@@ -28,11 +28,11 @@ namespace Phoenix.Data.Plc.Test
 			var object2 = object1;
 			var object3 = new object();
 			
-			Assert.IsTrue(comparer.Equals(object1, object2));
-			Assert.IsFalse(comparer.Equals(object1, object3));
+			Assert.True(comparer.Equals(object1, object2));
+			Assert.False(comparer.Equals(object1, object3));
 		}
 
-		[TestMethod]
+		[Test]
 		public void ChangeComparer_NullEquality()
 		{
 			var comparer = new ChangeComparer();
@@ -40,11 +40,11 @@ namespace Phoenix.Data.Plc.Test
 			var object1 = new object();
 			object object2 = null;
 			
-			Assert.IsFalse(comparer.Equals(object1, object2));
-			Assert.IsFalse(comparer.Equals(object2, object1));
+			Assert.False(comparer.Equals(object1, object2));
+			Assert.False(comparer.Equals(object2, object1));
 		}
 
-		[TestMethod]
+		[Test]
 		public void ChangeComparer_BooleanEquality()
 		{
 			var comparer = new ChangeComparer();
@@ -53,8 +53,8 @@ namespace Phoenix.Data.Plc.Test
 			var object2 = true;
 			var object3 = false;
 
-			Assert.IsTrue(comparer.Equals(object1, object2));
-			Assert.IsFalse(comparer.Equals(object1, object3));
+			Assert.True(comparer.Equals(object1, object2));
+			Assert.False(comparer.Equals(object1, object3));
 		}
 	}
 }

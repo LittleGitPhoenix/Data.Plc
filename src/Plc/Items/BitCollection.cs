@@ -225,21 +225,35 @@ namespace Phoenix.Data.Plc.Items
 				//! A Change is a change...so raise for both!
 				if (oldLength < newLength)
 				{
+					//! Use arrays instead of Linq for performance reasons.
 					// Array has been extended.
-					return Enumerable
-						.Range(start: (int) oldLength, count: (int) (newLength - oldLength))
-						.Select(index => new BitChange((uint) index, null, false))
-						.ToList()
-						;
+					//return Enumerable
+					//	.Range(start: (int) oldLength, count: (int) (newLength - oldLength))
+					//	.Select(index => new BitChange((uint) index, null, false))
+					//	.ToList()
+					//	;
+					var changes = new List<BitChange>((int) (newLength - oldLength));
+					for (uint index = oldLength; index < oldLength + changes.Count; index++)
+					{
+						changes[(int) index] = new BitChange(index, null, false);
+					}
+					return changes;
 				}
 				else
 				{
+					//! Use arrays instead of Linq for performance reasons.
 					// Array has been truncated.
-					return Enumerable
-						.Range(start: (int) newLength, count: (int) (oldLength - newLength))
-						.Select(index => new BitChange((uint) index, oldBits[index], null))
-						.ToList()
-						;
+					//return Enumerable
+					//	.Range(start: (int) newLength, count: (int) (oldLength - newLength))
+					//	.Select(index => new BitChange((uint) index, oldBits[index], null))
+					//	.ToList()
+					//	;
+					var changes = new List<BitChange>((int)(oldLength - newLength));
+					for (uint index = newLength; index < newLength + changes.Count; index++)
+					{
+						changes[(int) index] = new BitChange(index, oldBits[index], null);
+					}
+					return changes;
 				}
 			}
 		}
@@ -253,15 +267,21 @@ namespace Phoenix.Data.Plc.Items
 		/// </summary>
 		/// <param name="value"> The new value. </param>
 		public void SetAllBitsTo(bool value)
-			=> this.TransferValuesFrom(value ? this.Bits.Select(bit => true).ToArray() : new bool[this.Bits.Length]);
+		{
+			//! Creating a new boolean array and set all values to true if needed is faster than the linq query.
+			////var booleans = value ? this.Bits.Select(bit => true).ToArray() : new bool[this.Bits.Length];
+			var booleans = new bool[this.Bits.Length];
+			if (value) for (int i = 0; i < booleans.Length; i++) booleans[i] = true;
+				
+			this.TransferValuesFrom(booleans);
+		}
 
 		/// <summary>
 		/// Transfers the bits from another <see cref="BitCollection"/> to this one.
 		/// </summary>
 		/// <param name="other"> The other <see cref="BitCollection"/>. </param>
 		/// <param name="startPosition"> The bit-based position within the internal collection where to start transferring the other <see cref="BitCollection"/>. </param>
-		/// /// <param name="adaptSize"> Should the size of the internal storage be adapted according to the size of the <paramref name="other"/>. Default is <c>False</c>. </param>
-		public void TransferValuesFrom(BitCollection other, uint startPosition = 0, bool adaptSize = false)
+		public void TransferValuesFrom(BitCollection other, uint startPosition = 0)
 			=> this.TransferValuesFrom(other.Bits, startPosition);
 
 		/// <summary>
@@ -269,8 +289,7 @@ namespace Phoenix.Data.Plc.Items
 		/// </summary>
 		/// <param name="bytes"> The <see cref="Byte"/> array to apply. </param>
 		/// <param name="startPosition"> The byte-based position within the internal collection where to start transferring the <paramref name="bytes"/>. </param>
-		/// <param name="adaptSize"> Should the size of the internal storage be adapted according to the size of the <paramref name="bytes"/>. Default is <c>False</c>. </param>
-		public void TransferValuesFrom(byte[] bytes, uint startPosition = 0, bool adaptSize = false)
+		public void TransferValuesFrom(byte[] bytes, uint startPosition = 0)
 			=> this.TransferValuesFrom(DataConverter.ToBooleans(bytes), startPosition * 8);
 
 		/// <summary>
@@ -323,12 +342,9 @@ namespace Phoenix.Data.Plc.Items
 
 		#region IEquatable
 		
-		/*!
-		 * This class has no immutable properties and therefore no proper implementation of 'GetHashCode' can be made.
-		 * Equality is not determined via a has code but rather via comparing the sequences of the underlying data.
-		 */
 		/// <inheritdoc />
 		public override int GetHashCode()
+			// ReSharper disable once BaseObjectGetHashCodeCallInGetHashCode → This class has no immutable properties and therefore no proper implementation of 'GetHashCode' can be made. For equality checks this is not necessary as equality is not determined via hash code but rather via comparing the sequences of the underlying data.
 			=> base.GetHashCode();
 
 		/// <summary>

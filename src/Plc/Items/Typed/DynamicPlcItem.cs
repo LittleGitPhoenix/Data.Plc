@@ -4,7 +4,6 @@
 
 
 using System;
-using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Phoenix.Data.Plc.Items.Typed
@@ -230,13 +229,11 @@ namespace Phoenix.Data.Plc.Items.Typed
 				}
 				case 2:
 				{
-					newLength = BitConverter.ToUInt16(data, 0);
-					break;
+					return DataConverter.ToUInt16(data, DataConverter.Endianness.LittleEndian);
 				}
 				case 4:
 				{
-					newLength = BitConverter.ToUInt32(data, 0);
-					break;
+					return DataConverter.ToUInt32(data, DataConverter.Endianness.LittleEndian);
 				}
 				default:
 				{
