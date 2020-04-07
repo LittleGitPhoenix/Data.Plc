@@ -56,7 +56,7 @@ namespace Phoenix.Data.Plc.Items
 		#endregion
 
 		#region Fields
-		
+
 		private readonly object _valueAccessLockObject;
 
 		private readonly object _valueChangeLockObject;
@@ -125,10 +125,10 @@ namespace Phoenix.Data.Plc.Items
 		private byte[] _bytes;
 
 		/// <summary> The total amount of bits this <see cref="BitCollection"/> contains. </summary>
-		public uint Length => (uint) this.Bits.Length;
+		public uint Length => (uint)this.Bits.Length;
 
 		/// <summary> The total amount of bytes this <see cref="BitCollection"/> contains. </summary>
-		public uint ByteLength => (uint) this.Bytes.Length;
+		public uint ByteLength => (uint)this.Bytes.Length;
 
 		/// <summary> Does this <see cref="BitCollection"/> handle full bytes or single bits. </summary>
 		/// <remarks> Full bytes are identified by bit amount and modulo 8. </remarks>
@@ -161,7 +161,7 @@ namespace Phoenix.Data.Plc.Items
 		/// <param name="automaticallyAdaptSize"> Will the size of the internal storage be adapted automatically according to new values. </param>
 		/// <param name="bitCollections"> Several other <see cref="BitCollection"/> that will build a new one. </param>
 		public BitCollection(bool automaticallyAdaptSize, params BitCollection[] bitCollections) : this(bitCollections.SelectMany(collection => (bool[])collection).ToArray(), null, automaticallyAdaptSize) { }
-		
+
 		/// <summary>
 		/// Constructor
 		/// </summary>
@@ -199,7 +199,7 @@ namespace Phoenix.Data.Plc.Items
 			{
 				var changes = this.Resize_Internal(newLength).ToArray();
 				if (!changes.Any()) return;
-				
+
 				this.OnBitsChanged(changes);
 			}
 		}
@@ -225,33 +225,35 @@ namespace Phoenix.Data.Plc.Items
 				//! A Change is a change...so raise for both!
 				if (oldLength < newLength)
 				{
-					//! Use arrays instead of Linq for performance reasons.
 					// Array has been extended.
+
+					//! Use arrays instead of Linq for performance reasons.
 					//return Enumerable
 					//	.Range(start: (int) oldLength, count: (int) (newLength - oldLength))
 					//	.Select(index => new BitChange((uint) index, null, false))
 					//	.ToList()
 					//	;
-					var changes = new List<BitChange>((int) (newLength - oldLength));
-					for (uint index = oldLength; index < oldLength + changes.Count; index++)
+					var changes = new List<BitChange>((int)(newLength - oldLength));
+					for (uint index = oldLength; index < oldLength + changes.Capacity; index++)
 					{
-						changes[(int) index] = new BitChange(index, null, false);
+						changes.Add(new BitChange(index, null, false));
 					}
 					return changes;
 				}
 				else
 				{
-					//! Use arrays instead of Linq for performance reasons.
 					// Array has been truncated.
+
+					//! Use arrays instead of Linq for performance reasons.
 					//return Enumerable
 					//	.Range(start: (int) newLength, count: (int) (oldLength - newLength))
 					//	.Select(index => new BitChange((uint) index, oldBits[index], null))
 					//	.ToList()
 					//	;
 					var changes = new List<BitChange>((int)(oldLength - newLength));
-					for (uint index = newLength; index < newLength + changes.Count; index++)
+					for (uint index = newLength; index < newLength + changes.Capacity; index++)
 					{
-						changes[(int) index] = new BitChange(index, oldBits[index], null);
+						changes.Add(new BitChange(index, oldBits[index], null));
 					}
 					return changes;
 				}
@@ -272,7 +274,7 @@ namespace Phoenix.Data.Plc.Items
 			////var booleans = value ? this.Bits.Select(bit => true).ToArray() : new bool[this.Bits.Length];
 			var booleans = new bool[this.Bits.Length];
 			if (value) for (int i = 0; i < booleans.Length; i++) booleans[i] = true;
-				
+
 			this.TransferValuesFrom(booleans);
 		}
 
@@ -303,7 +305,7 @@ namespace Phoenix.Data.Plc.Items
 			{
 				// Change the size if needed.
 				var changes = this.AutomaticallyAdaptSize ? this.Resize_Internal((uint) booleans.Length) : new List<BitChange>();
-				
+
 				for (var bitPosition = startPosition; bitPosition < Math.Min(this.Bits.Length, booleans.Length) + startPosition; bitPosition++)
 				{
 					var currentValue = this.Bits[bitPosition];
@@ -329,7 +331,7 @@ namespace Phoenix.Data.Plc.Items
 		}
 
 		#endregion
-		
+
 		#region IEnumerable
 
 		/// <inheritdoc />
@@ -341,7 +343,7 @@ namespace Phoenix.Data.Plc.Items
 		#endregion
 
 		#region IEquatable
-		
+
 		/// <inheritdoc />
 		public override int GetHashCode()
 			// ReSharper disable once BaseObjectGetHashCodeCallInGetHashCode → This class has no immutable properties and therefore no proper implementation of 'GetHashCode' can be made. For equality checks this is not necessary as equality is not determined via hash code but rather via comparing the sequences of the underlying data.
@@ -430,15 +432,15 @@ namespace Phoenix.Data.Plc.Items
 		/// <summary>
 		/// Implicit cast operator to <see cref="bool"/> array.
 		/// </summary>
-		public static implicit operator bool[] (BitCollection bitCollection)
+		public static implicit operator bool[](BitCollection bitCollection)
 		{
 			return bitCollection.Bits;
 		}
-		
+
 		/// <summary>
 		/// Implicit cast operator to <see cref="Byte"/> array.
 		/// </summary>
-		public static implicit operator byte[] (BitCollection bitCollection)
+		public static implicit operator byte[](BitCollection bitCollection)
 		{
 			return bitCollection.Bytes;
 		}

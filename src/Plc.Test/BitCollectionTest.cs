@@ -91,19 +91,75 @@ namespace Phoenix.Data.Plc.Test
 			var bitCollection = new BitCollection(false, Enumerable.Range(0, 10).Select(index => false).ToArray());
 			bitCollection.BitsChanged += (sender, args) => changes = args.Changes;
 			var newData = Enumerable.Range(0, 5).Select(index => true).Concat(Enumerable.Range(0, 5).Select(index => false)).ToArray();
-			var targetChangedElements = newData.Count(boolean => boolean == true);
+			var targetChangesCount = newData.Count(boolean => boolean == true);
 
 			// Act
 			bitCollection.TransferValuesFrom(newData, 0);
 
 			// Assert
-			Assert.That(changes.Count, Is.EqualTo(targetChangedElements));
+			Assert.That(changes.Count, Is.EqualTo(targetChangesCount));
 			var position = uint.MinValue;
 			foreach (var change in changes.OrderBy(change => change.Position))
 			{
 				Assert.True(change.Position == position);
-				Assert.True(change.NewValue, $"New value was not true at position: {position}.");
 				Assert.False(change.OldValue, $"Old value was not false at position: {position}.");
+				Assert.True(change.NewValue, $"New value was not true at position: {position}.");
+				position++;
+			}
+		}
+
+		/// <summary>
+		/// Checks if change notification is raised if the underlying data of a <see cref="BitCollection"/> is extended.
+		/// </summary>
+		[Test]
+		public void Change_Notification_Is_Raised_If_Dynamically_Expanded()
+		{
+			// Arrange
+			ICollection<BitChange> changes = null;
+			var modifiableBitCollection = new BitCollection(true, Enumerable.Range(0, 5).Select(index => false).ToArray());
+			modifiableBitCollection.BitsChanged += (sender, args) => changes = args.Changes;
+			var newData = Enumerable.Range(0, (int)(modifiableBitCollection.Length * 2)).Select(index => false).ToArray(); //! Make this larger.
+			var targetChangesCount = modifiableBitCollection.Length;
+
+			// Act
+			modifiableBitCollection.TransferValuesFrom(newData, 0);
+
+			// Assert
+			Assert.That(changes.Count, Is.EqualTo(targetChangesCount));
+			var position = targetChangesCount;
+			foreach (var change in changes.OrderBy(change => change.Position))
+			{
+				Assert.True(change.Position == position);
+				Assert.Null(change.OldValue, $"Old value was not null at position: {position}.");
+				Assert.False(change.NewValue, $"New value was not false at position: {position}.");
+				position++;
+			}
+		}
+
+		/// <summary>
+		/// Checks if change notification is raised if the underlying data of a <see cref="BitCollection"/> is truncated.
+		/// </summary>
+		[Test]
+		public void Change_Notification_Is_Raised_If_Dynamically_Truncated()
+		{
+			// Arrange
+			ICollection<BitChange> changes = null;
+			var modifiableBitCollection = new BitCollection(true, Enumerable.Range(0, 10).Select(index => false).ToArray());
+			modifiableBitCollection.BitsChanged += (sender, args) => changes = args.Changes;
+			var newData = Enumerable.Range(0, (int)(modifiableBitCollection.Length / 2)).Select(index => false).ToArray(); //! Make this smaller.
+			var targetChangesCount = newData.Length;
+
+			// Act
+			modifiableBitCollection.TransferValuesFrom(newData, 0);
+
+			// Assert
+			Assert.That(changes.Count, Is.EqualTo(targetChangesCount));
+			var position = targetChangesCount;
+			foreach (var change in changes.OrderBy(change => change.Position))
+			{
+				Assert.True(change.Position == position);
+				Assert.False(change.OldValue, $"Old value was not false at position: {position}.");
+				Assert.Null(change.NewValue, $"New value was not null at position: {position}.");
 				position++;
 			}
 		}
