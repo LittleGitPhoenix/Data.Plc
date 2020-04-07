@@ -28,18 +28,18 @@ namespace Phoenix.Data.Plc.Items.Typed
 
 		/// <inheritdoc />
 		public DynamicBytesPlcItem(INumericPlcItem numericPlcItem, string identifier = default)
-			: this(numericPlcItem, new byte[0], null, 1, identifier) { }
+			: this(numericPlcItem, new byte[0], 1, null, identifier) { }
 
 		/// <inheritdoc />
-		public DynamicBytesPlcItem(INumericPlcItem numericPlcItem, uint? lengthLimit, byte lengthFactor, string identifier = default)
-			: this(numericPlcItem, new byte[0], lengthLimit, lengthFactor, identifier) { }
+		public DynamicBytesPlcItem(INumericPlcItem numericPlcItem, byte lengthFactor, uint? lengthLimit, string identifier = default)
+			: this(numericPlcItem, new byte[0], lengthFactor, lengthLimit, identifier) { }
 
 		/// <inheritdoc />
 		public DynamicBytesPlcItem(INumericPlcItem numericPlcItem, byte[] initialValue, string identifier = default)
-			: this(numericPlcItem, initialValue, null, 1, identifier) { }
+			: this(numericPlcItem, initialValue, 1, null, identifier) { }
 
 		/// <inheritdoc />
-		public DynamicBytesPlcItem(INumericPlcItem numericPlcItem, byte[] initialValue, uint? lengthLimit, byte lengthFactor, string identifier = default)
+		public DynamicBytesPlcItem(INumericPlcItem numericPlcItem, byte[] initialValue, byte lengthFactor, uint? lengthLimit, string identifier = default)
 			: base
 			(
 				numericPlcItem,
@@ -52,9 +52,8 @@ namespace Phoenix.Data.Plc.Items.Typed
 						initialValue: initialValue,
 						identifier: name
 					),
-				lengthLimit,
 				lengthFactor,
-				identifier
+				lengthLimit, identifier
 			)
 		{ }
 
@@ -74,7 +73,7 @@ namespace Phoenix.Data.Plc.Items.Typed
 		/// <returns> A new <see cref="DynamicBytesPlcItem"/>. </returns>
 		public new DynamicBytesPlcItem Clone(string identifier)
 		{
-			return new DynamicBytesPlcItem(base.LengthPlcItem, this.Value, ((IDynamicPlcItem)this).LengthLimit, base.LengthFactor, identifier);
+			return new DynamicBytesPlcItem(base.LengthPlcItem, this.Value, base.LengthFactor, base.LengthLimit, identifier);
 		}
 
 		#endregion

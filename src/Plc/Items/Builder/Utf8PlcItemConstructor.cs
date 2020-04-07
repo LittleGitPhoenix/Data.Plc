@@ -48,13 +48,16 @@ namespace Phoenix.Data.Plc.Items.Builder
 	[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
 	public interface ILengthFactorUtf8PlcItemConstructor : IDynamicUtf8PlcItemCreator
 	{
+		/// <summary> This factor will be multiplied with the the length value of the <see cref="IDynamicPlcItem.LengthPlcItem"/> in cases where this value does not specify the length but rather an amount. </summary>
 		ILengthLimiterUtf8PlcItemConstructor WithLengthFactor(byte lengthFactor);
+		/// <summary> Don't apply a length factor. </summary>
 		ILengthLimiterUtf8PlcItemConstructor WithoutLengthFactor();
 	}
 
 	[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
 	public interface ILengthLimiterUtf8PlcItemConstructor : IDynamicUtf8PlcItemCreator
 	{
+		/// <summary> This is a limit that will be applied to the total length that can be read or written. </summary>
 		IDynamicUtf8PlcItemCreator WithLengthLimit(uint lengthLimit);
 	}
 
@@ -192,7 +195,7 @@ namespace Phoenix.Data.Plc.Items.Builder
 			else if (_numericPlcItemType == typeof(DWordPlcItem)) numericPlcItem = new DWordPlcItem(base.DataBlock.Value, base.Position.Value, initialValue: (UInt32) base.ByteAmount);
 			else throw new NotSupportedException($"The numeric part of any dynamic plc item must be an {nameof(INumericPlcItem)}. Currently supported are the following concrete items: {nameof(BytePlcItem)}, {nameof(UInt16PlcItem)}, {nameof(UInt32PlcItem)}, {nameof(WordPlcItem)}, {nameof(DWordPlcItem)}");
 
-			return new DynamicUtf8PlcItem(numericPlcItem, _lengthLimit, _lengthFactor, base.InitialValue, base.Identifier);
+			return new DynamicUtf8PlcItem(numericPlcItem, _lengthFactor, _lengthLimit, base.InitialValue, base.Identifier);
 			// ReSharper restore PossibleInvalidOperationException
 		}
 

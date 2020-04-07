@@ -29,20 +29,20 @@ namespace Phoenix.Data.Plc.Items.Typed
 
 		/// <inheritdoc />
 		public DynamicUtf8PlcItem(INumericPlcItem numericPlcItem, string identifier = default)
-			: this(numericPlcItem, null, 1, String.Empty, identifier)
+			: this(numericPlcItem, 1, null, String.Empty, identifier)
 		{ }
 
 		/// <inheritdoc />
-		public DynamicUtf8PlcItem(INumericPlcItem numericPlcItem, uint? lengthLimit, byte lengthFactor, string identifier = default)
-			: this(numericPlcItem, lengthLimit, lengthFactor, String.Empty, identifier)
+		public DynamicUtf8PlcItem(INumericPlcItem numericPlcItem, byte lengthFactor, uint? lengthLimit, string identifier = default)
+			: this(numericPlcItem, lengthFactor, lengthLimit, String.Empty, identifier)
 		{ }
 
 		/// <inheritdoc />
 		public DynamicUtf8PlcItem(INumericPlcItem numericPlcItem, string initialValue = default, string identifier = default)
-			: this(numericPlcItem, null, 1, initialValue, identifier) { }
+			: this(numericPlcItem, 1, null, initialValue, identifier) { }
 
 		/// <inheritdoc />
-		public DynamicUtf8PlcItem(INumericPlcItem numericPlcItem, uint? lengthLimit, byte lengthFactor, string initialValue = default, string identifier = default)
+		public DynamicUtf8PlcItem(INumericPlcItem numericPlcItem, byte lengthFactor, uint? lengthLimit, string initialValue = default, string identifier = default)
 			: base
 			(
 				numericPlcItem,
@@ -55,9 +55,8 @@ namespace Phoenix.Data.Plc.Items.Typed
 						canChangeSize: true,
 						identifier: name
 					),
-				lengthLimit,
 				lengthFactor,
-				identifier
+				lengthLimit, identifier
 			)
 		{ }
 
@@ -77,7 +76,7 @@ namespace Phoenix.Data.Plc.Items.Typed
 		/// <returns> A new <see cref="DynamicUtf8PlcItem"/>. </returns>
 		public new DynamicUtf8PlcItem Clone(string identifier)
 		{
-			return new DynamicUtf8PlcItem(base.LengthPlcItem, ((IDynamicPlcItem) this).LengthLimit, base.LengthFactor, this.Value, identifier);
+			return new DynamicUtf8PlcItem(base.LengthPlcItem, base.LengthFactor, base.LengthLimit, this.Value, identifier);
 		}
 
 		#endregion

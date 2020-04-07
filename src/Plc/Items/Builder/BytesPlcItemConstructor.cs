@@ -56,13 +56,16 @@ namespace Phoenix.Data.Plc.Items.Builder
 	[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
 	public interface ILengthFactorPlcItemConstructor : IDynamicBytesPlcItemCreator
 	{
+		/// <summary> This factor will be multiplied with the the length value of the <see cref="IDynamicPlcItem.LengthPlcItem"/> in cases where this value does not specify the length but rather an amount. </summary>
 		ILengthLimiterPlcItemConstructor WithLengthFactor(byte lengthFactor);
+		/// <summary> Don't apply a length factor. </summary>
 		ILengthLimiterPlcItemConstructor WithoutLengthFactor();
 	}
 
 	[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
 	public interface ILengthLimiterPlcItemConstructor : IDynamicBytesPlcItemCreator
 	{
+		/// <summary> This is a limit that will be applied to the total length that can be read or written. </summary>
 		IDynamicBytesPlcItemCreator WithLengthLimit(uint lengthLimit);
 	}
 
@@ -214,7 +217,7 @@ namespace Phoenix.Data.Plc.Items.Builder
 			else if (_numericPlcItemType == typeof(DWordPlcItem)) numericPlcItem = new DWordPlcItem(base.DataBlock.Value, base.Position.Value, initialValue: (UInt32)base.ByteAmount);
 			else throw new NotSupportedException($"The numeric part of any dynamic plc item must be an {nameof(INumericPlcItem)}. Currently supported are the following concrete items: {nameof(BytePlcItem)}, {nameof(UInt16PlcItem)}, {nameof(UInt32PlcItem)}, {nameof(WordPlcItem)}, {nameof(DWordPlcItem)}");
 
-			return new DynamicBytesPlcItem(numericPlcItem, base.InitialValue, _lengthLimit, _lengthFactor, base.Identifier);
+			return new DynamicBytesPlcItem(numericPlcItem, base.InitialValue, _lengthFactor, _lengthLimit, base.Identifier);
 			// ReSharper restore PossibleInvalidOperationException
 		}
 		

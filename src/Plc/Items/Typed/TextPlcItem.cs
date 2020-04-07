@@ -4,6 +4,7 @@
 
 
 using System;
+using System.Linq;
 using System.Text;
 
 namespace Phoenix.Data.Plc.Items.Typed
@@ -136,6 +137,13 @@ namespace Phoenix.Data.Plc.Items.Typed
 				{
 					// YES: Resize the underlying BitCollection to match the new value.
 					((IPlcItem) this).Value.Resize(((uint) newByteAmount * 8));
+
+					/*!
+					Since it is possible for the BitCollection to be smaller then specified (when using this item as part of an IDynamicPlcItem with a limited maximum size),
+					check if value needs to be truncated too.
+					*/
+					var newLength = ((IPlcItem) this).Value.ByteLength;
+					if (value.Length > newLength) newData = newData.Take((int) newLength).ToArray();
 				}
 				else
 				{

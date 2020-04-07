@@ -13,13 +13,13 @@ namespace Phoenix.Data.Plc.Items
 	/// <remarks> Set this to <c>Null</c> to prevent limiting. </remarks>
 	public interface IDynamicPlcItem : IPlcItem
 	{
-		/// <summary> This is a limit that will be applied to the length being read or written. </summary>
-		uint? LengthLimit { get; }
-
-		/// <summary> This factory will be applied to the length of <see cref="LengthPlcItem"/> and the <see cref="LengthLimit"/>. </summary>
+		/// <summary> This factor will be applied to the length of <see cref="LengthPlcItem"/> and the <see cref="LengthLimit"/>. </summary>
 		/// <remarks> It should be used if the <see cref="LengthPlcItem"/> does not provide an absolute byte amount, but rather an amount of items. </remarks>
 		/// <example> If <see cref="LengthPlcItem"/> specifies an amount of items where each item is 4 byte, then this <see cref="LengthFactor"/> should be 4.  </example>
 		byte LengthFactor { get; }
+
+		/// <summary> This is a limit that will be applied to the length being read or written. </summary>
+		uint? LengthLimit { get; }
 
 		/// <summary> The <see cref="IPlcItem"/> that defines the length of this dynamic item. </summary>
 		INumericPlcItem LengthPlcItem { get; }
