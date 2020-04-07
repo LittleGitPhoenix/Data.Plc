@@ -58,13 +58,23 @@ namespace Phoenix.Data.Plc.Test.ItemTests
 		/// Checks if a custom <see cref="IDynamicPlcItem.LengthLimit"/> is respected when reading an <see cref="IDynamicPlcItem"/>.
 		/// </summary>
 		[Test]
-		[TestCase(3, 2)] // The limit is 2, so a value of 3 should be 2.
-		[TestCase(1, 1)] // The limit is 2, so a value of 1 should be 1.
-		public void Check_If_Limit_Is_Respected_When_Reading(byte value, byte target)
+		[TestCase(DataConverter.Endianness.LittleEndian, (ushort) 1000, (ushort) 100)] // Value is larger than limit → Limit is applied.
+		[TestCase(DataConverter.Endianness.LittleEndian, (ushort) 50, (ushort) 50)] // Value is smaller than limit → Value will be used.
+		[TestCase(DataConverter.Endianness.BigEndian, (ushort) 1000, (ushort) 100)] // Value is larger than limit → Limit is applied.
+		[TestCase(DataConverter.Endianness.BigEndian, (ushort) 50, (ushort) 50)] // Value is smaller than limit → Value will be used.
+		public void Check_If_Limit_Is_Respected_When_Reading(DataConverter.Endianness endianness, ushort value, ushort target)
 		{
 			// Arrange
-			var limit = (uint) 2;
-			var numericItem = new BytePlcItem(0, 0);
+			var limit = (uint) 100;
+			INumericPlcItem numericItem;
+			if (endianness == DataConverter.Endianness.LittleEndian)
+			{
+				numericItem = new UInt16PlcItem(0,0);
+			}
+			else
+			{
+				numericItem = new WordPlcItem(0, 0);
+			}
 			Func<string, IPlcItem<byte[]>> flexiblePlcItemFactory = name => new BytesPlcItem(0, 1, true, new byte[0], name);
 			var dynamicPlcItem = new DynamicPlcItem<byte[]>(numericItem, flexiblePlcItemFactory, 1, limit);
 

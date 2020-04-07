@@ -50,7 +50,7 @@ namespace Phoenix.Data.Plc.Items.Typed
 					new Utf8PlcItem
 					(
 						dataBlock: numericPlcItem.DataBlock,
-						position: (ushort) (numericPlcItem.Position + numericPlcItem.Value.ByteLength),
+						position: (ushort) (numericPlcItem.Position + ((IPlcItem) numericPlcItem).Value.ByteLength),
 						initialValue: initialValue,
 						canChangeSize: true,
 						identifier: name

@@ -14,6 +14,7 @@ ___
 ### Fixed
 
 - The value of ***IDynamicPlcItem*** with a defined ***LengthLimit*** was not constraint if the value was changed directly.
+- ***INumericPlcItems*** used in ***IDynamicPlcItems*** where always thread as if they have little endian byte encoding.
 ___
 
 ## 1.2.1 (2020-04-06)

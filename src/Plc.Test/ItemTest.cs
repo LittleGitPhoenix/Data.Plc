@@ -222,7 +222,7 @@ namespace Phoenix.Data.Plc.Test
 				.WithDynamicItemFromInitialValue(initialText)
 				.BuildDynamic()
 				;
-			Assert.AreEqual((uint)Encoding.UTF8.GetBytes(initialText).Length, ((byte[])secondDynamicUtf8Item.LengthPlcItem.Value)[0]);
+			Assert.That(secondDynamicUtf8Item.LengthPlcItem.Value, Is.EqualTo((uint) Encoding.UTF8.GetBytes(initialText).Length));
 			Assert.AreEqual(initialText, secondDynamicUtf8Item.Value);
 
 			var items = new []

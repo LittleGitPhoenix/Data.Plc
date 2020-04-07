@@ -25,6 +25,14 @@ namespace Phoenix.Data.Plc.Items.Typed
 		#endregion
 
 		#region Properties
+
+		/// <inheritdoc />
+		uint INumericPlcItem.Value
+		{
+			get => this.Value;
+			set => this.Value = value;
+		}
+
 		#endregion
 
 		#region (De)Constructors

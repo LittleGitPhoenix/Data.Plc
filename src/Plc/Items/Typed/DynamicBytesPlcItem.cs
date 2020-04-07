@@ -47,7 +47,7 @@ namespace Phoenix.Data.Plc.Items.Typed
 					new BytesPlcItem
 					(
 						dataBlock: numericPlcItem.DataBlock,
-						position: (ushort) (numericPlcItem.Position + numericPlcItem.Value.ByteLength),
+						position: (ushort) (numericPlcItem.Position + ((IPlcItem) numericPlcItem).Value.ByteLength),
 						isFlexible: true,
 						initialValue: initialValue,
 						identifier: name

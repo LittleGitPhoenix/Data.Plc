@@ -143,8 +143,6 @@ namespace Phoenix.Data.Plc.Items.Typed
 
 		private DynamicPlcItem(INumericPlcItem lengthPlcItem, IPlcItem<TValue> flexiblePlcItem, byte lengthFactor, uint? lengthLimit)
 		{
-			if (lengthPlcItem.Value.ByteLength > 4) throw new NotSupportedException($"An {nameof(IDynamicPlcItem)} may currently not have a dynamic length longer than {uint.MaxValue} due to limitations of the item that stores the actual length.");
-
 			// Save parameters.
 			this.LengthFactor = lengthFactor;
 			this.LengthLimit = lengthLimit;
@@ -164,7 +162,7 @@ namespace Phoenix.Data.Plc.Items.Typed
 			{
 				// Get the new length and change the value of the length item accordingly.
 				var newNumericValue = DynamicPlcItem<TValue>.GetValueForNumericItem(this.FlexiblePlcItem, this.LengthFactor, this.LengthLimit);
-				this.LengthPlcItem.Value.TransferValuesFrom(BitConverter.GetBytes(newNumericValue));
+				this.LengthPlcItem.Value = newNumericValue;
 			};
 		}
 
@@ -252,30 +250,30 @@ namespace Phoenix.Data.Plc.Items.Typed
 		internal static uint GetLengthForFlexibleItem(INumericPlcItem lengthPlcItem, byte lengthFactor, uint? lengthLimit)
 		{
 			// Get the length of the length item.
-			uint newLength;
-			byte[] data = lengthPlcItem.Value;
-			switch (lengthPlcItem.Value.ByteLength)
-			{
-				case 1:
-				{
-					newLength = data[0];
-					break;
-				}
-				case 2:
-				{
-					newLength = DataConverter.ToUInt16(data, DataConverter.Endianness.LittleEndian);
-					break;
-				}
-				case 4:
-				{
-					newLength = DataConverter.ToUInt32(data, DataConverter.Endianness.LittleEndian);
-					break;
-				}
-				default:
-				{
-					throw new NotSupportedException($"An {nameof(IDynamicPlcItem)} may currently not have a dynamic length longer than {uint.MaxValue} due to limitations of the item that stores the actual length.");
-				}
-			}
+			uint newLength = lengthPlcItem.Value;
+			//byte[] data = lengthPlcItem.Value;
+			//switch (lengthPlcItem.Value.ByteLength)
+			//{
+			//	case 1:
+			//	{
+			//		newLength = data[0];
+			//		break;
+			//	}
+			//	case 2:
+			//	{
+			//		newLength = DataConverter.ToUInt16(data, DataConverter.Endianness.LittleEndian);
+			//		break;
+			//	}
+			//	case 4:
+			//	{
+			//		newLength = DataConverter.ToUInt32(data, DataConverter.Endianness.LittleEndian);
+			//		break;
+			//	}
+			//	default:
+			//	{
+			//		throw new NotSupportedException($"An {nameof(IDynamicPlcItem)} may currently not have a dynamic length longer than {uint.MaxValue} due to limitations of the item that stores the actual length.");
+			//	}
+			//}
 
 			// Apply the length factor.
 			checked
@@ -314,7 +312,7 @@ namespace Phoenix.Data.Plc.Items.Typed
 			var type = this.Type;
 			var dataBlock = this.DataBlock;
 			var position = this.Position;
-			var fixedLength = this.LengthPlcItem.Value.ByteLength;
+			var fixedLength = ((IPlcItem) this.LengthPlcItem).Value.ByteLength;
 			var dynamicLength = ((IPlcItem) this.FlexiblePlcItem).Value.ByteLength;
 			
 			return $"{(type == PlcItemType.Data ? $"DB{dataBlock}" : $"{type}")},B{position},[{fixedLength}+{dynamicLength}]";
