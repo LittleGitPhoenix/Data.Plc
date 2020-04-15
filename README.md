@@ -64,14 +64,18 @@ ___
 
 # PlcItems
 
-An **_IPlcItem_** wraps all data needed to read or write to the plc.
-- Type: **_PlcItemType_** (Input | Output | Flags | Data)
-- DataBlock
-- Position
-- BitPosition
-- Value: **_BitCollection_** (a specialized class that holds the real bits and bytes of the item)
+An **_IPlcItem_** contains all data needed to read or write to the plc.
 
-To make working with those plc items easier, specialized items for the most common data types exist in the namespace **_PhoenixPlc.Items.Typed_**. Those items automatically convert the underlying **_BitCollection_** into more concrete types:
+| Property | Data Type | Description |
+| :- | :- | :- |
+| Type | Enum ***PlcItemType*** | Input, Output, Flags, Data |
+| DataBlock | **UInt16** | The datablock of the item. This is 0 for all types except ***PlcItemType.Data***. |
+| Position | **UInt16** | The zero-based byte-position. |
+| BitPosition | Enum ***BitPosition*** | X0, X1, ... , X7 |
+| Value | **_BitCollection_** | Specialized class that holds the bits and bytes of the item. |
+
+
+To make working with plc items easier, specialized items for the most common data types exist in the namespace **_PhoenixPlc.Items.Typed_**. Those items automatically convert the underlying **_BitCollection_** into more concrete types:
 
 - BitPlcItem
 - BytesPlcItem
@@ -79,6 +83,7 @@ To make working with those plc items easier, specialized items for the most comm
 - Int16PlcItem
 - Utf8PlcItem
 - WordPlcItem
+- [DynamicPlcItems](#DynamicPlcItems)
 - ...
 
 ## Initialization
@@ -138,6 +143,28 @@ Task<bool> WriteItemWithValidationAsync(this IPlc plc, IPlcItem plcItem, Cancell
 ``` csharp
 Task<bool> WriteItemsWithValidationAsync(this IPlc plc, ICollection<IPlcItem> plcItems, CancellationToken cancellationToken = default)
 ```
+
+## DynamicPlcItems
+
+Those are special ***PlcItems*** that can be used for dynamic data where the length of the item is not known during design time but rather encoded within the first few bytes of the item itself. A typical usage scenario are strings of different sizes, where the actual string length is the first byte of the item itself.
+
+Each ***IDynamicPlcItem*** internally consists of two separate ***PlcItems***.
+
+|  |  |
+| :- | :- |
+| ***LengthPlcItem*** | This is the item whose value is the actual length of the second item. The ***LengthPlcItem*** itself has a fixed size and must be an ***INumericPlcItem***. |
+| ***FlexiblePlcItem*** | This is the item whose length is dynamic. It can be any normal ***IPlcItem*** but actually only ***BytesPlcItem*** and ***TextPlcItem*** are currently implemented as dynamic items. |
+
+Reading and writing an ***IDynamicPlcItem*** always consists of two steps. When reading such an item the ***LengthPlcItem*** will be read first to obtain the current length and afterwards the data of the ***FlexiblePlcItem*** is obtained. Writing is the opposite.
+
+:grey_exclamation: Since reading and writing is done in two steps, it cannot be guaranteed, that the data of an ***IDynamicPlcItem*** is consistent.
+
+Dynamic items additionally provide some special properties that may come in handy under certain conditions.
+
+|  |  |
+| :- | :- |
+| ***LengthFactor*** | This factor will be applied to the length of a dynamic item. It should be used if the ***LengthPlcItem*** does not provide an absolute byte amount, but rather an amount of items. |
+| ***LengthLimit*** | This is an optional limit that will be applied to the length being read or written. |
 ___
 
 # PlcMonitor

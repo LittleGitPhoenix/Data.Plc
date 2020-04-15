@@ -10,7 +10,6 @@ namespace Phoenix.Data.Plc.Items
 	/// <summary>
 	/// A special <see cref="PlcItem"/> that can be used for dynamic data where the length of the data is defined within the first few bytes of the item itself.
 	/// </summary>
-	/// <remarks> Set this to <c>Null</c> to prevent limiting. </remarks>
 	public interface IDynamicPlcItem : IPlcItem
 	{
 		/// <summary> This factor will be applied to the length of <see cref="LengthPlcItem"/> and the <see cref="LengthLimit"/>. </summary>
@@ -19,6 +18,7 @@ namespace Phoenix.Data.Plc.Items
 		byte LengthFactor { get; }
 
 		/// <summary> This is a limit that will be applied to the length being read or written. </summary>
+		/// <remarks> Set this to <c>Null</c> to prevent limiting. </remarks>
 		uint? LengthLimit { get; }
 
 		/// <summary> The <see cref="IPlcItem"/> that defines the length of this dynamic item. </summary>
