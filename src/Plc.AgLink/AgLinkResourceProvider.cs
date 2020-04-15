@@ -5,6 +5,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 
@@ -187,7 +188,8 @@ namespace Phoenix.Data.Plc.AgLink
 			try
 			{
 				if (assembly == null) assembly = System.Reflection.Assembly.GetCallingAssembly();
-				using (var stream = assembly.GetManifestResourceStream($"{assembly.GetName().Name}.{path}.{resourceName}"))
+				var matchingResourceName = assembly.GetManifestResourceNames().FirstOrDefault(name => name.EndsWith($"{path}.{resourceName}"));
+				using (var stream = assembly.GetManifestResourceStream(matchingResourceName))
 				{
 					//  Either the file does not exist or it is not marked as embedded resource.
 					if (stream == null) return null;
