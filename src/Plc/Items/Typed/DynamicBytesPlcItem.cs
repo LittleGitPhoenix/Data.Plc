@@ -28,18 +28,18 @@ namespace Phoenix.Data.Plc.Items.Typed
 
 		/// <inheritdoc />
 		public DynamicBytesPlcItem(INumericPlcItem numericPlcItem, string identifier = default)
-			: this(numericPlcItem, new byte[0], null, identifier) { }
+			: this(numericPlcItem, new byte[0], 1, null, identifier) { }
 
 		/// <inheritdoc />
-		public DynamicBytesPlcItem(INumericPlcItem numericPlcItem, uint? lengthLimit, string identifier = default)
-			: this(numericPlcItem, new byte[0], lengthLimit, identifier) { }
+		public DynamicBytesPlcItem(INumericPlcItem numericPlcItem, byte lengthFactor, uint? lengthLimit, string identifier = default)
+			: this(numericPlcItem, new byte[0], lengthFactor, lengthLimit, identifier) { }
 
 		/// <inheritdoc />
 		public DynamicBytesPlcItem(INumericPlcItem numericPlcItem, byte[] initialValue, string identifier = default)
-			: this(numericPlcItem, initialValue, null, identifier) { }
+			: this(numericPlcItem, initialValue, 1, null, identifier) { }
 
 		/// <inheritdoc />
-		public DynamicBytesPlcItem(INumericPlcItem numericPlcItem, byte[] initialValue, uint? lengthLimit, string identifier = default)
+		public DynamicBytesPlcItem(INumericPlcItem numericPlcItem, byte[] initialValue, byte lengthFactor, uint? lengthLimit, string identifier = default)
 			: base
 			(
 				numericPlcItem,
@@ -47,13 +47,13 @@ namespace Phoenix.Data.Plc.Items.Typed
 					new BytesPlcItem
 					(
 						dataBlock: numericPlcItem.DataBlock,
-						position: (ushort) (numericPlcItem.Position + numericPlcItem.Value.ByteLength),
+						position: (ushort) (numericPlcItem.Position + ((IPlcItem) numericPlcItem).Value.ByteLength),
 						isFlexible: true,
 						initialValue: initialValue,
 						identifier: name
 					),
-				lengthLimit,
-				identifier
+				lengthFactor,
+				lengthLimit, identifier
 			)
 		{ }
 
@@ -73,7 +73,7 @@ namespace Phoenix.Data.Plc.Items.Typed
 		/// <returns> A new <see cref="DynamicBytesPlcItem"/>. </returns>
 		public new DynamicBytesPlcItem Clone(string identifier)
 		{
-			return new DynamicBytesPlcItem(base.LengthPlcItem, this.Value, base.LengthLimit, identifier);
+			return new DynamicBytesPlcItem(base.LengthPlcItem, this.Value, base.LengthFactor, base.LengthLimit, identifier);
 		}
 
 		#endregion

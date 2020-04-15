@@ -22,6 +22,14 @@ namespace Phoenix.Data.Plc.Items.Typed
 		#endregion
 
 		#region Properties
+
+		/// <inheritdoc />
+		uint INumericPlcItem.Value
+		{
+			get => this.Value;
+			set => this.Value = value > byte.MaxValue ? byte.MaxValue : (byte) value;
+		}
+
 		#endregion
 
 		#region (De)Constructors

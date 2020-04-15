@@ -13,6 +13,12 @@ namespace Phoenix.Data.Plc.Items
 	public interface INumericPlcItem : IPlcItem
 	{
 		/// <summary>
+		/// The numeric value of the item.
+		/// </summary>
+		/// <remarks> This will always be the largest support numeric type for all items alike. </remarks>
+		new uint Value { get; set; }
+		
+		/// <summary>
 		/// Creates a deep copy of the current instance.
 		/// </summary>
 		/// <param name="identifier"> A new identifier for the clone. </param>

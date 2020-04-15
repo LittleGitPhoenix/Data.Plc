@@ -4,6 +4,7 @@
 
 
 using System;
+using System.Linq;
 
 namespace Phoenix.Data.Plc.Items.Typed
 {
@@ -24,7 +25,7 @@ namespace Phoenix.Data.Plc.Items.Typed
 		#region Properties
 
 		/// <summary> Does this item support changing the size of its <see cref="IPlcItem.Value"/> whenever a new value is assigned. </summary>
-		private bool AutomaticallyAdaptSize => ((IPlcItem)this).Value.AutomaticallyAdaptSize;
+		private bool AutomaticallyAdaptSize => ((IPlcItem) this).Value.AutomaticallyAdaptSize;
 
 		#endregion
 
@@ -129,6 +130,13 @@ namespace Phoenix.Data.Plc.Items.Typed
 			{
 				// YES: Resize the underlying BitCollection to match the new value.
 				((IPlcItem) this).Value.Resize(((uint) value.Length * 8));
+				
+				/*!
+				Since it is possible for the BitCollection to be smaller then specified (when using this item as part of an IDynamicPlcItem with a limited maximum size),
+				check if value needs to be truncated too.
+				*/
+				var newLength = ((IPlcItem) this).Value.ByteLength;
+				if (value.Length > newLength) value = value.Take((int) newLength).ToArray();
 			}
 			return new BitCollection(automaticallyAdaptSize, value);
 		}
