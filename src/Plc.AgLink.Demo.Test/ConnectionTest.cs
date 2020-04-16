@@ -1,16 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 using Phoenix.Data.Plc.Implementation.Test;
 
 namespace Phoenix.Data.Plc.AgLink.Test
 {
 	[TestFixture]
-	public sealed class ImplementationConnectionTest : ImplementationConnectionTest<DemoAgLinkPlc>
+	public sealed class ImplementationConnectionTest : ImplementationConnectionTest<AgLinkPlc>
 	{
 		public ImplementationConnectionTest()
 			: base
 			(
-				new DemoAgLinkPlc(new AgLinkPlcConnectionData(name: "AGLinkTest@PLC1", ip: "PLC1", rack: 0, slot: 0))
+				new AgLinkPlc(new AgLinkPlcConnectionData(0, "PLC2", 0, 0))
 			)
 		{ }
 	}

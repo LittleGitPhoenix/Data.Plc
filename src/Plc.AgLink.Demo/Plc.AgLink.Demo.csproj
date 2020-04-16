@@ -6,7 +6,7 @@
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<RootNamespace>Phoenix.Data.Plc.AgLink</RootNamespace>
 		<AssemblyName>Phoenix.Data.Plc.AgLink.Demo</AssemblyName>
-		<Version>1.0.0</Version>
+		<Version>1.1.0-beta1</Version>
 		<Authors>Felix Leistner</Authors>
 		<Company>Little Phoenix</Company>
 		<Description>Provides plc communication via AGLink demo assemblies.</Description>
@@ -17,7 +17,13 @@
 		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<NoWarn>NU5048</NoWarn>
+		<NoWarn>NU5100</NoWarn>
 	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Plc.AgLink\Plc.AgLink.csproj" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<None Include="..\..\..\nuget.png" Pack="true" PackagePath="" />
@@ -25,26 +31,48 @@
 		<None Include="..\..\LICENSE.md" Pack="true" PackagePath="" />
 	</ItemGroup>
 
+	<!-- Reference the AGLink .NET wrapper assembly. -->
 	<ItemGroup>
-		<None Remove="Resources\AgLink\AGLink40.dll" />
-		<None Remove="Resources\AgLink\AGLink40CfgDev0000.xml" />
-		<None Remove="Resources\AgLink\AGLink40_x64.dll" />
+		<Reference Include="Resources\AgLink\AGL4DotNET.4.dll" />
 	</ItemGroup>
 
+	<!-- Copy the unmanaged AGLink assemblies and the license file to the root of the output directory. This is needed if the project is directly referenced. -->
 	<ItemGroup>
-		<EmbeddedResource Include="Resources\AgLink\AGLink40.dll" />
-		<EmbeddedResource Include="Resources\AgLink\AGLink40CfgDev0000.xml" />
-		<EmbeddedResource Include="Resources\AgLink\AGLink40_x64.dll" />
+		<ContentWithTargetPath Include="Resources\AgLink\AGLink40.dll">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<TargetPath>AGLink40.dll</TargetPath>
+		</ContentWithTargetPath>
+		<ContentWithTargetPath Include="Resources\AgLink\AGLink40_x64.dll">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<TargetPath>AGLink40_x64.dll</TargetPath>
+		</ContentWithTargetPath>
+		<ContentWithTargetPath Include="Resources\AgLink\AGLink.license">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<TargetPath>AGLink.license</TargetPath>
+		</ContentWithTargetPath>
 	</ItemGroup>
 
+	<!-- Include the AGLink wrapper assembly, the unmanaged AGLink assemblies and the license file into the NuGet package. -->
 	<ItemGroup>
-		<ProjectReference Include="..\Plc.AgLink\Plc.AgLink.csproj" />
+		<None Include="Resources\AgLink\AGL4DotNET.4.dll" Pack="true" PackagePath="lib\netstandard2.0" />
+		<None Include="Resources\AgLink\AGL4DotNET.4.dll" Pack="true" PackagePath="lib\net45" />
+		<None Include="Resources\AgLink\AGL4DotNET.4.xml" Pack="true" PackagePath="lib\netstandard2.0" />
+		<None Include="Resources\AgLink\AGL4DotNET.4.xml" Pack="true" PackagePath="lib\net45" />
+		<None Include="Resources\AgLink\AGLink40.dll" Pack="true" PackagePath="assets\" />
+		<None Include="Resources\AgLink\AGLink40_x64.dll" Pack="true" PackagePath="assets\" />
+		<None Include="Resources\AgLink\AGLink.license" Pack="true" PackagePath="assets\" />
+		<!--<None Include="Resources\AgLink\AGLink40CfgDev0000.xml" Pack="true" PackagePath="assets\"/>-->
 	</ItemGroup>
 
+	<!-- Add a custom target to the build folder of the NuGet package. This target will copy the content of the 'assets' folder from the package into the build directory. -->
 	<ItemGroup>
-		<Reference Include="AGL4DotNET.4">
-			<HintPath>Resources\AgLink\AGL4DotNET.4.dll</HintPath>
-		</Reference>
+		<None Include="Resources\AgLink\Phoenix.Data.Plc.AgLink.Demo.targets" Pack="true" PackagePath="build\" />
 	</ItemGroup>
+
+	<!-- Move the created NuGet packages into another folder. -->
+	<Target Name="MovePackage" AfterTargets="Pack">
+		<Move SourceFiles="$(OutputPath)$(PackageId).$(PackageVersion).symbols.nupkg" DestinationFiles="$(OutputPath)..\..\..\..\.nuget\$(PackageId).$(PackageVersion).nupkg" />
+		<Delete Files="$(OutputPath)$(PackageId).$(PackageVersion).nupkg" />
+	</Target>
 
 </Project>

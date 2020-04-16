@@ -7,12 +7,12 @@ using Phoenix.Data.Plc.Implementation.Test;
 namespace Phoenix.Data.Plc.AgLink.Test
 {
 	[TestFixture]
-	public sealed class ImplementationReadTest : ImplementationReadTest<DemoAgLinkPlc>
+	public sealed class ImplementationReadTest : ImplementationReadTest<AgLinkPlc>
 	{
 		public ImplementationReadTest()
 			: base
 			(
-				new DemoAgLinkPlc(new AgLinkPlcConnectionData(name: "AGLinkTest@PLC1", ip: "PLC1", rack: 0, slot: 0))
+				new AgLinkPlc(new AgLinkPlcConnectionData(0, "PLC2", 0, 0))
 			) { }
 	}
 }

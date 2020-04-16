@@ -2,22 +2,25 @@
 //! This file is subject to the terms and conditions defined in file 'LICENSE.md', which is part of this source code package.
 #endregion
 
+#nullable enable
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Threading;
 using Phoenix.Data.Plc.Items;
+using Accon.AGLink;
 
 namespace Phoenix.Data.Plc.AgLink
 {
 	/// <summary>
-	/// Base class for all <see cref="Plc"/> implementations utilizing <c>AGLink</c>.
+	/// <see cref="Plc"/> implementation utilizing <c>AGLink</c>.
 	/// </summary>
-	/// <typeparam name="TAgLinkPlc"> The concrete AGLink type. </typeparam>
-	public abstract class AgLinkPlc<TAgLinkPlc> : Plc
-		where TAgLinkPlc : IDisposable
+	public sealed class AgLinkPlc : Plc
 	{
 		#region Delegates / Events
 		#endregion
@@ -26,18 +29,15 @@ namespace Phoenix.Data.Plc.AgLink
 		#endregion
 
 		#region Fields
-
-		private readonly IDisposable _agLinkAssemblyProvider;
-
 		#endregion
 
 		#region Properties
 
 		/// <summary> Data used for connecting to the plc. </summary>
-		protected AgLinkPlcConnectionData ConnectionData { get; }
+		private AgLinkPlcConnectionData ConnectionData { get; }
 
 		/// <summary> AGLink plc connection object. </summary>
-		protected TAgLinkPlc UnderlyingPlc { get; set; }
+		private IAGLink4? UnderlyingPlc { get; set; }
 
 		#endregion
 
@@ -55,35 +55,116 @@ namespace Phoenix.Data.Plc.AgLink
 		#region (De)Constructors
 
 		/// <summary>
+		/// Static constructor
+		/// </summary>
+		static AgLinkPlc()
+		{
+			var workingDirectory = new DirectoryInfo(Directory.GetCurrentDirectory());
+
+			// Verify existence of unmanaged AGLink assemblies.
+			var unmanagedAgLinkAssemblyFile = new FileInfo(Path.Combine(workingDirectory.FullName, $"AGLink40{(Environment.Is64BitProcess ? "_x64" : "")}.dll"));
+			if (!unmanagedAgLinkAssemblyFile.Exists)
+			{
+#if DEBUG
+				Debug.WriteLine($"The unmanaged AGLink assembly '{unmanagedAgLinkAssemblyFile.Name}' does not exist in the working directory '{workingDirectory.FullName}'. Therefore using any instance of '{nameof(AgLinkPlc)}' will probably fail.");
+#else
+				throw new ApplicationException($"The unmanaged AGLink assembly '{unmanagedAgLinkAssemblyFile.Name}' does not exist in the working directory '{workingDirectory.FullName}'. Please ensure its existence and then try again.");
+#endif
+			}
+
+			// Try to get the license key and activate AGLink.
+			var licenseKey = AgLinkPlc.GetLicenseKey(workingDirectory);
+			if (licenseKey != null) AGL4.Activate(licenseKey);
+
+			// Setup other AGLink properties.
+			AGL4.ReturnJobNr(false);
+		}
+
+		/// <summary>
 		/// Constructor
 		/// </summary>
-		/// <param name="agLinkSetupAdapter"> An instance of <see cref="IAgLinkSetupAdapter"/> used for initial setup. </param>
 		/// <param name="connectionData"> <see cref="AgLinkPlcConnectionData"/> </param>
-		protected AgLinkPlc(IAgLinkSetupAdapter agLinkSetupAdapter, AgLinkPlcConnectionData connectionData)
+		public AgLinkPlc(AgLinkPlcConnectionData connectionData)
 			: base(name: connectionData.Name)
 		{
 			// Save parameters.
 			this.ConnectionData = connectionData;
 
 			// Initialize fields.
-
-			// Setup AGLink.
-			var agLinkAssemblyProvider = new AgLinkResourceProvider(agLinkSetupAdapter, connectionData);
-			agLinkAssemblyProvider.Initialize();
-			_agLinkAssemblyProvider = agLinkAssemblyProvider;
 		}
-		
+
 		#endregion
 
 		#region Methods
-
-		#region Connection
 		
-		/// <inheritdoc />
-		protected abstract override bool OpenConnection();
+		#region Connection
+				
+		#region Connection Callbacks
+
+		private void OnConnectionErrorOccured(IAGLink4 sender, ConnectionEventArgs args)
+			=> base.OnInterrupted(executeReconnect: true);
+
+		private void OnConnectAborted(IAGLink4 sender, ConnectionEventArgs args)
+			=> base.OnInterrupted(executeReconnect: true);
+
+		#endregion
 
 		/// <inheritdoc />
-		protected abstract override bool CloseConnection();
+		protected override bool OpenConnection()
+		{
+			if (base.ConnectionState == PlcConnectionState.Connected) return true;
+
+			// Create a new AGLink-PLC instance.
+			var connectionData = this.ConnectionData;
+			var plc = AGL4ConnectionFactory.CreateInstanceAndConfigureTcpIp
+			(
+				devNr: connectionData.DeviceNumber,
+				entry: 0,
+				plcNr: 0,
+				rackNr: connectionData.Rack,
+				slotNr: connectionData.Slot,
+				plc_class: AGL4.PLC_Class.ePLC_1200, //? Which type is correct?
+				ip: connectionData.Ip,
+				port: 0, //! This value seems to be ignored, as any test with different values always succeeded.
+				timeout: (int) Math.Abs(this.ConnectionData.ConnectionTimeout.TotalMilliseconds),
+				reportType: AsyncReportType.Callbacks,
+				result: out _
+			);
+			if (plc is null)
+			{
+				this.Logger.Error($"Creating an instance of the underlying plc connection '{nameof(IAGLink4)}' failed.");
+				return false;
+			}
+			plc.Name = this.ConnectionData.Name;
+			plc.AutoReconnect = false; // Seems not to work, so disable it and handle reconnection manually via the base class.
+			
+			// Attach handlers to the event-callbacks when the connection has been interrupted.
+			plc.OnConnectionErrorOccured += this.OnConnectionErrorOccured;
+			plc.OnConnectAborted += this.OnConnectAborted;
+			
+			// Establish the connection.
+			this.UnderlyingPlc = plc;
+			return this.UnderlyingPlc.Connect();
+		}
+
+		/// <inheritdoc />
+		protected override bool CloseConnection()
+		{
+			if (base.ConnectionState == PlcConnectionState.Disconnected) return true;
+			if (this.UnderlyingPlc is null) return true;
+
+			IAGLink4 plc = this.UnderlyingPlc;
+			this.UnderlyingPlc = null;
+
+			// Remove the handlers to the event-callbacks when the connection has been interrupted.
+			plc.OnConnectionErrorOccured -= this.OnConnectionErrorOccured;
+			plc.OnConnectAborted -= this.OnConnectAborted;
+
+			var result = plc.Disconnect();
+			plc.Dispose();
+
+			return result;
+		}
 
 		#endregion
 
@@ -114,25 +195,171 @@ namespace Phoenix.Data.Plc.AgLink
 		/// </summary>
 		/// <param name="plcItems"> The <see cref="IPlcItem"/>s to read. </param>
 		/// <param name="cancellationToken"> A <see cref="CancellationToken"/> for cancelling the read operation. </param>
-		protected abstract Task PerformReadAsync(ICollection<IPlcItem> plcItems, CancellationToken cancellationToken);
+		private async Task PerformReadAsync(ICollection<IPlcItem> plcItems, CancellationToken cancellationToken)
+		{
+			const PlcItemUsageType usageType = PlcItemUsageType.Read;
+
+			/*
+			 * Create special plc items that will store which AGLink items are used for reading.
+			 * This is done via position information (start and amount) of the AGLink items array because those items are structs
+			 * and therefore cannot be used on a reference based solution.
+			 */
+			var mapping = plcItems
+				.Select(plcItem => new ReadPlcItemWrapper(plcItem))
+				.ToArray()
+				;
+
+			// Create all needed AGLink items.
+			var previousAmount = 0;
+			var allAgLinkItems = mapping
+				.SelectMany
+				(
+					readPlcItemWrapper =>
+					{
+						var agLinkItems = AgLinkPlc.CreateAgLinkItems(readPlcItemWrapper.PlcItem, usageType).ToArray();
+
+						readPlcItemWrapper.Start = (previousAmount += agLinkItems.Length) - 1;
+						readPlcItemWrapper.Amount = agLinkItems.Length;
+
+						return agLinkItems;
+					}
+				)
+				.ToArray()
+				;
+
+			// Read from the plc.
+			var result = await Task.Run(() => this.UnderlyingPlc.ReadMixEx(allAgLinkItems, allAgLinkItems.Length), cancellationToken);
+
+			// Verify the result.
+			this.VerifyAgLinkResult(result, plcItems, usageType);
+
+			// Iterate each plc item and get the data for all AGLink items that where needed to handle it.
+			foreach (var (plcItem, start, amount) in mapping)
+			{
+				var data = allAgLinkItems.Skip(start).Take(amount).SelectMany(agLinkItem => agLinkItem.B).ToArray();
+				this.TransferValue(plcItem, data);
+			}
+		}
 
 		/// <summary>
 		/// Writes the <see cref="IPlcItem.Value"/> of the <paramref name="plcItems"/> to the plc. 
 		/// </summary>
 		/// <param name="plcItems"> The <see cref="IPlcItem"/>s to write. </param>
 		/// <param name="cancellationToken"> A <see cref="CancellationToken"/> for cancelling the write operation. </param>
-		protected abstract Task PerformWriteAsync(ICollection<IPlcItem> plcItems, CancellationToken cancellationToken);
-		
+		private async Task PerformWriteAsync(ICollection<IPlcItem> plcItems, CancellationToken cancellationToken)
+		{
+			const PlcItemUsageType usageType = PlcItemUsageType.Write;
+
+			var agLinkItems = plcItems
+				.SelectMany(plcItem => AgLinkPlc.CreateAgLinkItems(plcItem, usageType).ToArray())
+				.ToArray()
+				;
+
+			// Write to the plc.
+			var result = await Task.Run(() => this.UnderlyingPlc.WriteMixEx(agLinkItems, agLinkItems.Length), cancellationToken);
+
+			// Verify the result.
+			this.VerifyAgLinkResult(result, plcItems, usageType);
+		}
+
 		#endregion
 
 		#region Helper
-		
+
+		private static string? GetLicenseKey(DirectoryInfo workingDirectory)
+		{
+			//var regEx = new Regex(@"^aglink\.license$", RegexOptions.IgnoreCase);
+			var licenseFile = workingDirectory
+				.EnumerateFiles("aglink.license", SearchOption.TopDirectoryOnly)
+				.FirstOrDefault()
+				;
+			
+			if (licenseFile is null) return null;
+			
+			using var reader = licenseFile.OpenText();
+			var licenseKey = reader.ReadToEnd();
+			return String.IsNullOrWhiteSpace(licenseKey) ? null : licenseKey;
+		}
+
+		/// <summary>
+		/// Creates an AGLink plcItem from <paramref name="plcItem"/>.
+		/// </summary>
+		/// <param name="plcItem"> The <see cref="IPlcItem"/> used to build the AGLink item. </param>
+		/// <param name="usageType"> The <see cref="Plc.PlcItemUsageType"/> of the <paramref name="plcItem"/>. </param>
+		/// <returns> A new AGLink item of type <see cref="AGL4.DATA_RW40"/>. </returns>
+		private static IEnumerable<AGL4.DATA_RW40> CreateAgLinkItems(IPlcItem plcItem, PlcItemUsageType usageType)
+		{
+			var agLinkItem = new AGL4.DATA_RW40
+			{
+				Offset = plcItem.Position
+			};
+			switch (plcItem.Type)
+			{
+				case PlcItemType.Input:
+					agLinkItem.DBNr = 0;
+					agLinkItem.OpArea = AGL4.AREA_IN;
+					break;
+				case PlcItemType.Output:
+					agLinkItem.DBNr = 0;
+					agLinkItem.OpArea = AGL4.AREA_OUT;
+					break;
+				case PlcItemType.Flags:
+					agLinkItem.DBNr = 0;
+					agLinkItem.OpArea = AGL4.AREA_FLAG;
+					break;
+				default:
+				case PlcItemType.Data:
+					agLinkItem.DBNr = plcItem.DataBlock;
+					agLinkItem.OpArea = AGL4.AREA_DATA;
+					break;
+			}
+
+			if (plcItem.Value.HandlesFullBytes || (usageType == PlcItemUsageType.Read && plcItem.Value.Length > 1))
+			{
+				agLinkItem.OpType = AGL4.TYP_BYTE;
+				agLinkItem.BitNr = 0;
+				agLinkItem.OpAnz = (ushort)DataHelper.GetByteAmountForBits(plcItem.Value.Length);
+				if (usageType == PlcItemUsageType.Write)
+				{
+					agLinkItem.B = plcItem.Value;
+				}
+				else
+				{
+					agLinkItem.B = new byte[agLinkItem.OpAnz];
+				}
+
+				yield return agLinkItem;
+			}
+			else
+			{
+				agLinkItem.OpType = AGL4.TYP_BIT;
+				agLinkItem.OpAnz = 1;
+
+				for (byte bitPosition = 0; bitPosition < plcItem.Value.Length; bitPosition++)
+				{
+					var bitAgLinkItem = agLinkItem; // Value type will be copied on assignment.
+					bitAgLinkItem.BitNr = (ushort)(bitPosition + plcItem.BitPosition);
+					if (usageType == PlcItemUsageType.Write)
+					{
+						// Get the relevant bit of this item and set the AGLink byte accordingly.						
+						bitAgLinkItem.B = new byte[] { plcItem.Value[bitPosition] ? (byte)1 : (byte)0 };
+					}
+					else
+					{
+						bitAgLinkItem.B = new byte[1];
+					}
+
+					yield return bitAgLinkItem;
+				}
+			}
+		}
+
 		/// <summary>
 		/// Sets the <paramref name="data"/> to the <paramref name="plcItem"/>s <see cref="IPlcItem{TValue}.Value"/>.
 		/// </summary>
 		/// <param name="plcItem"> The <see cref="IPlcItem"/> whose value to set. </param>
 		/// <param name="data"> The new byte data. </param>
-		protected void TransferValue(IPlcItem plcItem, byte[] data)
+		private void TransferValue(IPlcItem plcItem, byte[] data)
 		{
 			if (!plcItem.Value.HandlesFullBytes && plcItem.Value.Length > 1)
 			{
@@ -152,9 +379,9 @@ namespace Phoenix.Data.Plc.AgLink
 		/// <param name="plcItems"> The handled <see cref="IPlcItem"/>s. </param>
 		/// <param name="usageType"> The <see cref="Plc.PlcItemUsageType"/> of the <paramref name="plcItems"/>. </param>
 		/// <exception cref="PlcException"> Thrown if <paramref name="result"/> is not <see cref="AgLinkResult.Success"/>. </exception>
-		protected void VerifyAgLinkResult(int result, ICollection<IPlcItem> plcItems, PlcItemUsageType usageType)
+		private void VerifyAgLinkResult(int result, ICollection<IPlcItem> plcItems, PlcItemUsageType usageType)
 		{
-			var agLinkResult = AgLinkPlc<TAgLinkPlc>.ConvertToAgLinkResult(result);
+			var agLinkResult = AgLinkPlc.ConvertToAgLinkResult(result);
 
 			if (agLinkResult == AgLinkResult.Success)
 			{
@@ -193,14 +420,12 @@ namespace Phoenix.Data.Plc.AgLink
 		#endregion
 
 		#region IDisposable
-		
+
 		/// <inheritdoc />
 		protected override void Dispose(bool disposing)
 		{
 			base.Dispose(disposing);
-
 			this.UnderlyingPlc?.Dispose();
-			_agLinkAssemblyProvider.Dispose();
 		}
 
 		#endregion
@@ -212,7 +437,7 @@ namespace Phoenix.Data.Plc.AgLink
 		/// <summary>
 		/// Wrapper for an <see cref="IPlcItem"/> that stores <see cref="Start"/> and <see cref="Amount"/> for reading multiple <c>AGL4.DATA_RW40</c> items at once.
 		/// </summary>
-		protected class ReadPlcItemWrapper
+		private class ReadPlcItemWrapper
 		{
 			/// <summary>
 			/// The wrapped <see cref="IPlcItem"/>.

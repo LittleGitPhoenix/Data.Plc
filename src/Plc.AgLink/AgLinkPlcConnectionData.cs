@@ -4,7 +4,6 @@
 
 
 using System;
-using System.IO;
 
 namespace Phoenix.Data.Plc.AgLink
 {
@@ -27,17 +26,20 @@ namespace Phoenix.Data.Plc.AgLink
 		/// <summary> The name of the plc. </summary>
 		public string Name { get; }
 
-		/// <summary> Timeout for establishing the connection. </summary>
-		public TimeSpan ConnectionTimeout { get; }
-				
+		/// <summary> The device number. </summary>
+		public int DeviceNumber { get; }
+
 		/// <summary> The ip address of the plc. </summary>
 		public string Ip { get; }
-
+		
 		/// <summary> The rack number of the plc. </summary>
-		public int Rack { get; }
+		public byte Rack { get; }
 
 		/// <summary> The slot of the plc. </summary>
-		public int Slot { get; }
+		public byte Slot { get; }
+
+		/// <summary> Timeout for establishing the connection. </summary>
+		public TimeSpan ConnectionTimeout { get; }
 
 		#endregion
 
@@ -46,33 +48,34 @@ namespace Phoenix.Data.Plc.AgLink
 		/// <summary>
 		/// Constructor
 		/// </summary>
-		/// <param name="name"> The name of the plc. </param>
-		/// <param name="ip"> The ip address of the plc. </param>
-		/// <param name="rack"> The rack number of the plc. </param>
-		/// <param name="slot"> The slot of the plc. </param>
-		/// <param name="connectionTimeout"> Timeout for establishing the connection. Default value is <c>5000</c> milliseconds. </param>
+		/// <param name="deviceNumber"> <see cref="DeviceNumber"/> </param>
+		/// <param name="ip"> <see cref="Ip"/> </param>
+		/// <param name="rack"> <see cref="Rack"/> </param>
+		/// <param name="slot"> <see cref="Slot"/> </param>
+		/// <param name="connectionTimeout"> Optional timeout for establishing the connection. Default value is 5000 milliseconds. </param>
 		/// <returns> <c>TRUE</c> if successful, otherwise <c>FALSE</c>. </returns>
-		public AgLinkPlcConnectionData(string name, string ip, int rack, int slot, int connectionTimeout = 5000)
-			: this(name, ip, rack, slot, TimeSpan.FromMilliseconds(connectionTimeout))
-		{ }
+		public AgLinkPlcConnectionData(int deviceNumber, string ip, byte rack, byte slot, TimeSpan connectionTimeout = default)
+			: this(null, deviceNumber, ip, rack, slot, connectionTimeout) { }
 
 		/// <summary>
 		/// Constructor
 		/// </summary>
-		/// <param name="name"> The name of the plc. </param>
-		/// <param name="ip"> The ip address of the plc. </param>
-		/// <param name="rack"> The rack number of the plc. </param>
-		/// <param name="slot"> The slot of the plc. </param>
-		/// <param name="connectionTimeout"> <see cref="TimeSpan"/> for the timeout for establishing the connection. Default value is <c>3000</c> milliseconds. </param>
+		/// <param name="name"> The name of the plc instance. If this is <c>Null</c> or whitespace then the default value will be used. </param>
+		/// <param name="deviceNumber"> <see cref="DeviceNumber"/> </param>
+		/// <param name="ip"> <see cref="Ip"/> </param>
+		/// <param name="rack"> <see cref="Rack"/> </param>
+		/// <param name="slot"> <see cref="Slot"/> </param>
+		/// <param name="connectionTimeout"> Optional timeout for establishing the connection. Default value is 5000 milliseconds. </param>
 		/// <returns> <c>TRUE</c> if successful, otherwise <c>FALSE</c>. </returns>
-		public AgLinkPlcConnectionData(string name, string ip, int rack, int slot, TimeSpan connectionTimeout)
+		public AgLinkPlcConnectionData(string name, int deviceNumber, string ip, byte rack, byte slot, TimeSpan connectionTimeout = default)
 		{
 			// Save parameters.
-			this.Name = name;
+			this.Name = String.IsNullOrWhiteSpace(name) ? $"AGLinkPlc@{ip}" : name;
+			this.DeviceNumber = deviceNumber;
 			this.Ip = ip;
 			this.Rack = rack;
 			this.Slot = slot;
-			this.ConnectionTimeout = connectionTimeout;
+			this.ConnectionTimeout = connectionTimeout == default ? TimeSpan.FromMilliseconds(5000) : connectionTimeout;
 		}
 
 		#endregion
@@ -82,7 +85,7 @@ namespace Phoenix.Data.Plc.AgLink
 		/// <summary>
 		/// Returns a string that represents the current object.
 		/// </summary>
-		public override string ToString() => $"[<{this.GetType().Name}> :: Name: {this.Name} | IP: {this.Ip} | Rack: {this.Rack} | Slot: {this.Slot} | ConnectionTimeOut: {this.ConnectionTimeout}]";
+		public override string ToString() => $"[<{this.GetType().Name}> :: Name: {this.Name} | Device: {this.DeviceNumber} | IP: {this.Ip} | Rack: {this.Rack} | Slot: {this.Slot} | ConnectionTimeOut: {this.ConnectionTimeout}]";
 
 		#endregion
 	}

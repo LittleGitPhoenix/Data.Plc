@@ -31,4 +31,10 @@
 	  <PackageReference Include="System.Memory" Version="4.5.4" />
 	</ItemGroup>
 
+	<!-- Move the created NuGet packages into another folder. -->
+	<Target Name="MovePackage" AfterTargets="Pack">
+		<Move SourceFiles="$(OutputPath)$(PackageId).$(PackageVersion).symbols.nupkg" DestinationFiles="$(OutputPath)..\..\..\.nuget\$(PackageId).$(PackageVersion).nupkg" />
+		<Delete Files="$(OutputPath)$(PackageId).$(PackageVersion).nupkg" />
+	</Target>
+
 </Project>
