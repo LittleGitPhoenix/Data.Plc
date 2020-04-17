@@ -20,8 +20,13 @@ namespace Phoenix.Data.Plc.AgLink.Test
 		protected override void CheckConnectivity()
 		{
 			var ping = new Ping();
-			var reply = ping.Send(ImplementationReadTest.Host, 500);
-			if (reply is null || reply.Status != IPStatus.Success) Assert.Ignore($"Establishing a connection to '{base.Plc}' failed. This implementation test will not be executed, because it needs special hardware which seems to be currently unavailable.");
+			PingReply reply = null;
+			try
+			{
+				reply = ping.Send(Host, 250);
+			}
+			catch { /* ignore */ }
+			if (reply is null || reply.Status != IPStatus.Success) Assert.Ignore($"Establishing a connection to '{base.Plc}' failed. This implementation test will not be executed, because it needs special hardware which seems to be unavailable.");
 		}
 	}
 }
