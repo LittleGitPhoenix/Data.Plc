@@ -60,7 +60,16 @@ namespace Phoenix.Data.Plc.AgLink
 		/// </summary>
 		static AgLinkPlc()
 		{
+#if (NET46 || NETSTANDARD)
+			/*!
+			In .Net Standard it is possible that this assembly is part of a single part executable.
+			In such cases the content of the application is extracted to a temporary folder and therefore the AGLink assemblies and license file will be located in this temporary directory.			
+			When using 'Directory.GetCurrentDirectory()' those files then won't be found.
+			*/
+			var workingDirectory = new DirectoryInfo(System.AppContext.BaseDirectory);
+#else
 			var workingDirectory = new DirectoryInfo(Directory.GetCurrentDirectory());
+#endif
 
 			// Verify existence of unmanaged AGLink assemblies.
 			var unmanagedAgLinkAssemblyFile = new FileInfo(Path.Combine(workingDirectory.FullName, $"AGLink40{(Environment.Is64BitProcess ? "_x64" : "")}.dll"));
@@ -75,7 +84,15 @@ namespace Phoenix.Data.Plc.AgLink
 
 			// Try to get the license key and activate AGLink.
 			var licenseKey = AgLinkPlc.GetLicenseKey(workingDirectory);
-			if (licenseKey != null) AGL4.Activate(licenseKey);
+			if (licenseKey != null)
+			{
+				AGL4.Activate(licenseKey);
+				Debug.WriteLine($"AgLink has been activated with license key '{licenseKey}'.");
+			}
+			else
+			{
+				Debug.WriteLine($"No license key for AgLink has been found.");
+			}
 
 			// Setup other AGLink properties.
 			AGL4.ReturnJobNr(false);
@@ -97,9 +114,9 @@ namespace Phoenix.Data.Plc.AgLink
 		#endregion
 
 		#region Methods
-		
+
 		#region Connection
-				
+
 		#region Connection Callbacks
 
 		private void OnConnectionErrorOccured(IAGLink4 sender, ConnectionEventArgs args)
@@ -127,7 +144,7 @@ namespace Phoenix.Data.Plc.AgLink
 				plc_class: AGL4.PLC_Class.ePLC_1200, //? Which type is correct?
 				ip: connectionData.Ip,
 				port: 0, //! This value seems to be ignored, as any test with different values always succeeded.
-				timeout: (int) Math.Abs(this.ConnectionData.ConnectionTimeout.TotalMilliseconds),
+				timeout: (int)Math.Abs(this.ConnectionData.ConnectionTimeout.TotalMilliseconds),
 				reportType: AsyncReportType.Callbacks,
 				result: out _
 			);
@@ -138,11 +155,11 @@ namespace Phoenix.Data.Plc.AgLink
 			}
 			plc.Name = this.ConnectionData.Name;
 			plc.AutoReconnect = false; // Seems not to work, so disable it and handle reconnection manually via the base class.
-			
+
 			// Attach handlers to the event-callbacks when the connection has been interrupted.
 			plc.OnConnectionErrorOccured += this.OnConnectionErrorOccured;
 			plc.OnConnectAborted += this.OnConnectAborted;
-			
+
 			// Establish the connection.
 			this.UnderlyingPlc = plc;
 			return this.UnderlyingPlc.Connect();
@@ -252,7 +269,7 @@ namespace Phoenix.Data.Plc.AgLink
 		{
 			const PlcItemUsageType usageType = PlcItemUsageType.Write;
 			var underlyingPlc = AgLinkPlc.VerifyConnectivity(this.UnderlyingPlc, plcItems, usageType);
-			
+
 			var agLinkItems = plcItems
 				.SelectMany(plcItem => AgLinkPlc.CreateAgLinkItems(plcItem, usageType).ToArray())
 				.ToArray()
@@ -292,9 +309,9 @@ namespace Phoenix.Data.Plc.AgLink
 				.EnumerateFiles("aglink.license", SearchOption.TopDirectoryOnly)
 				.FirstOrDefault()
 				;
-			
+
 			if (licenseFile is null) return null;
-			
+
 			using var reader = licenseFile.OpenText();
 			var licenseKey = reader.ReadToEnd();
 			return String.IsNullOrWhiteSpace(licenseKey) ? null : licenseKey;
@@ -382,7 +399,7 @@ namespace Phoenix.Data.Plc.AgLink
 		{
 			if (!plcItem.Value.HandlesFullBytes && plcItem.Value.Length > 1)
 			{
-				var booleans = DataConverter.ToBooleans(data).Skip((byte) plcItem.BitPosition).Take((int) plcItem.Value.Length).ToArray();
+				var booleans = DataConverter.ToBooleans(data).Skip((byte)plcItem.BitPosition).Take((int)plcItem.Value.Length).ToArray();
 				plcItem.Value.TransferValuesFrom(booleans);
 			}
 			else
@@ -433,7 +450,7 @@ namespace Phoenix.Data.Plc.AgLink
 			 * To decide which code is recoverable, somehow get all relevant return values from the AGLink assembly.
 			 */
 			if (result == 0) return AgLinkResult.Success;
-			else  return AgLinkResult.UnrecoverableError;
+			else return AgLinkResult.UnrecoverableError;
 		}
 
 		#endregion
@@ -493,7 +510,7 @@ namespace Phoenix.Data.Plc.AgLink
 			/// <inheritdoc />
 			public override string ToString() => $"{this.PlcItem}: Start: {this.Start} | Amount: {this.Amount}";
 		}
-		
+
 		#endregion
 	}
 }

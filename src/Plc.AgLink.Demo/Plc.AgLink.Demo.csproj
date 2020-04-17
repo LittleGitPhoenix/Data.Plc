@@ -6,7 +6,7 @@
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<RootNamespace>Phoenix.Data.Plc.AgLink</RootNamespace>
 		<AssemblyName>Phoenix.Data.Plc.AgLink.Demo</AssemblyName>
-		<Version>1.1.0-beta2</Version>
+		<Version>1.1.0-beta3</Version>
 		<Authors>Felix Leistner</Authors>
 		<Company>Little Phoenix</Company>
 		<Description>Provides plc communication via AGLink demo assemblies.</Description>
@@ -58,9 +58,9 @@
 		<None Include="Resources\AgLink\AGL4DotNET.4.dll" Pack="true" PackagePath="lib\net45" />
 		<None Include="Resources\AgLink\AGL4DotNET.4.xml" Pack="true" PackagePath="lib\netstandard2.0" />
 		<None Include="Resources\AgLink\AGL4DotNET.4.xml" Pack="true" PackagePath="lib\net45" />
-		<None Include="Resources\AgLink\AGLink40.dll" Pack="true" PackagePath="assets\" />
-		<None Include="Resources\AgLink\AGLink40_x64.dll" Pack="true" PackagePath="assets\" />
 		<None Include="Resources\AgLink\AGLink.license" Pack="true" PackagePath="assets\" />
+		<None Include="Resources\AgLink\AGLink40.dll" Pack="true" PackagePath="assets\x86\" />
+		<None Include="Resources\AgLink\AGLink40_x64.dll" Pack="true" PackagePath="assets\x64\" />
 	</ItemGroup>
 
 	<!-- Add a custom target to the build folder of the NuGet package. This target will copy the content of the 'assets' folder from the package into the build directory. -->
