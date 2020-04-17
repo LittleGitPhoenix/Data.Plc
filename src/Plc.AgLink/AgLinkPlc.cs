@@ -5,6 +5,7 @@
 #nullable enable
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -198,6 +199,7 @@ namespace Phoenix.Data.Plc.AgLink
 		private async Task PerformReadAsync(ICollection<IPlcItem> plcItems, CancellationToken cancellationToken)
 		{
 			const PlcItemUsageType usageType = PlcItemUsageType.Read;
+			var underlyingPlc = AgLinkPlc.VerifyConnectivity(this.UnderlyingPlc, plcItems, usageType);
 
 			/*
 			 * Create special plc items that will store which AGLink items are used for reading.
@@ -228,7 +230,7 @@ namespace Phoenix.Data.Plc.AgLink
 				;
 
 			// Read from the plc.
-			var result = await Task.Run(() => this.UnderlyingPlc.ReadMixEx(allAgLinkItems, allAgLinkItems.Length), cancellationToken);
+			var result = await Task.Run(() => underlyingPlc.ReadMixEx(allAgLinkItems, allAgLinkItems.Length), cancellationToken);
 
 			// Verify the result.
 			this.VerifyAgLinkResult(result, plcItems, usageType);
@@ -249,14 +251,15 @@ namespace Phoenix.Data.Plc.AgLink
 		private async Task PerformWriteAsync(ICollection<IPlcItem> plcItems, CancellationToken cancellationToken)
 		{
 			const PlcItemUsageType usageType = PlcItemUsageType.Write;
-
+			var underlyingPlc = AgLinkPlc.VerifyConnectivity(this.UnderlyingPlc, plcItems, usageType);
+			
 			var agLinkItems = plcItems
 				.SelectMany(plcItem => AgLinkPlc.CreateAgLinkItems(plcItem, usageType).ToArray())
 				.ToArray()
 				;
 
 			// Write to the plc.
-			var result = await Task.Run(() => this.UnderlyingPlc.WriteMixEx(agLinkItems, agLinkItems.Length), cancellationToken);
+			var result = await Task.Run(() => underlyingPlc.WriteMixEx(agLinkItems, agLinkItems.Length), cancellationToken);
 
 			// Verify the result.
 			this.VerifyAgLinkResult(result, plcItems, usageType);
@@ -265,6 +268,22 @@ namespace Phoenix.Data.Plc.AgLink
 		#endregion
 
 		#region Helper
+
+		/// <summary>
+		/// Verifies that <paramref name="underlyingPlc"/> is not <c>Null</c> before reading or writing.
+		/// </summary>
+		/// <remarks> Normally the base class already handles cases where the plc connection is not yet established, but just in case and to keep the compiler from complaining. </remarks>
+		/// <exception cref="PlcException"> Thrown if <paramref name="underlyingPlc"/> is <c>Null</c>. The exception type will be <see cref="PlcExceptionType.NotConnected"/>. </exception>
+		private static IAGLink4 VerifyConnectivity(IAGLink4? underlyingPlc, ICollection<IPlcItem> plcItems, PlcItemUsageType usageType)
+		{
+			if (underlyingPlc is null)
+			{
+				var itemDescriptions = Plc.GetPlcItemDescription(plcItems);
+				throw new PlcException(PlcExceptionType.NotConnected, $"Cannot {usageType.ToString().ToLower()} the plc items ({itemDescriptions}) because the plc is not connected. All items will be put on hold.");
+			}
+
+			return underlyingPlc;
+		}
 
 		private static string? GetLicenseKey(DirectoryInfo workingDirectory)
 		{

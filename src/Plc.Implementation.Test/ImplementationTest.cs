@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
-using Phoenix.Data.Plc.Test;
+using NUnit.Framework;
 
 namespace Phoenix.Data.Plc.Implementation.Test
 {
@@ -47,6 +45,24 @@ namespace Phoenix.Data.Plc.Implementation.Test
 
 		#region Methods
 
+
+		#region Setup
+
+		[SetUp]
+		public void Init()
+		{
+			this.CheckConnectivity();
+		}
+
+		/// <summary>
+		/// Override this method to check connectivity with depended hardware. This may make an <see cref="Assert.Ignore()"/> to prevent the test from being run.
+		/// </summary>
+		protected virtual void CheckConnectivity() { }
+
+		#endregion
+
+		#region Execution
+
 		/// <summary>
 		/// Connects to the <see cref="Plc"/>, executes the <paramref name="callback"/> and finally closes the connection again.
 		/// </summary>
@@ -66,6 +82,8 @@ namespace Phoenix.Data.Plc.Implementation.Test
 				}
 			}
 		}
+
+		#endregion
 
 		#region Implementation of IDisposable
 
