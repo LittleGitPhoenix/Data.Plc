@@ -4,8 +4,6 @@
 
 
 using System;
-using System.Collections;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -264,19 +262,13 @@ namespace Phoenix.Data.Plc.Items
 			{typeof(object), "object"},
 			{typeof(void), "void"}
 		};
-
-		/// <summary>
-		/// Returns the full name the current instance.
-		/// </summary>
-		/// <returns> The full name of the type with resolved generics. </returns>
-		protected string GetFullName() => PlcItem.GetFullName(this.GetType());
 		
 		/// <summary>
 		/// Returns the full name of the passed type.
 		/// </summary>
 		/// <param name="type"> The type to handle. </param>
 		/// <returns> The full name of the type with resolved generics. </returns>
-		public static string GetFullName(Type type)
+		protected internal static string GetFullName(Type type)
 		{
 			if (TypeTranslations.TryGetValue(type, out var name))
 			{
@@ -299,18 +291,50 @@ namespace Phoenix.Data.Plc.Items
 				return type.Name;
 			}
 		}
-		
+
+		internal static StringBuilder GetIdentifierBuilder(IPlcItem plcItem)
+		{
+			var identifierBuilder = new StringBuilder(plcItem.Identifier);
+			if (!plcItem.Identifier.Equals(plcItem.PlcString)) identifierBuilder.Append($" ({plcItem.PlcString})");
+			return identifierBuilder;
+		}
+
 		#endregion
 
 		/// <summary>
 		/// Returns a string that represents the current object.
 		/// </summary>
 		public override string ToString()
-		{
-			var identifierBuilder = new StringBuilder(this.Identifier);
-			if (!this.Identifier.Equals(this.PlcString)) identifierBuilder.Append($" ({this.PlcString})");
+			=> this.ToString("N");
 
-			return $"[<{this.GetFullName()}> :: {this.Type} | {identifierBuilder}]";
+		/// <inheritdoc cref="IFormattable.ToString(string, System.IFormatProvider)"/>
+		public string ToString(string format)
+			=> this.ToString(format, null);
+
+		/// <inheritdoc />
+		public string ToString(string format, IFormatProvider formatProvider)
+			=> PlcItem.ToString(this, format);
+		
+		/// <inheritdoc cref="IFormattable.ToString(string, System.IFormatProvider)"/>
+		internal static string ToString(IPlcItem plcItem, string format)
+		{
+			if (String.IsNullOrWhiteSpace(format)) format = "N";
+
+			switch (format.ToUpperInvariant())
+			{
+				case "S":
+				case "LOG":
+					return PlcItem.GetIdentifierBuilder(plcItem).ToString();
+
+				case "F":
+				case "FULL":
+					return $"[<{PlcItem.GetFullName(plcItem.GetType())}> :: {plcItem.Type} | {PlcItem.GetIdentifierBuilder(plcItem)} | {plcItem.Value:HEX}]";
+
+				case "N":
+				case "NORMAL":
+				default:
+					return $"[<{PlcItem.GetFullName(plcItem.GetType())}> :: {plcItem.Type} | {PlcItem.GetIdentifierBuilder(plcItem)}]";
+			}
 		}
 
 		#endregion

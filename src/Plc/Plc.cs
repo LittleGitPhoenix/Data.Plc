@@ -19,7 +19,7 @@ namespace Phoenix.Data.Plc
 	/// <para> • Thread safe connection establishment with automatic re-connect for interrupted connections. </para>
 	/// <para> • Thread safe reading and writing of <see cref="IPlcItem"/>s with automatic re-tries. </para>
 	/// </summary>
-	public abstract class Plc : IPlc
+	public abstract class Plc : IPlc, IFormattable
 	{
 		#region Delegates / Events
 
@@ -35,7 +35,7 @@ namespace Phoenix.Data.Plc
 			{
 				if (this.ConnectionState == PlcConnectionState.Connected) return;
 
-				this.Logger.Info($"Connection to the plc has been established.");
+				this.Logger.Info($"Connection to {this:LOG} has been established.");
 
 				this.ConnectionState = PlcConnectionState.Connected;
 				this.Connected?.Invoke(this, this.ConnectionState);
@@ -56,7 +56,7 @@ namespace Phoenix.Data.Plc
 			{
 				if (this.ConnectionState == PlcConnectionState.Disconnected) return;
 
-				this.Logger.Info($"Connection to the plc has been disconnected.");
+				this.Logger.Info($"Connection to {this:LOG} has been disconnected.");
 
 				this.ConnectionState = PlcConnectionState.Disconnected;
 				this.Disconnected?.Invoke(this, this.ConnectionState);
@@ -75,7 +75,7 @@ namespace Phoenix.Data.Plc
 			{
 				if (this.ConnectionState == PlcConnectionState.Interrupted) return;
 
-				this.Logger.Error($"Connection to the plc has been interrupted.");
+				this.Logger.Error($"Connection to {this:LOG} has been interrupted.");
 
 				this.ConnectionState = PlcConnectionState.Interrupted;
 				this.Interrupted?.Invoke(this, this.ConnectionState);
@@ -142,7 +142,7 @@ namespace Phoenix.Data.Plc
 		{
 			// Save parameters.
 			this.Name = name;
-
+			
 			// Initialize fields.
 			this.ConnectionState = PlcConnectionState.Disconnected;
 			_isReconnecting = 0;
@@ -259,11 +259,12 @@ namespace Phoenix.Data.Plc
 			// Since this may be a costly operation, check if logging is even enabled.
 			if (LogManager.LogAllReadAndWriteOperations)
 			{
+				var message = $"Reading {{0}} from {this:LOG} returned '{{1}}'.";
 				foreach (var plcItem in plcItems)
 				{
-					var value = String.Join(",", (byte[])plcItem.Value);
-					var message = $"Reading {{0}} returned '{{1}}'.";
-					this.Logger.Trace(message, plcItem, value);
+					var item = $"{plcItem:LOG}";
+					var value = $"{plcItem.Value:VALUE}";
+					this.Logger.Trace(message, item, value);
 				}
 			}
 		}
@@ -306,17 +307,18 @@ namespace Phoenix.Data.Plc
 			// Since this may be a costly operation, check if logging is even enabled.
 			if (LogManager.LogAllReadAndWriteOperations)
 			{
+				var message = $"Writing '{{1}}' to {{0}} in {this:LOG} {(success ? "succeeded" : "failed")}.";
 				foreach (var plcItem in plcItems)
 				{
-					var value = String.Join(",", (byte[])plcItem.Value);
-					var message = $"Writing '{{1}}' to {{0}} {(success ? "succeeded" : "failed")}.";
+					var item = $"{plcItem:LOG}";
+					var value = $"{plcItem.Value:VALUE}";
 					if (success)
 					{
-						this.Logger.Trace(message, plcItem, value);
+						this.Logger.Trace(message, item, value);
 					}
 					else
 					{
-						this.Logger.Error(message, plcItem, value);
+						this.Logger.Error(message, item, value);
 					}
 				}
 			}
@@ -384,7 +386,7 @@ namespace Phoenix.Data.Plc
 						if (this.ConnectionState == PlcConnectionState.Disconnected)
 						{
 							var itemDescriptions = Plc.GetPlcItemDescription(plcItems);
-							throw new PlcException(PlcExceptionType.NotConnected, $"Cannot {usageType.ToString().ToLower()} the plc items ({itemDescriptions}) because the plc is not connected. All items will be put on hold.");
+							throw new PlcException(PlcExceptionType.NotConnected, $"Cannot {usageType.ToString().ToLower()} the plc items ({itemDescriptions}) because {this:LOG} is not connected. All items will be put on hold.");
 						}
 					}
 
@@ -429,7 +431,7 @@ namespace Phoenix.Data.Plc
 
 					//TODO Check if cancellation happened because of disposing.
 
-					this.Logger.Info("The previously suspended plc items will now be handled again.");
+					this.Logger.Info($"The previously suspended plc items of {this:LOG} will now be handled again.");
 				}
 			}
 
@@ -455,7 +457,7 @@ namespace Phoenix.Data.Plc
 		/// <returns> A string representation. </returns>
 		public static string GetPlcItemDescription(IEnumerable<IPlcItem> plcItems)
 		{
-			return String.Join(",", plcItems.Select(plcItem => plcItem.ToString()));
+			return String.Join(",", plcItems.Select(plcItem => $"{plcItem:LOG}"));
 		}
 
 		private void RestartHandleTasks()
@@ -496,7 +498,35 @@ namespace Phoenix.Data.Plc
 		/// <summary>
 		/// Returns a string that represents the current object.
 		/// </summary>
-		public override string ToString() => $"[<{this.GetType().Name}> :: Name: {this.Name}]";
+		public override string ToString()
+			=> this.ToString("N");
+
+		/// <inheritdoc cref="IFormattable.ToString(string,System.IFormatProvider)"/>
+		public string ToString(string format)
+			=> this.ToString(format, null);
+
+		/// <inheritdoc />
+		public string ToString(string format, IFormatProvider formatProvider)
+		{
+			if (String.IsNullOrWhiteSpace(format)) format = "N";
+			formatProvider ??= System.Globalization.CultureInfo.CurrentCulture;
+
+			switch (format.ToUpperInvariant())
+			{
+				case "S":
+				case "LOG":
+					return this.Name;
+
+				case "F":
+				case "FULL":
+					return $"[<{this.GetType().Name}> :: Name: {this.Name} | State: {this.ConnectionState}]";
+				
+				case "N":
+				case "NORMAL":
+				default:
+					return $"[<{this.GetType().Name}> :: Name: {this.Name}]";
+			}
+		}
 
 		#endregion
 	}

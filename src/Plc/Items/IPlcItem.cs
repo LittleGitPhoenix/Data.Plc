@@ -13,7 +13,7 @@ namespace Phoenix.Data.Plc.Items
 	/// Untyped interface for plc items.
 	/// </summary>
 	/// <remarks> Mostly used for documentation purposes. </remarks>
-	public interface IPlcItem : IEquatable<IPlcItem>, IDeepCloneable<IPlcItem>
+	public interface IPlcItem : IEquatable<IPlcItem>, IFormattable, IDeepCloneable<IPlcItem>
 	{
 		#region Delegates / Events
 
@@ -52,6 +52,10 @@ namespace Phoenix.Data.Plc.Items
 		#endregion
 
 		#region Methods
+
+		/// <inheritdoc cref="IFormattable.ToString(string,System.IFormatProvider)"/>
+		/// <remarks> This is using <see cref="System.Globalization.CultureInfo.CurrentCulture"/> as format provider.  </remarks>
+		string ToString(string format);
 
 		/// <summary>
 		/// Creates a deep copy of the current instance.

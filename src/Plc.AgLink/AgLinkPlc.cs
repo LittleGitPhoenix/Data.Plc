@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Threading;
@@ -150,7 +151,7 @@ namespace Phoenix.Data.Plc.AgLink
 			);
 			if (plc is null)
 			{
-				this.Logger.Error($"Creating an instance of the underlying plc connection '{nameof(IAGLink4)}' failed.");
+				base.Logger.Error($"Creating an instance of the underlying plc connection '{nameof(IAGLink4)}' failed.");
 				return false;
 			}
 			plc.Name = this.ConnectionData.Name;
@@ -216,7 +217,7 @@ namespace Phoenix.Data.Plc.AgLink
 		private async Task PerformReadAsync(ICollection<IPlcItem> plcItems, CancellationToken cancellationToken)
 		{
 			const PlcItemUsageType usageType = PlcItemUsageType.Read;
-			var underlyingPlc = AgLinkPlc.VerifyConnectivity(this.UnderlyingPlc, plcItems, usageType);
+			var underlyingPlc = AgLinkPlc.VerifyConnectivity(this, plcItems, usageType);
 
 			/*
 			 * Create special plc items that will store which AGLink items are used for reading.
@@ -268,7 +269,7 @@ namespace Phoenix.Data.Plc.AgLink
 		private async Task PerformWriteAsync(ICollection<IPlcItem> plcItems, CancellationToken cancellationToken)
 		{
 			const PlcItemUsageType usageType = PlcItemUsageType.Write;
-			var underlyingPlc = AgLinkPlc.VerifyConnectivity(this.UnderlyingPlc, plcItems, usageType);
+			var underlyingPlc = AgLinkPlc.VerifyConnectivity(this, plcItems, usageType);
 
 			var agLinkItems = plcItems
 				.SelectMany(plcItem => AgLinkPlc.CreateAgLinkItems(plcItem, usageType).ToArray())
@@ -287,16 +288,17 @@ namespace Phoenix.Data.Plc.AgLink
 		#region Helper
 
 		/// <summary>
-		/// Verifies that <paramref name="underlyingPlc"/> is not <c>Null</c> before reading or writing.
+		/// Verifies that <paramref name="plc.UnderlyingPlc"/> is not <c>Null</c> before reading or writing.
 		/// </summary>
 		/// <remarks> Normally the base class already handles cases where the plc connection is not yet established, but just in case and to keep the compiler from complaining. </remarks>
-		/// <exception cref="PlcException"> Thrown if <paramref name="underlyingPlc"/> is <c>Null</c>. The exception type will be <see cref="PlcExceptionType.NotConnected"/>. </exception>
-		private static IAGLink4 VerifyConnectivity(IAGLink4? underlyingPlc, ICollection<IPlcItem> plcItems, PlcItemUsageType usageType)
+		/// <exception cref="PlcException"> Thrown if <paramref name="plc.UnderlyingPlc"/> is <c>Null</c>. The exception type will be <see cref="PlcExceptionType.NotConnected"/>. </exception>
+		private static IAGLink4 VerifyConnectivity(AgLinkPlc plc, ICollection<IPlcItem> plcItems, PlcItemUsageType usageType)
 		{
+			var underlyingPlc = plc.UnderlyingPlc;
 			if (underlyingPlc is null)
 			{
 				var itemDescriptions = Plc.GetPlcItemDescription(plcItems);
-				throw new PlcException(PlcExceptionType.NotConnected, $"Cannot {usageType.ToString().ToLower()} the plc items ({itemDescriptions}) because the plc is not connected. All items will be put on hold.");
+				throw new PlcException(PlcExceptionType.NotConnected, $"Cannot {usageType.ToString().ToLower()} the plc items ({itemDescriptions}) because {plc:LOG} is not connected. All items will be put on hold.");
 			}
 
 			return underlyingPlc;
@@ -354,7 +356,7 @@ namespace Phoenix.Data.Plc.AgLink
 			{
 				agLinkItem.OpType = AGL4.TYP_BYTE;
 				agLinkItem.BitNr = 0;
-				agLinkItem.OpAnz = (ushort)DataHelper.GetByteAmountForBits(plcItem.Value.Length);
+				agLinkItem.OpAnz = (ushort) DataHelper.GetByteAmountForBits(plcItem.Value.Length);
 				if (usageType == PlcItemUsageType.Write)
 				{
 					agLinkItem.B = plcItem.Value;
@@ -429,11 +431,11 @@ namespace Phoenix.Data.Plc.AgLink
 				var itemDescriptions = Plc.GetPlcItemDescription(plcItems);
 				if (agLinkResult == AgLinkResult.RecoverableError)
 				{
-					throw new PlcException(usageType == PlcItemUsageType.Read ? PlcExceptionType.ReadError : PlcExceptionType.WriteError, $"Could not {usageType.ToString().ToLower()} the '{itemDescriptions}' from the plc. AGLink returned error code '{result}'. Items will be handled again.");
+					throw new PlcException(usageType == PlcItemUsageType.Read ? PlcExceptionType.ReadError : PlcExceptionType.WriteError, $"Could not {usageType.ToString().ToLower()} the '{itemDescriptions}' from {this:LOG}. AGLink returned error code '{result}'. Items will be handled again.");
 				}
 				else
 				{
-					throw new PlcException(PlcExceptionType.UnrecoverableConnection, $"Could not {usageType.ToString().ToLower()} the '{itemDescriptions}' from the plc. AGLink returned error code '{result}'. This is an unrecoverable error and the items will not be handled again.");
+					throw new PlcException(PlcExceptionType.UnrecoverableConnection, $"Could not {usageType.ToString().ToLower()} the '{itemDescriptions}' from {this:LOG}. AGLink returned error code '{result}'. This is an unrecoverable error and the items will not be handled again.");
 				}
 			}
 		}

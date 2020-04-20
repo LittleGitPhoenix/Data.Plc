@@ -19,7 +19,7 @@ namespace Phoenix.Data.Plc.Items
 	/// <para> • <see cref="Boolean"/> array </para>
 	/// <para> • <see cref="Byte"/> array </para>
 	/// </remarks>
-	public sealed class BitCollection : IEnumerable, IEquatable<BitCollection>, IDeepCloneable<BitCollection>
+	public sealed class BitCollection : IEnumerable, IEquatable<BitCollection>, IFormattable, IDeepCloneable<BitCollection>
 	{
 		#region Delegates / Events
 
@@ -348,7 +348,7 @@ namespace Phoenix.Data.Plc.Items
 		public override int GetHashCode()
 			// ReSharper disable once BaseObjectGetHashCodeCallInGetHashCode → This class has no immutable properties and therefore no proper implementation of 'GetHashCode' can be made. For equality checks this is not necessary as equality is not determined via hash code but rather via comparing the sequences of the underlying data.
 			=> base.GetHashCode();
-
+		
 		/// <summary>
 		/// Compares this instance to another one.
 		/// </summary>
@@ -463,7 +463,45 @@ namespace Phoenix.Data.Plc.Items
 		/// <summary>
 		/// Returns a string that represents the current object.
 		/// </summary>
-		public override string ToString() => $"[<{this.GetType().Name}> :: {String.Join(",", this.Bytes)}]";
+		public override string ToString()
+			=> this.ToString("N");
+
+
+		/// <inheritdoc cref="IFormattable.ToString(string,System.IFormatProvider)"/>
+		public string ToString(string format)
+			=> this.ToString(format, null);
+
+		/// <inheritdoc />
+		public string ToString(string format, IFormatProvider formatProvider)
+		{
+			if (String.IsNullOrWhiteSpace(format)) format = "N";
+			//formatProvider ??= System.Globalization.CultureInfo.CurrentCulture;
+			
+			switch (format.ToUpperInvariant())
+			{
+				case "S":
+				case "LOG":
+					return $"{nameof(BitCollection)} (Bits: {this.Length})";
+
+				case "F":
+				case "FULL":
+					return $"[<{this.GetType().Name}> :: Dynamic: {this.AutomaticallyAdaptSize} | {String.Join(",", this.Bytes)}]";
+
+				case "N":
+				case "NORMAL":
+				default:
+					return $"[<{this.GetType().Name}> :: {String.Join(",", this.Bytes)}]";
+
+				case "BYTE":
+					return String.Join(",", this.Bytes);
+
+				case "HEX":
+					return BitConverter.ToString(this.Bytes);
+
+				case "BASE64":
+					return Convert.ToBase64String(this.Bytes);
+			}
+		}
 
 		#endregion
 	}
