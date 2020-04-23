@@ -263,7 +263,7 @@ namespace Phoenix.Data.Plc
 				foreach (var plcItem in plcItems)
 				{
 					var item = $"{plcItem:LOG}";
-					var value = $"{plcItem.Value:VALUE}";
+					var value = $"{plcItem.Value:HEX}";
 					this.Logger.Trace(message, item, value);
 				}
 			}
@@ -311,7 +311,7 @@ namespace Phoenix.Data.Plc
 				foreach (var plcItem in plcItems)
 				{
 					var item = $"{plcItem:LOG}";
-					var value = $"{plcItem.Value:VALUE}";
+					var value = $"{plcItem.Value:HEX}";
 					if (success)
 					{
 						this.Logger.Trace(message, item, value);
