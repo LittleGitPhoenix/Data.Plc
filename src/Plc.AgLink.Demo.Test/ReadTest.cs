@@ -8,7 +8,7 @@ namespace Phoenix.Data.Plc.AgLink.Test
 	[TestFixture]
 	public sealed class ImplementationReadTest : ImplementationReadTest<AgLinkPlc>
 	{
-		private static string Host = "PLC2";
+		private static string Host = "PLC1";
 
 		public ImplementationReadTest()
 			: base

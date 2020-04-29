@@ -27,7 +27,7 @@ namespace Phoenix.Data.Plc.AgLink
 		public string Name { get; }
 
 		/// <summary> The device number. </summary>
-		public int DeviceNumber { get; }
+		public byte DeviceNumber { get; }
 
 		/// <summary> The ip address of the plc. </summary>
 		public string Ip { get; }
@@ -54,7 +54,7 @@ namespace Phoenix.Data.Plc.AgLink
 		/// <param name="slot"> <see cref="Slot"/> </param>
 		/// <param name="connectionTimeout"> Optional timeout for establishing the connection. Default value is 5000 milliseconds. </param>
 		/// <returns> <c>TRUE</c> if successful, otherwise <c>FALSE</c>. </returns>
-		public AgLinkPlcConnectionData(int deviceNumber, string ip, byte rack, byte slot, TimeSpan connectionTimeout = default)
+		public AgLinkPlcConnectionData(byte deviceNumber, string ip, byte rack, byte slot, TimeSpan connectionTimeout = default)
 			: this(null, deviceNumber, ip, rack, slot, connectionTimeout) { }
 
 		/// <summary>
@@ -67,7 +67,7 @@ namespace Phoenix.Data.Plc.AgLink
 		/// <param name="slot"> <see cref="Slot"/> </param>
 		/// <param name="connectionTimeout"> Optional timeout for establishing the connection. Default value is 5000 milliseconds. </param>
 		/// <returns> <c>TRUE</c> if successful, otherwise <c>FALSE</c>. </returns>
-		public AgLinkPlcConnectionData(string name, int deviceNumber, string ip, byte rack, byte slot, TimeSpan connectionTimeout = default)
+		public AgLinkPlcConnectionData(string name, byte deviceNumber, string ip, byte rack, byte slot, TimeSpan connectionTimeout = default)
 		{
 			// Save parameters.
 			this.Name = String.IsNullOrWhiteSpace(name) ? $"AGLinkPlc@{ip}" : name;

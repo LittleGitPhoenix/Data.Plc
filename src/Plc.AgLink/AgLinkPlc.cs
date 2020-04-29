@@ -137,7 +137,7 @@ namespace Phoenix.Data.Plc.AgLink
 			var connectionData = this.ConnectionData;
 			var plc = AGL4ConnectionFactory.CreateInstanceAndConfigureTcpIp
 			(
-				devNr: connectionData.DeviceNumber,
+				devNr: connectionData.DeviceNumber % (byte.MaxValue + 1), //! Testing showed that any number larger than 255 leads to a 'System.AccessViolationException'.
 				entry: 0,
 				plcNr: 0,
 				rackNr: connectionData.Rack,
@@ -249,7 +249,7 @@ namespace Phoenix.Data.Plc.AgLink
 
 			// Read from the plc.
 			var result = await Task.Run(() => underlyingPlc.ReadMixEx(allAgLinkItems, allAgLinkItems.Length), cancellationToken);
-
+			
 			// Verify the result.
 			this.VerifyAgLinkResult(result, plcItems, usageType);
 
@@ -428,6 +428,7 @@ namespace Phoenix.Data.Plc.AgLink
 			}
 			else
 			{
+				AGL4.GetErrorMsg(result, out var errorMessage);
 				var itemDescriptions = Plc.GetPlcItemDescription(plcItems);
 				if (agLinkResult == AgLinkResult.RecoverableError)
 				{
@@ -435,7 +436,7 @@ namespace Phoenix.Data.Plc.AgLink
 				}
 				else
 				{
-					throw new PlcException(PlcExceptionType.UnrecoverableConnection, $"Could not {usageType.ToString().ToLower()} the '{itemDescriptions}' from {this:LOG}. AGLink returned error code '{result}'. This is an unrecoverable error and the items will not be handled again.");
+					throw new PlcException(PlcExceptionType.UnrecoverableConnection, $"Could not {usageType.ToString().ToLower()} the '{itemDescriptions}' from {this:LOG}. AGLink returned error code '{result}' ({errorMessage}). This is an unrecoverable error and the items will not be handled again.");
 				}
 			}
 		}
