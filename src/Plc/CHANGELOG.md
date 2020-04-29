@@ -11,6 +11,10 @@ ___
 
 - Log messages are now a little bit more detailed.
 - The classes ***Plc***, ***PlcItem***, ***BitCollection*** implement the **IFormattable** interface as to format their string representation for output purposes.
+
+### Fixed
+
+- Handling ***IPlcItems*** with zero length does not throw an exception anymore, but rather doesn't handle them at all.
 ___
 
 ## 1.3.0 (2020-04-07)

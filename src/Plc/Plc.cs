@@ -368,6 +368,9 @@ namespace Phoenix.Data.Plc
 		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
 		private async Task<bool> ExecuteReadWriteAsync(ICollection<IPlcItem> plcItems, PlcItemUsageType usageType, CancellationToken cancellationToken)
 		{
+			// Allow only items that have a length greater than zero. This is mostly needed for dynamic items.
+			plcItems = plcItems.Where(item => item.Value.Length > 0).ToList();
+
 			if (!plcItems.Any()) return true;
 
 			while (true)

@@ -35,13 +35,8 @@
 
 	<!-- Move the created NuGet packages into another folder. -->
 	<Target Name="MovePackage" AfterTargets="Pack">
-		<Move
-			SourceFiles="$(OutputPath)$(PackageId).$(PackageVersion).symbols.nupkg"
-			DestinationFiles="$(OutputPath)..\..\..\..\.nuget\$(PackageId).$(PackageVersion).nupkg"
-		/>
-		<Delete
-			Files="$(OutputPath)$(PackageId).$(PackageVersion).nupkg"
-		/>
+		<Move SourceFiles="$(BaseOutputPath)$(Configuration)\$(PackageId).$(PackageVersion).symbols.nupkg" DestinationFiles="$(BaseOutputPath)$(Configuration)\..\..\..\..\.nuget\$(PackageId).$(PackageVersion).nupkg" />
+		<Delete	Files="$(BaseOutputPath)$(Configuration)\$(PackageId).$(PackageVersion).nupkg" />
 	</Target>
 
 </Project>
