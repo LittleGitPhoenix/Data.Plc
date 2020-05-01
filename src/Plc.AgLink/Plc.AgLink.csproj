@@ -6,7 +6,7 @@
 		<LangVersion>latest</LangVersion>
 		<AssemblyName>Phoenix.Data.Plc.AgLink</AssemblyName>
 		<RootNamespace>Phoenix.Data.Plc.AgLink</RootNamespace>
-		<Version>1.0.1</Version>
+		<Version>1.1.0</Version>
 		<Authors>Felix Leistner</Authors>
 		<Company>Little Phoenix</Company>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -30,5 +30,15 @@
 	<ItemGroup>
 		<ProjectReference Include="..\Plc\Plc.csproj" />
 	</ItemGroup>
+
+	<ItemGroup>
+		<Reference Include="Resources\AgLink\AGL4DotNET.4.dll" />
+	</ItemGroup>
+
+	<!-- Move the created NuGet packages into another folder. -->
+	<Target Name="MovePackage" AfterTargets="Pack">
+		<Move SourceFiles="$(BaseOutputPath)$(Configuration)\$(PackageId).$(PackageVersion).symbols.nupkg" DestinationFiles="$(BaseOutputPath)$(Configuration)\..\..\..\..\.nuget\$(PackageId).$(PackageVersion).nupkg" />
+		<Delete	Files="$(BaseOutputPath)$(Configuration)\$(PackageId).$(PackageVersion).nupkg" />
+	</Target>
 
 </Project>

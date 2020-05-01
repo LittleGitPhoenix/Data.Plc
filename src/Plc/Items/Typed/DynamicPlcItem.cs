@@ -251,29 +251,6 @@ namespace Phoenix.Data.Plc.Items.Typed
 		{
 			// Get the length of the length item.
 			uint newLength = lengthPlcItem.Value;
-			//byte[] data = lengthPlcItem.Value;
-			//switch (lengthPlcItem.Value.ByteLength)
-			//{
-			//	case 1:
-			//	{
-			//		newLength = data[0];
-			//		break;
-			//	}
-			//	case 2:
-			//	{
-			//		newLength = DataConverter.ToUInt16(data, DataConverter.Endianness.LittleEndian);
-			//		break;
-			//	}
-			//	case 4:
-			//	{
-			//		newLength = DataConverter.ToUInt32(data, DataConverter.Endianness.LittleEndian);
-			//		break;
-			//	}
-			//	default:
-			//	{
-			//		throw new NotSupportedException($"An {nameof(IDynamicPlcItem)} may currently not have a dynamic length longer than {uint.MaxValue} due to limitations of the item that stores the actual length.");
-			//	}
-			//}
 
 			// Apply the length factor.
 			checked
@@ -322,12 +299,15 @@ namespace Phoenix.Data.Plc.Items.Typed
 		/// Returns a string that represents the current object.
 		/// </summary>
 		public override string ToString()
-		{
-			var identifierBuilder = new StringBuilder(this.Identifier);
-			if (!this.Identifier.Equals(this.PlcString)) identifierBuilder.Append($" ({this.PlcString})");
+			=> this.ToString("N");
 
-			return $"[<{PlcItem.GetFullName(this.GetType())}> :: {this.Type} | {identifierBuilder}]";
-		}
+		/// <inheritdoc cref="IFormattable.ToString(string, System.IFormatProvider)"/>
+		public string ToString(string format)
+			=> this.ToString(format, null);
+
+		/// <inheritdoc />
+		public string ToString(string format, IFormatProvider formatProvider)
+			=> PlcItem.ToString(this, format);
 
 		#endregion
 

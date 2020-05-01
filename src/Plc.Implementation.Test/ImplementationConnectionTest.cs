@@ -1,8 +1,8 @@
 ﻿using System;
 using NUnit.Framework;
-using Phoenix.Data.Plc.Test;
 
-namespace Phoenix.Data.Plc.Implementation.Test {
+namespace Phoenix.Data.Plc.Implementation.Test
+{
 	public abstract class ImplementationConnectionTest<TPlc> : ImplementationTest<TPlc>
 		where TPlc : IPlc
 	{

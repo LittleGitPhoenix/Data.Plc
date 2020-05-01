@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Phoenix.Data.Plc.Items.Builder;
 using NUnit.Framework;
 using Phoenix.Data.Plc.Items;
 using Phoenix.Data.Plc.Items.Typed;
-using Phoenix.Data.Plc.Test;
 
 namespace Phoenix.Data.Plc.Implementation.Test
 {
