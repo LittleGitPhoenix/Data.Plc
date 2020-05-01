@@ -52,7 +52,13 @@ This implementation utilizes the proprietary **AGLink** owned by **Delta Logic**
 
 :grey_exclamation: **AGLink** is a commercial product owned by **Delta Logic**. Using the ***Plc.AgLink*** package requires their software, so make sure you are allowed to.
 
-The ***Plc.AgLink*** assembly itself only references the .Net wrapper assembly **AGL4DotNET.4.dll** from the trial version of **AGLink** in order to properly compile. This wrapper assembly will not be copied to the output folder during compilation, nor is it part of the created **NuGet** package. **AGLink** additionally requires some native assemblies on top of the wrapper assembly in order to work properly. Those are also not part of the ***Plc.AgLink*** project and must be provided by other means. One such way is shown in the ***Plc.AgLink.Demo*** project, that is basically just a container for all the required **AGLink** assemblies. This project will output a separate **NuGet** package that can be easily referenced and will copy all files into the output folder of the referencing project.  
+The ***Plc.AgLink*** assembly itself only references the .Net wrapper assembly **AGL4DotNET.4.dll** from the trial version of **AGLink** in order to properly compile. This wrapper assembly will not be copied to the output folder during compilation, nor is it part of the created **NuGet** package. **AGLink** additionally requires some native assemblies on top of the wrapper assembly in order to work properly. Those are also not part of the ***Plc.AgLink*** project and must be provided by [other means](#Providing-AGLink-requisites).
+
+### Providing AGLink requisites
+
+The ***Plc.AgLink.Demo*** project can be used as a template for providing all additional assemblies and other files that **AGLink** requires. It has a folder _Resources\AgLink_ that contains all files from the trial version. Those could be replaced by registered versions of the same assemblies and additional files. The license code of the commercial version can be saved in the _AGLink.license_ file, that ***Plc.AgLink*** will consume upon startup. 
+
+So basically ***Plc.AgLink.Demo*** is just a container for all the required **AGLink** files and doesn't have any executable code itself. This project will output a separate **NuGet** package that can be easily referenced and will copy all files into the output folder of the referencing project.
 
 ### Initialization
 
