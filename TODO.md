@@ -6,10 +6,10 @@ ___
 ## Functionality
 ___
 
-- [ ] Don't hard-code the **AGLink** license information into the code. Use a separate (and maybe AES encrypted) file instead.
+- [x] ~~Don't hard-code the **AGLink** license information into the code. Use a separate (and maybe AES encrypted) file instead.~~~
 - [x] ~~Create a new ***IPlc*** implementation that logs all read / write operations. Use a decorator.~~  
-→ Implementing logging as decorator limits log entries being either written at the start or at the end of some method. So the ***PLC*** base class uses its own logging facility directly.
-- [x] Find a way to not embed the **AGLink** assemblies into the assembly of the NuGet package but rather as a resource.  
+→ Implementing logging as decorator will lead to only being able to write log entries at the start or at the end of any method. So the ***PLC*** base class uses its own logging facility.
+- ~~[x] Find a way to not embed the **AGLink** assemblies into the assembly of the NuGet package but rather as a resource.~~  
 → The concrete **AGLink** assemblies are outsourced into a separate project. 
 - [x] ~~Try to make the package .NET Framework 4.5 compatible.~~
 - [x] ~~Include the typed plc items in the main ***Plc*** assembly. Typical usage would otherwise require to always add two **NuGet** packages.~~
