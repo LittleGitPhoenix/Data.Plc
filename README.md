@@ -48,15 +48,19 @@ IPlc plc = new MockPlc(initialDataBlocks);
 | :-: | :-: | :-: |
 | :heavy_check_mark: 4.5.0 | :heavy_check_mark: 2.0 | :heavy_check_mark: 2.0 |
 
-This implementation utilizes **AGLink** assemblies for communicating with the plc via **S7 TCP/IP**. Since those assemblies are proprietary and owned by **Delta Logic**, the **_Plc.AgLink_** assembly itself is just a wrapper and cannot be used on its own. Fortunately **Delta Logic** provides a trial version of their communication assembly. Those trial assemblies are implemented in the separate **_Plc.AgLink.Demo_** package.
+This implementation utilizes the proprietary **AGLink** owned by **Delta Logic** for communicating with the plc via **S7 TCP/IP**.
+
+:grey_exclamation: **AGLink** is a commercial product owned by **Delta Logic**. Using the ***Plc.AgLink*** package requires their software, so make sure you are allowed to.
+
+The ***Plc.AgLink*** assembly itself only references the .Net wrapper assembly **AGL4DotNET.4.dll** from the trial version of **AGLink** in order to properly compile. This wrapper assembly will not be copied to the output folder during compilation, nor is it part of the created **NuGet** package. **AGLink** additionally requires some native assemblies on top of the wrapper assembly in order to work properly. Those are also not part of the ***Plc.AgLink*** project and must be provided by other means. One such way is shown in the ***Plc.AgLink.Demo*** project, that is basically just a container for all the required **AGLink** assemblies. This project will output a separate **NuGet** package that can be easily referenced and will copy all files into the output folder of the referencing project.  
 
 ### Initialization
 
-To create an instance of any concrete **_AGLinkPlc_** class (like **_DemoAgLinkPlc_**), the **_AgLinkPlcConnectionData_** has to be supplied. It basically contains the ip address and some additional information about the plc.
+To create an instance of the ***AGLinkPlc*** class, the ***AgLinkPlcConnectionData*** has to be supplied. It basically contains the ip address and some additional information about the plc.
 
 ``` csharp
-var connectionData = new AgLinkPlcConnectionData(name: "AGLink@PLC", ip: "127.0.0.2", rack: 0, slot: 0);
-IPlc plc = new DemoAgLinkPlc(connectionData);
+var connectionData = new AgLinkPlcConnectionData(deviceNumber: 0, ip: "127.0.0.2", rack: 0, slot: 0);
+IPlc plc = new AgLinkPlc(connectionData);
 ```
 
 :grey_exclamation: Like all other ***IPlc*** implementations this one has to be disposed once it is not used anymore.
