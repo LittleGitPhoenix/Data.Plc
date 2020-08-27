@@ -137,6 +137,12 @@ namespace Phoenix.Data.Plc
 		/// <summary>
 		/// Constructor
 		/// </summary>
+		/// <param name="plcInformation"> <see cref="IPlcInformation"/> used to create the instance. </param>
+		protected Plc(IPlcInformation plcInformation) : this(plcInformation.Name) { }
+
+		/// <summary>
+		/// Constructor
+		/// </summary>
 		/// <param name="name"> The name of the plc. This is purely used for identification and log purposes. </param>
 		protected Plc(string name)
 		{

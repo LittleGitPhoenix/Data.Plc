@@ -10,7 +10,7 @@ namespace Phoenix.Data.Plc.AgLink
 	/// <summary>
 	/// Connection data needed by AGLink for establishing a connection to a plc.
 	/// </summary>
-	public sealed class AgLinkPlcConnectionData
+	public sealed class AgLinkPlcConnectionData : IAgLinkPlcConnectionData
 	{
 		#region Delegates / Events
 		#endregion
@@ -23,22 +23,22 @@ namespace Phoenix.Data.Plc.AgLink
 
 		#region Properties
 
-		/// <summary> The name of the plc. </summary>
+		/// <inheritdoc />
 		public string Name { get; }
 
-		/// <summary> The device number. </summary>
+		/// <inheritdoc />
 		public byte DeviceNumber { get; }
 
-		/// <summary> The ip address of the plc. </summary>
+		/// <inheritdoc />
 		public string Ip { get; }
-		
-		/// <summary> The rack number of the plc. </summary>
+
+		/// <inheritdoc />
 		public byte Rack { get; }
 
-		/// <summary> The slot of the plc. </summary>
+		/// <inheritdoc />
 		public byte Slot { get; }
 
-		/// <summary> Timeout for establishing the connection. </summary>
+		/// <inheritdoc />
 		public TimeSpan ConnectionTimeout { get; }
 
 		#endregion

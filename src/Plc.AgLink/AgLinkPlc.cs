@@ -36,7 +36,7 @@ namespace Phoenix.Data.Plc.AgLink
 		#region Properties
 
 		/// <summary> Data used for connecting to the plc. </summary>
-		private AgLinkPlcConnectionData ConnectionData { get; }
+		private IAgLinkPlcConnectionData ConnectionData { get; }
 
 		/// <summary> AGLink plc connection object. </summary>
 		private IAGLink4? UnderlyingPlc { get; set; }
@@ -102,8 +102,8 @@ namespace Phoenix.Data.Plc.AgLink
 		/// <summary>
 		/// Constructor
 		/// </summary>
-		/// <param name="connectionData"> <see cref="AgLinkPlcConnectionData"/> </param>
-		public AgLinkPlc(AgLinkPlcConnectionData connectionData)
+		/// <param name="connectionData"> <see cref="IAgLinkPlcConnectionData"/> </param>
+		public AgLinkPlc(IAgLinkPlcConnectionData connectionData)
 			: base(name: connectionData.Name)
 		{
 			// Save parameters.
