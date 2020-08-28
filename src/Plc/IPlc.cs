@@ -39,6 +39,11 @@ namespace Phoenix.Data.Plc
 
 		#region Properties
 
+		/// <summary>
+		/// The id of the plc.
+		/// </summary>
+		int Id { get; }
+
 		/// <summary> The name of the plc. </summary>
 		string Name { get; }
 

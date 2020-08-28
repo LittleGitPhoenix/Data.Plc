@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ___
 
+## 1.6.0 (2020-08-28)
+
+### Added
+
+- The ***IPlc*** interface now contains an additional property ***Id*** that can be used for identification purposes.
+- Since both ***Id*** and ***Name*** of an plc are only for identification purposes, new constructors have been added so that they can be omitted. Their default values will be **-1** for the id and an empty string as the name.
+___
 
 ## 1.5.0 (2020-08-27)
 

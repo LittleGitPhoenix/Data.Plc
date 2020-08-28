@@ -85,6 +85,9 @@ namespace Phoenix.Data.Plc.Monitor.Polling
 		#region Property Forwarding
 
 		/// <inheritdoc />
+		public int Id => _decoratedPlc.Id;
+		
+		/// <inheritdoc />
 		public string Name => _decoratedPlc.Name;
 
 		/// <inheritdoc />

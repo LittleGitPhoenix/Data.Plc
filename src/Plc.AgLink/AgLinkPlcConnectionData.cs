@@ -24,6 +24,9 @@ namespace Phoenix.Data.Plc.AgLink
 		#region Properties
 
 		/// <inheritdoc />
+		public int Id { get; }
+
+		/// <inheritdoc />
 		public string Name { get; }
 
 		/// <inheritdoc />
@@ -55,21 +58,23 @@ namespace Phoenix.Data.Plc.AgLink
 		/// <param name="connectionTimeout"> Optional timeout for establishing the connection. Default value is 5000 milliseconds. </param>
 		/// <returns> <c>TRUE</c> if successful, otherwise <c>FALSE</c>. </returns>
 		public AgLinkPlcConnectionData(byte deviceNumber, string ip, byte rack, byte slot, TimeSpan connectionTimeout = default)
-			: this(null, deviceNumber, ip, rack, slot, connectionTimeout) { }
+			: this(-1, null, deviceNumber, ip, rack, slot, connectionTimeout) { }
 
 		/// <summary>
 		/// Constructor
 		/// </summary>
-		/// <param name="name"> The name of the plc instance. If this is <c>Null</c> or whitespace then the default value will be used. </param>
+		/// <param name="id"> The id of the plc. </param>
+		/// <param name="name"> The name of the plc instance. If this is <c>Null</c> or whitespace then the default value <c>AGLinkPlc@{ip}</c> will be used. </param>
 		/// <param name="deviceNumber"> <see cref="DeviceNumber"/> </param>
 		/// <param name="ip"> <see cref="Ip"/> </param>
 		/// <param name="rack"> <see cref="Rack"/> </param>
 		/// <param name="slot"> <see cref="Slot"/> </param>
 		/// <param name="connectionTimeout"> Optional timeout for establishing the connection. Default value is 5000 milliseconds. </param>
 		/// <returns> <c>TRUE</c> if successful, otherwise <c>FALSE</c>. </returns>
-		public AgLinkPlcConnectionData(string name, byte deviceNumber, string ip, byte rack, byte slot, TimeSpan connectionTimeout = default)
+		public AgLinkPlcConnectionData(int id, string name, byte deviceNumber, string ip, byte rack, byte slot, TimeSpan connectionTimeout = default)
 		{
 			// Save parameters.
+			this.Id = id;
 			this.Name = String.IsNullOrWhiteSpace(name) ? $"AGLinkPlc@{ip}" : name;
 			this.DeviceNumber = deviceNumber;
 			this.Ip = ip;
@@ -85,7 +90,7 @@ namespace Phoenix.Data.Plc.AgLink
 		/// <summary>
 		/// Returns a string that represents the current object.
 		/// </summary>
-		public override string ToString() => $"[<{this.GetType().Name}> :: Name: {this.Name} | Device: {this.DeviceNumber} | IP: {this.Ip} | Rack: {this.Rack} | Slot: {this.Slot} | ConnectionTimeOut: {this.ConnectionTimeout}]";
+		public override string ToString() => $"[<{this.GetType().Name}> :: Id: {this.Id} | Name: {this.Name} | Device: {this.DeviceNumber} | IP: {this.Ip} | Rack: {this.Rack} | Slot: {this.Slot} | ConnectionTimeOut: {this.ConnectionTimeout}]";
 
 		#endregion
 	}

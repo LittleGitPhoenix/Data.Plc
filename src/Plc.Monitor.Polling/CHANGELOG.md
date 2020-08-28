@@ -9,4 +9,9 @@ ___
 
 ### Added
 
+- Implemented new ***IPlc.Id*** property in ***PollingMonitorablePlc***.
+___
+
+## 1.0.0 (2020-03-31)
+
 - Initial release.

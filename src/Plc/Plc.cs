@@ -110,6 +110,9 @@ namespace Phoenix.Data.Plc
 		private readonly Lazy<ILogger> _logger = new Lazy<ILogger>(LogManager.GetLogger);
 
 		/// <inheritdoc />
+		public int Id { get; }
+		
+		/// <inheritdoc />
 		public string Name { get; }
 
 		/// <inheritdoc />
@@ -137,16 +140,38 @@ namespace Phoenix.Data.Plc
 		/// <summary>
 		/// Constructor
 		/// </summary>
-		/// <param name="plcInformation"> <see cref="IPlcInformation"/> used to create the instance. </param>
-		protected Plc(IPlcInformation plcInformation) : this(plcInformation.Name) { }
+		/// <remarks> The id of the instance will be <c>-1</c> and its name an empty string. </remarks>
+		protected Plc() : this(-1, String.Empty) { }
+
+		/// <summary>
+		/// Constructor
+		/// </summary>
+		/// <param name="id"> The id of the plc. This is purely used for identification and log purposes. </param>
+		/// <remarks> The name of the instance will be an empty string. </remarks>
+		protected Plc(int id) : this(id, String.Empty) { }
 
 		/// <summary>
 		/// Constructor
 		/// </summary>
 		/// <param name="name"> The name of the plc. This is purely used for identification and log purposes. </param>
-		protected Plc(string name)
+		/// <remarks> The id of the instance will be <c>-1</c>. </remarks>
+		protected Plc(string name) : this(-1, name) { }
+
+		/// <summary>
+		/// Constructor
+		/// </summary>
+		/// <param name="plcInformation"> <see cref="IPlcInformation"/> used to create the instance. </param>
+		protected Plc(IPlcInformation plcInformation) : this(plcInformation.Id, plcInformation.Name) { }
+
+		/// <summary>
+		/// Constructor
+		/// </summary>
+		/// <param name="id"> The id of the plc. This is purely used for identification and log purposes. </param>
+		/// <param name="name"> The name of the plc. This is purely used for identification and log purposes. </param>
+		protected Plc(int id, string name)
 		{
 			// Save parameters.
+			this.Id = id;
 			this.Name = name;
 			
 			// Initialize fields.
@@ -528,7 +553,7 @@ namespace Phoenix.Data.Plc
 
 				case "F":
 				case "FULL":
-					return $"[<{this.GetType().Name}> :: Name: {this.Name} | State: {this.ConnectionState}]";
+					return $"[<{this.GetType().Name}> :: Id: {this.Id} | Name: {this.Name} | State: {this.ConnectionState}]";
 				
 				case "N":
 				case "NORMAL":

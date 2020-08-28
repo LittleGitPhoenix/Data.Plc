@@ -104,7 +104,7 @@ namespace Phoenix.Data.Plc.AgLink
 		/// </summary>
 		/// <param name="connectionData"> <see cref="IAgLinkPlcConnectionData"/> </param>
 		public AgLinkPlc(IAgLinkPlcConnectionData connectionData)
-			: base(name: connectionData.Name)
+			: base(connectionData.Id, connectionData.Name)
 		{
 			// Save parameters.
 			this.ConnectionData = connectionData;
