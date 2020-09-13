@@ -6,7 +6,7 @@
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<AssemblyName>Phoenix.Data.Plc</AssemblyName>
 		<RootNamespace>Phoenix.Data.Plc</RootNamespace>
-		<Version>1.6.0</Version>
+		<Version>2.0.0</Version>
 		<Authors>Felix Leistner</Authors>
 		<Company>Little Phoenix</Company>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -22,19 +22,24 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<None Include="..\..\..\nuget.png" Pack="true" PackagePath="" />
-		<None Include="..\..\README.md" Pack="true" PackagePath="" />
-		<None Include="..\..\LICENSE.md" Pack="true" PackagePath="" />
+		<None Include="..\..\..\nuget.png" Pack="true" PackagePath="" Link="⬙\nuget.png" />
+		<None Include="..\..\README.md" Pack="true" PackagePath="" Link="⬙\README.md" />
+		<None Include="..\..\LICENSE.md" Pack="true" PackagePath="" Link="⬙\LICENSE.md" />
 	</ItemGroup>
 
 	<ItemGroup Condition="$(TargetFramework.StartsWith('net4')) Or $(TargetFramework.StartsWith('netstandard1')) Or $(TargetFramework.Equals('netstandard2.0'))">
-	  <PackageReference Include="System.Memory" Version="4.5.4" />
+		<PackageReference Include="System.Memory" Version="4.5.4" />
 	</ItemGroup>
+
+	<ItemGroup Condition="$(TargetFramework.StartsWith('net4'))">
+		<PackageReference Include="System.ValueTuple" Version="4.5.0" />
+	</ItemGroup>
+
 
 	<!-- Move the created NuGet packages into another folder. -->
 	<Target Name="MovePackage" AfterTargets="Pack">
 		<Move SourceFiles="$(BaseOutputPath)$(Configuration)\$(PackageId).$(PackageVersion).symbols.nupkg" DestinationFiles="$(BaseOutputPath)$(Configuration)\..\..\..\..\.nuget\$(PackageId).$(PackageVersion).nupkg" />
-		<Delete	Files="$(BaseOutputPath)$(Configuration)\$(PackageId).$(PackageVersion).nupkg" />
+		<Delete Files="$(BaseOutputPath)$(Configuration)\$(PackageId).$(PackageVersion).nupkg" />
 	</Target>
 
 </Project>

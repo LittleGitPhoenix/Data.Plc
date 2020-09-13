@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using NUnit.Framework;
 using MoreLinq;
@@ -87,7 +87,7 @@ namespace Phoenix.Data.Plc.Test
 		public void Change_Notification_Is_Raised()
 		{
 			// Arrange
-			ICollection<BitChange> changes = null;
+			BitChanges changes = null;
 			var bitCollection = new BitCollection(false, Enumerable.Range(0, 10).Select(index => false).ToArray());
 			bitCollection.BitsChanged += (sender, args) => changes = args.Changes;
 			var newData = Enumerable.Range(0, 5).Select(index => true).Concat(Enumerable.Range(0, 5).Select(index => false)).ToArray();
@@ -99,11 +99,11 @@ namespace Phoenix.Data.Plc.Test
 			// Assert
 			Assert.That(changes.Count, Is.EqualTo(targetChangesCount));
 			var position = uint.MinValue;
-			foreach (var change in changes.OrderBy(change => change.Position))
+			foreach (var change in changes.OrderBy(change => change.Key))
 			{
-				Assert.True(change.Position == position);
-				Assert.False(change.OldValue, $"Old value was not false at position: {position}.");
-				Assert.True(change.NewValue, $"New value was not true at position: {position}.");
+				Assert.True(change.Key == position);
+				Assert.False(change.Value.OldValue, $"Old value was not false at position: {position}.");
+				Assert.True(change.Value.NewValue, $"New value was not true at position: {position}.");
 				position++;
 			}
 		}
@@ -115,7 +115,7 @@ namespace Phoenix.Data.Plc.Test
 		public void Change_Notification_Is_Raised_If_Dynamically_Expanded()
 		{
 			// Arrange
-			ICollection<BitChange> changes = null;
+			BitChanges changes = null;
 			var modifiableBitCollection = new BitCollection(true, Enumerable.Range(0, 5).Select(index => false).ToArray());
 			modifiableBitCollection.BitsChanged += (sender, args) => changes = args.Changes;
 			var newData = Enumerable.Range(0, (int)(modifiableBitCollection.Length * 2)).Select(index => false).ToArray(); //! Make this larger.
@@ -127,11 +127,11 @@ namespace Phoenix.Data.Plc.Test
 			// Assert
 			Assert.That(changes.Count, Is.EqualTo(targetChangesCount));
 			var position = targetChangesCount;
-			foreach (var change in changes.OrderBy(change => change.Position))
+			foreach (var change in changes.OrderBy(change => change.Key))
 			{
-				Assert.True(change.Position == position);
-				Assert.Null(change.OldValue, $"Old value was not null at position: {position}.");
-				Assert.False(change.NewValue, $"New value was not false at position: {position}.");
+				Assert.True(change.Key == position);
+				Assert.Null(change.Value.OldValue, $"Old value was not null at position: {position}.");
+				Assert.False(change.Value.NewValue, $"New value was not false at position: {position}.");
 				position++;
 			}
 		}
@@ -143,7 +143,7 @@ namespace Phoenix.Data.Plc.Test
 		public void Change_Notification_Is_Raised_If_Dynamically_Truncated()
 		{
 			// Arrange
-			ICollection<BitChange> changes = null;
+			BitChanges changes = null;
 			var modifiableBitCollection = new BitCollection(true, Enumerable.Range(0, 10).Select(index => false).ToArray());
 			modifiableBitCollection.BitsChanged += (sender, args) => changes = args.Changes;
 			var newData = Enumerable.Range(0, (int)(modifiableBitCollection.Length / 2)).Select(index => false).ToArray(); //! Make this smaller.
@@ -155,11 +155,11 @@ namespace Phoenix.Data.Plc.Test
 			// Assert
 			Assert.That(changes.Count, Is.EqualTo(targetChangesCount));
 			var position = targetChangesCount;
-			foreach (var change in changes.OrderBy(change => change.Position))
+			foreach (var change in changes.OrderBy(change => change.Key))
 			{
-				Assert.True(change.Position == position);
-				Assert.False(change.OldValue, $"Old value was not false at position: {position}.");
-				Assert.Null(change.NewValue, $"New value was not null at position: {position}.");
+				Assert.True(change.Key == position);
+				Assert.False(change.Value.OldValue, $"Old value was not false at position: {position}.");
+				Assert.Null(change.Value.NewValue, $"New value was not null at position: {position}.");
 				position++;
 			}
 		}
@@ -216,6 +216,31 @@ namespace Phoenix.Data.Plc.Test
 
 			// Assert
 			Assert.That(modifiableBitCollection.Length, Is.EqualTo(targetLength));
+		}
+
+		/// <summary>
+		/// Checks if change notification is analyzed and executed fast even for large <see cref="BitCollection"/>s.
+		/// </summary>
+		[Test]
+		public void Change_Tracking_Is_Executed_Fast()
+		{
+			// Arrange
+			var changes = 10000;
+			var initialData = Enumerable.Range(0, changes).Select(index => false).ToArray();
+			var modifiedData = Enumerable.Range(0, changes).Select(index => true).ToArray();
+			var largeBitCollection = new BitCollection(false, initialData);
+			var stopwatch = new Stopwatch();
+
+			// Act
+			stopwatch.Start();
+			largeBitCollection.TransferValuesFrom(modifiedData);
+			stopwatch.Stop();
+			
+			// Assert
+			var elapsed = stopwatch.ElapsedMilliseconds;
+			Console.WriteLine($"Change tracking of {changes} changes took {elapsed}ms.");
+			Assert.That(elapsed, Is.LessThanOrEqualTo(20));
+			Assert.True(((bool[]) largeBitCollection).All(b => true));
 		}
 	}
 }

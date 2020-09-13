@@ -6,7 +6,7 @@
 		<LangVersion>latest</LangVersion>
 		<AssemblyName>Phoenix.Data.Plc.AgLink</AssemblyName>
 		<RootNamespace>Phoenix.Data.Plc.AgLink</RootNamespace>
-		<Version>1.3.0</Version>
+		<Version>2.0.0</Version>
 		<Authors>Felix Leistner</Authors>
 		<Company>Little Phoenix</Company>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -22,9 +22,9 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<None Include="..\..\..\nuget.png" Pack="true" PackagePath="" />
-		<None Include="..\..\README.md" Pack="true" PackagePath="" />
-		<None Include="..\..\LICENSE.md" Pack="true" PackagePath="" />
+		<None Include="..\..\..\nuget.png" Pack="true" PackagePath="" Link="⬙\nuget.png" />
+		<None Include="..\..\README.md" Pack="true" PackagePath="" Link="⬙\README.md" />
+		<None Include="..\..\LICENSE.md" Pack="true" PackagePath="" Link="⬙\LICENSE.md" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -32,7 +32,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Reference Include="Resources\AgLink\AGL4DotNET.4.dll" />
+		<Reference Include="⬙\AgLink\AGL4DotNET.4.dll" />
 	</ItemGroup>
 
 	<!-- Move the created NuGet packages into another folder. -->

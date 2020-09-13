@@ -6,7 +6,6 @@
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Phoenix.Data.Plc.Items
@@ -27,7 +26,7 @@ namespace Phoenix.Data.Plc.Items
 		/// Raised if at least one of the bits was changed.
 		/// </summary>
 		public event EventHandler<BitsChangedEventArgs> BitsChanged;
-		private void OnBitsChanged(params BitChange[] changes)
+		private void OnBitsChanged(BitChanges changes)
 		{
 			if (!changes.Any()) return;
 
@@ -61,7 +60,7 @@ namespace Phoenix.Data.Plc.Items
 
 		private readonly object _valueChangeLockObject;
 
-		private readonly ConcurrentQueue<BitChange[]> _eventQueue;
+		private readonly ConcurrentQueue<BitChanges> _eventQueue;
 
 		#endregion
 
@@ -88,7 +87,7 @@ namespace Phoenix.Data.Plc.Items
 
 					var oldValue = this.Bits[index];
 					this.Bits[index] = value;
-					this.OnBitsChanged(new BitChange(index, oldValue, value));
+					this.OnBitsChanged(new BitChanges() {{index, (oldValue, value)}});
 				}
 			}
 		}
@@ -180,7 +179,7 @@ namespace Phoenix.Data.Plc.Items
 			// Initialize fields.
 			_valueAccessLockObject = new object();
 			_valueChangeLockObject = new object();
-			_eventQueue = new ConcurrentQueue<BitChange[]>();
+			_eventQueue = new ConcurrentQueue<BitChanges>();
 		}
 
 		#endregion
@@ -197,7 +196,7 @@ namespace Phoenix.Data.Plc.Items
 		{
 			lock (_valueAccessLockObject)
 			{
-				var changes = this.Resize_Internal(newLength).ToArray();
+				var changes = this.Resize_Internal(newLength)/*.ToArray()*/;
 				if (!changes.Any()) return;
 
 				this.OnBitsChanged(changes);
@@ -208,12 +207,12 @@ namespace Phoenix.Data.Plc.Items
 		/// Resizes the internal <see cref="bool"/> array.
 		/// </summary>
 		/// <param name="newLength"> The new length for <see cref="Bits"/>. </param>
-		/// <returns> A list of the <see cref="BitChange"/>s that happened because of resizing. </returns>
-		private List<BitChange> Resize_Internal(uint newLength)
+		/// <returns> A list of the <see cref="BitChanges"/> that happened because of resizing. </returns>
+		private BitChanges Resize_Internal(uint newLength)
 		{
 			lock (_valueAccessLockObject)
 			{
-				if (this.Length == newLength) return new List<BitChange>();
+				if (this.Length == newLength) return new BitChanges();
 
 				var oldBits = _bits;
 				var oldLength = this.Length;
@@ -233,10 +232,11 @@ namespace Phoenix.Data.Plc.Items
 					//	.Select(index => new BitChange((uint) index, null, false))
 					//	.ToList()
 					//	;
-					var changes = new List<BitChange>((int)(newLength - oldLength));
-					for (uint index = oldLength; index < oldLength + changes.Capacity; index++)
+					var capacity = (int) (newLength - oldLength);
+					var changes = new BitChanges(capacity);
+					for (uint index = oldLength; index < oldLength + capacity; index++)
 					{
-						changes.Add(new BitChange(index, null, false));
+						changes.Add(index, (null, false));
 					}
 					return changes;
 				}
@@ -250,10 +250,11 @@ namespace Phoenix.Data.Plc.Items
 					//	.Select(index => new BitChange((uint) index, oldBits[index], null))
 					//	.ToList()
 					//	;
-					var changes = new List<BitChange>((int)(oldLength - newLength));
-					for (uint index = newLength; index < newLength + changes.Capacity; index++)
+					var capacity = (int) (oldLength - newLength);
+					var changes = new BitChanges(capacity);
+					for (uint index = newLength; index < newLength + capacity; index++)
 					{
-						changes.Add(new BitChange(index, oldBits[index], null));
+						changes.Add(index, (oldBits[index], null));
 					}
 					return changes;
 				}
@@ -304,7 +305,7 @@ namespace Phoenix.Data.Plc.Items
 			lock (_valueAccessLockObject)
 			{
 				// Change the size if needed.
-				var changes = this.AutomaticallyAdaptSize ? this.Resize_Internal((uint) booleans.Length) : new List<BitChange>();
+				var changes = this.AutomaticallyAdaptSize ? this.Resize_Internal((uint)booleans.Length) : new BitChanges(booleans.Length / 4); // Assume that a quarter of all bits changed.
 
 				for (var bitPosition = startPosition; bitPosition < Math.Min(this.Bits.Length, booleans.Length) + startPosition; bitPosition++)
 				{
@@ -313,20 +314,12 @@ namespace Phoenix.Data.Plc.Items
 
 					if (currentValue != newValue)
 					{
-						var change = changes.SingleOrDefault(bitChange => bitChange.Position == bitPosition);
-						if (change is null)
-						{
-							changes.Add(new BitChange(bitPosition, currentValue, newValue));
-						}
-						else
-						{
-							change.NewValue = newValue;
-						}
+						changes.Add(bitPosition, (currentValue, newValue));
 						this.Bits[bitPosition] = newValue;
 					}
 				}
-
-				this.OnBitsChanged(changes.ToArray());
+				
+				this.OnBitsChanged(changes);
 			}
 		}
 
@@ -504,59 +497,5 @@ namespace Phoenix.Data.Plc.Items
 		}
 
 		#endregion
-	}
-
-	/// <summary>
-	/// <see cref="EventArgs"/> for changes in the internal collection of the <see cref="BitCollection"/> class.
-	/// </summary>
-	public class BitsChangedEventArgs : EventArgs
-	{
-		/// <summary>
-		/// The collection of <see cref="BitChange"/>s that occured.
-		/// </summary>
-		public ICollection<BitChange> Changes { get; }
-
-		/// <summary>
-		/// Constructor
-		/// </summary>
-		/// <param name="changes"> <see cref="Changes"/> </param>
-		public BitsChangedEventArgs(params BitChange[] changes)
-		{
-			this.Changes = changes;
-		}
-	}
-
-	/// <summary>
-	/// Represents a single changed bit.
-	/// </summary>
-	public class BitChange
-	{
-		/// <summary> The bit position. </summary>
-		public uint Position { get; }
-
-		/// <summary> The previous value or <c>Null</c> if the bit has been added. </summary>
-		public bool? OldValue { get; }
-
-		/// <summary> The new value or <c>Null</c> if the bit has been removed. </summary>
-		/// <remarks> The setter is internal, so that multiple changes to the same bit can be updated. </remarks>
-		public bool? NewValue { get; internal set; }
-
-		/// <summary>
-		/// Constructor
-		/// </summary>
-		/// <param name="position"> <see cref="Position"/> </param>
-		/// <param name="oldValue"> <see cref="OldValue"/> </param>
-		/// <param name="newValue"> <see cref="NewValue"/> </param>
-		public BitChange(uint position, bool? oldValue, bool? newValue)
-		{
-			this.Position = position;
-			this.OldValue = oldValue;
-			this.NewValue = newValue;
-		}
-
-		/// <summary>
-		/// Returns a string that represents the current object.
-		/// </summary>
-		public override string ToString() => $"[<{this.GetType().Name}> :: {this.Position} | {(this.OldValue is null ? "UNAVAILABLE" : this.OldValue.Value.ToString())} → {(this.NewValue is null ? "REMOVED" : this.NewValue.Value.ToString())}]";
 	}
 }
