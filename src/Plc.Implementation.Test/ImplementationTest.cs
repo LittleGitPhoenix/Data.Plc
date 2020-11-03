@@ -32,7 +32,14 @@ namespace Phoenix.Data.Plc.Implementation.Test
 		#endregion
 
 		#region (De)Constructors
-		
+
+		static ImplementationTest()
+		{
+			// Change the default logger.
+			Phoenix.Data.Plc.Logging.LogManager.LogAllReadAndWriteOperations = true;
+			Phoenix.Data.Plc.Logging.LogManager.LoggerFactory = () => new Phoenix.Data.Plc.Logging.TraceLogger();
+		}
+
 		protected ImplementationTest(TPlc plc, TPlc identicalPlc)
 		{
 			// Save parameters.

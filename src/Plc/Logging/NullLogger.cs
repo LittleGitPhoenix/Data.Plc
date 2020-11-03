@@ -13,10 +13,10 @@ namespace Phoenix.Data.Plc.Logging
 	internal class NullLogger : ILogger
 	{
 		/// <inheritdoc />
-		public void Trace(string format, params object[] args) { }
+		public void Trace(string message, params object[] replacors) { }
 
 		/// <inheritdoc />
-		public void Info(string format, params object[] args) { }
+		public void Info(string message, params object[] replacors) { }
 
 		/// <inheritdoc />
 		public void Error(Exception exception) { }
