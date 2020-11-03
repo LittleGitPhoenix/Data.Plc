@@ -19,11 +19,11 @@ namespace Phoenix.Data.Plc.Implementation.Test
 		#endregion
 
 		#region (De)Constructors
-
-		protected ImplementationConnectionTest(TPlc plc) : base(_ => plc) { }
-
+		
 		protected ImplementationConnectionTest(Func<Data.Plc.Test.Data, TPlc> plcFactory) : base(plcFactory) { }
 
+		protected ImplementationConnectionTest(TPlc plc, TPlc identicalPlc) : base(plc, identicalPlc) { }
+		
 		#endregion
 
 		#region Methods
@@ -85,6 +85,24 @@ namespace Phoenix.Data.Plc.Implementation.Test
 			plc.Connected -= PlcConnectionStateChanged;
 			plc.Disconnected -= PlcConnectionStateChanged;
 			plc.Interrupted -= PlcConnectionStateChanged;
+		}
+
+		[Test]
+		/// <summary> Checks if multiple connections to the same plc can be established. </summary>
+		public virtual void Connect_Twice()
+		{
+			// Arrange
+			using var plc = base.Plc;
+			using var plc2 = base.IdenticalPlc;
+			plc.Disconnect();
+			plc2.Disconnect();
+			plc.Connect();
+			
+			// Act
+			var success = plc2.Connect();
+			
+			// Assert
+			Assert.True(success);
 		}
 
 		[Test]

@@ -8,7 +8,7 @@ namespace Phoenix.Data.Plc.AgLink.Test
 	[TestFixture]
 	public sealed class ImplementationWriteTest : ImplementationWriteTest<AgLinkPlc>
 	{
-		private static string Host = "PLC1";
+		private static string Host = "PLC1518";
 
 		public ImplementationWriteTest()
 			: base
@@ -24,7 +24,7 @@ namespace Phoenix.Data.Plc.AgLink.Test
 			PingReply reply = null;
 			try
 			{
-				reply = ping.Send(Host, 250);
+				reply = ping.Send(Host, 1000);
 			}
 			catch { /* ignore */ }
 			if (reply is null || reply.Status != IPStatus.Success) Assert.Ignore($"Establishing a connection to '{base.Plc}' failed. This implementation test will not be executed, because it needs special hardware which seems to be unavailable.");

@@ -85,7 +85,7 @@ An **_IPlcItem_** contains all data needed to read or write to the plc.
 | Value | **_BitCollection_** | Specialized class that holds the bits and bytes of the item. |
 
 
-To make working with plc items easier, specialized items for the most common data types exist in the namespace **_PhoenixPlc.Items.Typed_**. Those items automatically convert the underlying **_BitCollection_** into more concrete types:
+To make working with plc items easier, specialized items for the most common data types exist in the namespace **_Phoenix.Data.Plc.Items.Typed_**. Those items automatically convert the underlying **_BitCollection_** into more concrete types:
 
 - BitPlcItem
 - BytesPlcItem

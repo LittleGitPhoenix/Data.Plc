@@ -21,15 +21,28 @@ namespace Phoenix.Data.Plc.Implementation.Test
 
 		#region Properties
 
+		/// <summary> The main <see cref="IPlc"/> object used for testing. </summary>
 		protected TPlc Plc { get; }
+
+		/// <summary> This must be an identical <see cref="Plc"/> object, but not the same instance. </summary>
+		protected TPlc IdenticalPlc { get; }
 
 		protected Data.Plc.Test.Data Data { get; }
 
 		#endregion
 
 		#region (De)Constructors
+		
+		protected ImplementationTest(TPlc plc, TPlc identicalPlc)
+		{
+			// Save parameters.
+			this.Plc = plc;
+			this.IdenticalPlc = identicalPlc;
 
-		protected ImplementationTest(TPlc plc) : this(_ => plc) { }
+			// Initialize fields.
+			_lock = new object();
+			this.Data = new Data.Plc.Test.Data();
+		}
 
 		protected ImplementationTest(Func<Data.Plc.Test.Data, TPlc> plcFactory)
 		{
@@ -39,6 +52,7 @@ namespace Phoenix.Data.Plc.Implementation.Test
 			_lock = new object();
 			this.Data = new Data.Plc.Test.Data();
 			this.Plc = plcFactory.Invoke(this.Data);
+			this.IdenticalPlc = plcFactory.Invoke(this.Data);
 		}
 
 		#endregion

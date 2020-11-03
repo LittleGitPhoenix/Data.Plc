@@ -198,6 +198,16 @@
             Devicetype for S7-TCP/IP for accessing S7-1200 and S7-1500
             </summary>
         </member>
+        <member name="F:Accon.AGLink.AGL4.TYPE_S5_ISO">
+            <summary>
+            Devicetype for TYPE_S5_ISO
+            </summary>
+        </member>
+        <member name="F:Accon.AGLink.AGL4.TYPE_S7_ISO">
+            <summary>
+            Devicetype for TYPE_S7_ISO
+            </summary>
+        </member>
         <member name="F:Accon.AGLink.AGL4.TYPE_S7_SYMBOLIK_TIA">
             <summary>
             Devicetype for S7-TCP/IP TIA to be able to load TIA Portal project
@@ -336,6 +346,18 @@
         <member name="F:Accon.AGLink.AGL4.MASK_RFC_1006">
             <summary>
             If this bit is set, the devictype RFC1006 is supported
+            You can check this with the function Accon.AGL4.GetOptions
+            </summary>
+        </member>
+        <member name="F:Accon.AGLink.AGL4.MASK_S5_ISO">
+            <summary>
+            If this bit is set, the devictype S5_ISO is supported
+            You can check this with the function Accon.AGL4.GetOptions
+            </summary>
+        </member>
+        <member name="F:Accon.AGLink.AGL4.MASK_S7_ISO">
+            <summary>
+            If this bit is set, the devictype S7_ISO is supported
             You can check this with the function Accon.AGL4.GetOptions
             </summary>
         </member>
@@ -1236,6 +1258,31 @@
             No power
             </summary>
         </member>
+        <member name="F:Accon.AGLink.AGL4.OPSTATEEX_CIR">
+            <summary>
+            CIR
+            </summary>
+        </member>
+        <member name="F:Accon.AGLink.AGL4.OPSTATEEX_STOP_WITHOUT_ODIS">
+            <summary>
+            STOP_WITHOUT_ODIS
+            </summary>
+        </member>
+        <member name="F:Accon.AGLink.AGL4.OPSTATEEX_RUN_ODIS">
+            <summary>
+            RUN_ODIS
+            </summary>
+        </member>
+        <member name="F:Accon.AGLink.AGL4.OPSTATEEX_RESET_TO_FACTORY">
+            <summary>
+            RESET_TO_FACTORY
+            </summary>
+        </member>
+        <member name="F:Accon.AGLink.AGL4.OPSTATEEX_STOP_NO_MMC">
+            <summary>
+            STOP_NO_MMC
+            </summary>
+        </member>
         <member name="F:Accon.AGLink.AGL4.AERA_UNKNOWN">
             <summary>
             No Area set in DATA_RW40.OpArea
@@ -1639,9 +1686,19 @@
             Max additive value count for S7-Alarm
             </summary>
         </member>
+        <member name="F:Accon.AGLink.AGL4.S7_ALARM_MAX_ADD_VALUES_TIA">
+            <summary>
+            Max additive value count for S7-Alarm Tia
+            </summary>
+        </member>
         <member name="F:Accon.AGLink.AGL4.S7_ALARM_MAX_ADD_VALUE_LEN">
             <summary>
             Max length of additive values for S7-Alarm
+            </summary>
+        </member>
+        <member name="F:Accon.AGLink.AGL4.S7_ALARM_MAX_ADD_VALUE_LEN_TIA">
+            <summary>
+            Max length of additive values for S7-Alarm Tia
             </summary>
         </member>
         <member name="F:Accon.AGLink.AGL4.S7_USEND_URCV_MAX_VALUES">
@@ -2174,6 +2231,24 @@
             <param name="CommandLineArguments">Additional parameters for the program</param>
             <returns>AGL40_SUCCESS	In case of success &lt; 0	Error number</returns> 
         </member>
+        <member name="M:Accon.AGLink.AGL4.SetParas_intern(System.Int32,System.Int32,System.Object)">
+            <summary>
+            By this function, settings for a device and a communication path will be set. If no XML file was loaded this will be done automatically  by this function.
+            </summary>
+            <param name="DevNr">The number of the device</param>
+            <param name="ParaType">Type of the parameters</param>
+            <param name="Para">Pointer to the actual parameter</param>
+            <returns>AGL40_SUCCESS	In case of success &lt; 0	Error number</returns> 
+        </member>
+        <member name="M:Accon.AGLink.AGL4.GetParas_intern(System.Int32,System.Int32,System.Object@)">
+            <summary>
+            By calling this function, settings for a device and a communication path will be read. If no XML file was loaded this will be done automatically.
+            </summary>
+            <param name="DevNr">The number of the device</param>
+            <param name="ParaType">Type of the parameters</param>
+            <param name="Para">Pointer to the actual parameter </param>
+            <returns>AGL40_SUCCESS	In case of success &lt; 0	Error number</returns> 
+        </member>
         <member name="M:Accon.AGLink.AGL4.SetParas``1(System.Int32,System.Int32,``0)">
             <summary>
             Durch diese Funktion werden Einstellungen für ein Gerät und einen Kommu-nikationsweg gesetzt.
@@ -2193,24 +2268,6 @@
             <param name="ParaType">Der Parametertyp, der gelesen werden soll</param>
             <param name="Para">Konkrete Struktur, in die gelesen wird.</param>
             <returns>AGL4_SUCCESS im Erfolgsfall. Eine Zahl kleiner 0 ist eine Fehlernummer</returns>
-        </member>
-        <member name="M:Accon.AGLink.AGL4.SetParas(System.Int32,System.Int32,System.Object)">
-            <summary>
-            By this function, settings for a device and a communication path will be set. If no XML file was loaded this will be done automatically  by this function.
-            </summary>
-            <param name="DevNr">The number of the device</param>
-            <param name="ParaType">Type of the parameters</param>
-            <param name="Para">Pointer to the actual parameter</param>
-            <returns>AGL40_SUCCESS	In case of success &lt; 0	Error number</returns> 
-        </member>
-        <member name="M:Accon.AGLink.AGL4.GetParas(System.Int32,System.Int32,System.Object@)">
-            <summary>
-            By calling this function, settings for a device and a communication path will be read. If no XML file was loaded this will be done automatically.
-            </summary>
-            <param name="DevNr">The number of the device</param>
-            <param name="ParaType">Type of the parameters</param>
-            <param name="Para">Pointer to the actual parameter </param>
-            <returns>AGL40_SUCCESS	In case of success &lt; 0	Error number</returns> 
         </member>
         <member name="M:Accon.AGLink.AGL4.SetDevType(System.Int32,System.Int32)">
             <summary>
@@ -3805,13 +3862,6 @@
             <param name="Buff">Zeiger auf den unmanaged Speicher, den AGLink freigeben soll</param>
             <returns>AGL40_SUCCES im Erfolgsfall, &lt; 0 eine Fehlernummer</returns>
         </member>
-        <member name="M:Accon.AGLink.AGL4.IsOldParameterstructure(System.Object)">
-            <summary>
-            Übergangsfunktion, bis die alten Strukturen nicht mehr nach Aussen geleitet werden.
-            </summary>
-            <param name="para">Zu prüfender Parameter</param>
-            <returns>Flag ob es sich um eine alte Struktur handelt</returns>
-        </member>
         <member name="M:Accon.AGLink.AGL4.SetDevNotification(System.Int32,Accon.AGLink.AGL4.NOTIFICATION@)">
             <summary>
             Durch diese Funktion teilen Sie ACCON-AGLink mit, dass Sie eine Benachrichtigung erhalten möchten, 
@@ -4151,7 +4201,9 @@
         </member>
         <member name="M:Accon.AGLink.AGL4.SetPassword(System.Int32,System.String,System.Int32)">
             <summary>
-            With this function you can authenticate a connection. The password has 8 signs. If it’s shorter, then add some blanks. 
+            With this function you can authenticate a connection. 
+            For S7-300/400 the password has 8 characters (7 Bit ASCII). If it’s shorter, then add some blanks.
+            For S7-1200/1500 the password does not have a character limit (UTF-8)
             A connection to the PLC must be already built up.
             </summary>
             <param name="ConnNr">Connection handle</param>
@@ -5483,6 +5535,11 @@
         <member name="M:Accon.AGLink.AGL4.Symbolic_ReadMixEx(System.Int32,Accon.AGLink.AGL4.SymbolicRW[],System.Int32@,System.Int32)">
             <summary>
             Read data from the plc
+            TIA Access Level (Check with AGL4.Symbolic_GetCurrentProtectionLevel()):
+            Full access: no password needed
+            Read access: no password needed
+            HMI access: no password needed
+            No access: “HMI access”, “read access“, or “full access” level password needed. (AGL4.SetPassword())
             </summary>
             <param name="connNr">Connection number that you got from the call to PLCConnect or PLCConnectEx</param>
             <param name="symbolicRW">Pointer to 1-n SymboliCRW structures with a AccessHandle and read buffer information</param>
@@ -5494,6 +5551,11 @@
         <member name="M:Accon.AGLink.AGL4.Symbolic_ReadMixEx(System.Int32,Accon.AGLink.AGL4.SymbolicRW[],System.Int32)">
             <summary>
             Read data from the plc
+            TIA Access Level (Check with AGL4.Symbolic_GetCurrentProtectionLevel()):
+            Full access: no password needed
+            Read access: no password needed
+            HMI access: no password needed
+            No access: “HMI access”, “read access“, or “full access” level password needed. (AGL4.SetPassword())
             </summary>
             <param name="connNr">Connection number that you got from the call to PLCConnect or PLCConnectEx</param>
             <param name="symbolicRW">Pointer to 1-n SymboliCRW structures with a AccessHandle and read buffer information</param>
@@ -5504,6 +5566,11 @@
         <member name="M:Accon.AGLink.AGL4.Symbolic_WriteMixEx(System.Int32,Accon.AGLink.AGL4.SymbolicRW[],System.Int32@,System.Int32)">
             <summary>
             Write data to the plc
+            TIA Access Level (Check with AGL4.Symbolic_GetCurrentProtectionLevel()):
+            Full access: no password needed
+            Read access: no password needed
+            HMI access: no password needed
+            No access: “HMI access”, “read access“, or “full access” level password needed. (AGL4.SetPassword())
             </summary>
             <param name="connNr">Connection number that you got from the call to PLCConnect or PLCConnectEx</param>
             <param name="symbolicRW">Pointer to 1-n SymboliCRW structures with a AccessHandle and write buffer information</param>
@@ -5515,6 +5582,11 @@
         <member name="M:Accon.AGLink.AGL4.Symbolic_WriteMixEx(System.Int32,Accon.AGLink.AGL4.SymbolicRW[],System.Int32)">
             <summary>
             Write data to the plc
+            TIA Access Level (Check with AGL4.Symbolic_GetCurrentProtectionLevel()):
+            Full access: no password needed
+            Read access: no password needed
+            HMI access: no password needed
+            No access: “HMI access”, “read access“, or “full access” level password needed. (AGL4.SetPassword())
             </summary>
             <param name="connNr">Connection number that you got from the call to PLCConnect or PLCConnectEx</param>
             <param name="symbolicRW">Pointer to 1-n SymboliCRW structures with a AccessHandle and write buffer information</param>
@@ -5526,7 +5598,7 @@
             <summary>
             Open a TIA project. This is the starting point for every following function call.
             </summary>
-            <param name="projectFile">Path to your project file (ap11, ap12, ap13, ap14, ap15, ap15_1)</param>
+            <param name="projectFile">Path to your project file (ap*)</param>
             <param name="rootSchemaNodeHandle">Handle to the root node of the symbol tree - this is the starting point for all following node functions</param>
             <returns>AGL40_SUCCESS In case of success &lt; 0 error number</returns>
         </member>
@@ -5534,7 +5606,7 @@
             <summary>
             Open a TIA project. This is the starting point for every following function call.
             </summary>
-            <param name="projectFile">Path to your project file (ap11, ap12, ap13, ap14, ap15, ap15_1)</param>
+            <param name="projectFile">Path to your project file (ap*)</param>
             <param name="rootSchemaNodeHandle">Handle to the root node of the symbol tree - this is the starting point for all following node functions</param>
             <param name="autoExpand">If this parameter is set to 1 than every child node of arrays will automatically be expanded at the first access. 
             Otherwise you have to call Symbolic_Expand before you acces the node. Large arrays with thousand or millions of items can cause a fast and huge increase in memory usage and slow response time.</param>
@@ -5544,7 +5616,7 @@
             <summary>
             Open a TIA project with filter. This is the starting point for every following function call.
             </summary>
-            <param name="projectFile">Path to your project file (ap11, ap12, ap13, ap14, ap15, ap15_1)</param>
+            <param name="projectFile">Path to your project file (ap*)</param>
             <param name="rootSchemaNodeHandle">Handle to the root node of the symbol tree - this is the starting point for all following node functions</param>
             <param name="symbolFilter">Parameter is not used in this version yet</param>
             <param name="flags">Additional filter flags. Combinations are possible</param>
@@ -5593,10 +5665,30 @@
             <summary>
             Load the symbol information out of the plc.
             Hint: Use for the PLC node the generic name 'PLC'. Example: PLC.Blocks.DB_Name.VariablenName
+            TIA Access Level (Check with AGL4.Symbolic_GetCurrentProtectionLevel()):
+            Full access: no password needed
+            Read access: no password needed
+            HMI access: „read access“, or „full access“ level password needed. (AGL4.SetPassword())
+            No access: „read access“, or „full access“ level password needed. (AGL4.SetPassword())
             </summary>
-            <param name="connection">active connection to a S7-1200(FW 2.2-4.x) or S7-1500 plc</param>
+            <param name="connection">active connection to a S7-1200 (>=FW 2.2) or S7-1500 plc</param>
             <param name="rootNodeHandle">Handle to the root node of the project</param>
             <returns>AGL40_SUCCESS In case of success &lt; 0 error number</returns>
+        </member>
+        <member name="M:Accon.AGLink.AGL4.Symbolic_LoadAGLinkSymbolsFromPLCEx(System.Int32,System.IntPtr@,System.UInt32)">
+            <summary>
+            Load the symbol information out of the plc.
+            Hint: With this function the PLC node has the in the TIA project given name and not ‘PLC’
+            TIA Access Level (Check with AGL4.Symbolic_GetCurrentProtectionLevel()):
+            Full access: no password needed
+            Read access: no password needed
+            HMI access: „read access“, or „full access“ level password needed. (AGL4.SetPassword())
+            No access: „read access“, or „full access“ level password needed. (AGL4.SetPassword())
+            </summary>
+            <param name="connection">active connection to a S7-1200 (>=FW 2.2) or S7-1500 PLC</param>
+            <param name="rootNodeHandle">Handle to the root node of the project</param>
+            <param name="flags">Additional options. Currently not used</param>
+            <returns></returns>
         </member>
         <member name="M:Accon.AGLink.AGL4.Symbolic_GetChildCount(System.IntPtr,System.Int32@)">
             <summary>
@@ -7110,6 +7202,111 @@
             <param name="initialPathBufferByteCount">Maximum length of the text buffer</param>
             <param name="neededPathByteCount">After calling, the number of characters used</param>
             <returns>AGL40_SUCCESS In case of success &lt; 0 error number</returns>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:Accon.AGLink.AGL4.Symbolic_FindFirstAlarmData(System.IntPtr,System.UInt32@)" -->
+        <!-- Badly formed XML comment ignored for member "M:Accon.AGLink.AGL4.Symbolic_FindNextAlarmData(System.IntPtr,System.UInt32@)" -->
+        <member name="M:Accon.AGLink.AGL4.Symbolic_FindCloseAlarmData(System.IntPtr)">
+            <summary>
+            This function is the finalization function to Symbolic_FindFirstAlarmData or Symbolic_FindNextAlarmData.
+            A new list can only be started after this finalization function has been called
+            </summary>
+            <param name="plcNodeHandle">PLC handle (not the project handle!)</param>
+            <returns></returns>
+        </member>
+        <member name="M:Accon.AGLink.AGL4.AGL_Symbolic_GetAlarmText(System.IntPtr,System.UInt32,System.Int32,System.Int32,System.String@,System.Int32@)">
+            <summary>
+            This function returns the text of the message for the specified alarm and signal number.
+            Specify the value -1 for the language to use the default message language.
+            If no message text is defined for a specified language the text for the default language will be returned.
+            This applies to all functions described below, expecting a country code as parameter
+            </summary>
+            <param name="plcNodeHandle">PLC handle (not the project handle!)</param>
+            <param name="alarmNr">Message number</param>
+            <param name="language">LCID of the Language. If it is not found the default language (-1) will be used</param>
+            <param name="initialUtf8ByteBufferSize">Size of the memory for the text (in Bytes)</param>
+            <param name="alarmText">Memory for the text</param>
+            <param name="neededBuffLen">Size of the needed/used memory for the text (in Bytes)</param>
+            <returns></returns>
+        </member>
+        <member name="M:Accon.AGLink.AGL4.AGL_Symbolic_GetAlarmInfo(System.IntPtr,System.UInt32,System.Int32,System.Int32,System.String@,System.Int32@)">
+            <summary>
+            This function determines the info text of the message for the given alarm- and signal-number
+            </summary>
+            <param name="plcNodeHandle">PLC handle (not the project handle!)</param>
+            <param name="alarmNr">Message number</param>
+            <param name="language">LCID of the Language. If it is not found the default language (-1) will be used</param>
+            <param name="initialUtf8ByteBufferSize">Size of the memory for the text (in Bytes)</param>
+            <param name="alarmText">Memory for the text</param>
+            <param name="neededBuffLen">Size of the needed/used memory for the text (in Bytes)</param>
+            <returns></returns>
+        </member>
+        <member name="M:Accon.AGLink.AGL4.AGL_Symbolic_GetAlarmAddText(System.IntPtr,System.UInt32,System.Int32,System.Int32,System.Int32,System.String@,System.Int32@)">
+            <summary>
+            This function determines the additional text of the message for the given alarm- and signal- number.
+            Up to 9 additional texts can be configured for one message. So the number of the additional text must be in the range 1..9
+            </summary>
+            <param name="plcNodeHandle">PLC handle (not the project handle!)</param>
+            <param name="alarmNr">Message number</param>
+            <param name="index">Number of the addition text</param>
+            <param name="language">LCID of the Language. If it is not found the default language (-1) will be used</param>
+            <param name="initialUtf8ByteBufferSize">Size of the memory for the text (in Bytes)</param>
+            <param name="alarmText">Memory for the text</param>
+            <param name="neededBuffLen">Size of the needed/used memory for the text (in Bytes</param>
+            <returns></returns>
+        </member>
+        <member name="M:Accon.AGLink.AGL4.Symbolic_GetAlarmData(System.IntPtr,System.UInt32,System.Int32,Accon.AGLink.AGL4.DATA_ALARM40_TIA@)">
+            <summary>
+            This function gets all the message data for the specified message number and stores it in the specified data structure.
+            The message texts are determined using the language given in the Language parameter
+            </summary>
+            <param name="plcNodeHandle">PLC handle (not the project handle!)</param>
+            <param name="alarmNr">Message number</param>
+            <param name="language">LCID of the Language. If it is not found the default language (-1) will be used</param>
+            <param name="dataAlarm40Tia">Variable for the message data structure</param>
+            <returns></returns>
+        </member>
+        <member name="M:Accon.AGLink.AGL4.Symbolic_ReadOpenMsg(System.Int32,System.Int32,Accon.AGLink.AGL4.S7_ALARM_TIA[]@,System.Int32@,System.Int32)">
+            <summary>
+            This feature allows you to read the open messages. A connection to the PLC must be already built up
+            </summary>
+            <param name="connNr">Connection handle</param>
+            <param name="initialAlarmCount">Size of the alarm data array</param>
+            <param name="s7AlarmData">Pointer to an array of alarm data, associated values</param>
+            <param name="neededAlarmCount">Count of the needed/used alarm data</param>
+            <param name="timeout">The timeout value to use</param>
+            <returns></returns>
+        </member>
+        <member name="M:Accon.AGLink.AGL4.Symbolic_AckMsg(System.Int32,System.UInt64,System.Int32)">
+            <summary>
+            This feature allows you to read the open messages. A connection to the PLC must be already built up
+            </summary>
+            <param name="connNr">Connection handle</param>
+            <param name="CPUAlarmID">the CPU-Alarm ID of the Message</param>
+            <param name="timeout">The timeout value to use</param>
+            <returns></returns>
+        </member>
+        <member name="M:Accon.AGLink.AGL4.Symbolic_GetCurrentProtectionLevel(System.Int32,System.Int32@,System.Int32)">
+            <summary>
+            Get the current protection level of the connection. 
+            A connection to the PLC must be already built up. See definitionen AGL4.PROTECTION_LEVEL_FULL_ACCESS.
+            </summary>
+            <param name="connNr">Connection number that you got from the call to PLCConnect or PLCConnectEx</param>
+            <param name="currentProtectionLevel">Current protection level of the connection</param>
+            <param name="timeout"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Accon.AGLink.AGL4.Symbolic_FormatAlarmMessage(Accon.AGLink.AGL4.S7_ALARM_TIA,System.IntPtr,System.Int32,System.String,System.String@,System.Int32,System.Int32@)">
+            <summary>
+            This function formats the given alarm message text using the given alarm data
+            </summary>
+            <param name="S7AlarmData">Alarm data, associated values</param>
+            <param name="plcNodeHandle">PLC handle (not the project handle!)</param>
+            <param name="language">LCID of the Language. If it is not found the default language (-1) will be used</param>
+            <param name="AlarmText">The alarm text to be formatted</param>
+            <param name="textBuffer">Memory for the output text</param>
+            <param name="initialUtf8ByteBufferSize">Size of the memory for the output text (in Bytes)</param>
+            <param name="neededBuffLen">Size of the needed/used memory for the output text (in Bytes)</param>
+            <returns></returns>
         </member>
         <member name="P:Accon.AGLink.AGL4.IsAGLink40_dll_Found">
             <summary>
@@ -9978,16 +10175,6 @@
             Connections per device (/2 because 2 IP-connections are needed per connection)
             </summary>
         </member>
-        <member name="T:Accon.AGLink.AGL4.S5_TCPIP">
-            <summary>
-            Struktur zum auslesen der Konfugration vom Typ S5-TCP/IP
-            </summary>
-        </member>
-        <member name="F:Accon.AGLink.AGL4.S5_TCPIP.Conn1">
-            <summary>
-            Verbindungen je Device (/2 da 2 IP-Verbindungen pro Verbindung notwendig sind)
-            </summary>
-        </member>
         <member name="T:Accon.AGLink.AGL4.S5tcpip1">
             <summary>
             Structure to read the confuiguration parameter data of the connection type S5-TCP/IP
@@ -10438,11 +10625,6 @@
             Vier Doppelworte (32-Bit-Werte) als Reserve
             </summary>
         </member>
-        <member name="F:Accon.AGLink.AGL4.S7_CIF.Proj">
-            <summary>
-            Projektierte Verbindungen, hier nur zur internen Verwendung
-            </summary>
-        </member>
         <member name="P:Accon.AGLink.AGL4.S7Cifx.TimeOut">
             <summary>
             Default timeout for communication (synchron)
@@ -10701,16 +10883,6 @@
         <member name="F:Accon.AGLink.AGL4.S7_CIFX.lReserve">
             <summary>
             Man weiß ja nie ...
-            </summary>
-        </member>
-        <member name="F:Accon.AGLink.AGL4.S7_CIFX.Proj">
-            <summary>
-            Projektierte Verbindungen
-            </summary>
-        </member>
-        <member name="F:Accon.AGLink.AGL4.S7_CIFX.Route">
-            <summary>
-            Routing-Verbindungen
             </summary>
         </member>
         <member name="T:Accon.AGLink.AGL4.S7Netlink">
@@ -10993,11 +11165,6 @@
             Sieben Doppelworte (32-Bit-Werte) als Reserve
             </summary>
         </member>
-        <member name="F:Accon.AGLink.AGL4.S7_NL.Proj">
-            <summary>
-            Projektierte Verbindungen, hier nur zur internen Verwendung
-            </summary>
-        </member>
         <member name="T:Accon.AGLink.AGL4.S7NetlinkPRO">
             <summary>
             Structure to read the confuiguration parameter data of the connection type S7-NetLink-PRO
@@ -11278,11 +11445,6 @@
             Sieben Doppelworte (32-Bit-Werte) als Reserve
             </summary>
         </member>
-        <member name="F:Accon.AGLink.AGL4.S7_NLPRO.Proj">
-            <summary>
-            Projektierte Verbindungen, hier nur zur internen Verwendung
-            </summary>
-        </member>
         <member name="T:Accon.AGLink.AGL4.S7NetlinkUSB">
             <summary>
             Structure to read the confuiguration parameter data of the connection type S7-NetLink-USB
@@ -11548,11 +11710,6 @@
             Sieben Doppelworte (32-Bit-Werte) als Reserve
             </summary>
         </member>
-        <member name="F:Accon.AGLink.AGL4.S7_NLUSB.Proj">
-            <summary>
-            Projektierte Verbindungen, hier nur zur internen Verwendung
-            </summary>
-        </member>
         <member name="T:Accon.AGLink.AGL4.S7Softing">
             <summary>
             Structure to read the confuiguration parameter data of the connection type S7-Softing
@@ -11801,11 +11958,6 @@
         <member name="F:Accon.AGLink.AGL4.S7_SOFTING.lReserve">
             <summary>
             Vier Doppelworte (32-Bit-Werte) als Reserve
-            </summary>
-        </member>
-        <member name="F:Accon.AGLink.AGL4.S7_SOFTING.Proj">
-            <summary>
-            Projektierte Verbindungen, hier nur zur internen Verwendung
             </summary>
         </member>
         <member name="T:Accon.AGLink.AGL4.S7Pca">
@@ -12071,16 +12223,6 @@
         <member name="F:Accon.AGLink.AGL4.S7_PCA.lReserve">
             <summary>
             Reserved
-            </summary>
-        </member>
-        <member name="F:Accon.AGLink.AGL4.S7_PCA.Proj">
-            <summary>
-            Configured connections
-            </summary>
-        </member>
-        <member name="F:Accon.AGLink.AGL4.S7_PCA.Route">
-            <summary>
-            Routed connections
             </summary>
         </member>
         <member name="T:Accon.AGLink.AGL4.RK5123964R">
@@ -12368,74 +12510,59 @@
             Routing-Verbindungen
             </summary>
         </member>
-        <member name="T:Accon.AGLink.AGL4.S7_PCCP">
+        <member name="T:Accon.AGLink.AGL4.S7_PCCP_Before_PLCDEF">
             <summary>
             Struktur S7_PCCP für die Verbindungsparameter beim Gerätetyp S7-PC/CP
             </summary>
         </member>
-        <member name="F:Accon.AGLink.AGL4.S7_PCCP.ConnName">
+        <member name="F:Accon.AGLink.AGL4.S7_PCCP_Before_PLCDEF.ConnName">
             <summary>
             Zugriffspfad der Applikation
             </summary>
         </member>
-        <member name="F:Accon.AGLink.AGL4.S7_PCCP.lTimeOut">
+        <member name="F:Accon.AGLink.AGL4.S7_PCCP_Before_PLCDEF.lTimeOut">
             <summary>
             Standard-Timeout für Kommunikation (synchrone Abfragen)
             </summary>
         </member>
-        <member name="F:Accon.AGLink.AGL4.S7_PCCP.bCredits">
+        <member name="F:Accon.AGLink.AGL4.S7_PCCP_Before_PLCDEF.bCredits">
             <summary>
             Maxmimale Anzahl Credits auf L5-Ebene
             </summary>
         </member>
-        <member name="F:Accon.AGLink.AGL4.S7_PCCP.bCPProto">
+        <member name="F:Accon.AGLink.AGL4.S7_PCCP_Before_PLCDEF.bCPProto">
             <summary>
             Nur zur internen Verwendung, Typ der Kommunikationsschnittstelle, wird bei OpenDevice eingetragen
             </summary>
         </member>
-        <member name="F:Accon.AGLink.AGL4.S7_PCCP.wMaxPDUSize">
+        <member name="F:Accon.AGLink.AGL4.S7_PCCP_Before_PLCDEF.wMaxPDUSize">
             <summary>
              Maximale PDU-Größe, 0 verwendet ACCON-AGLink-Standard-Einstellungen
             </summary>
         </member>
-        <member name="F:Accon.AGLink.AGL4.S7_PCCP.lReserveL5">
+        <member name="F:Accon.AGLink.AGL4.S7_PCCP_Before_PLCDEF.lReserveL5">
             <summary>
             
             </summary>
         </member>
-        <member name="F:Accon.AGLink.AGL4.S7_PCCP.PlcTCPIP1">
+        <member name="T:Accon.AGLink.AGL4.S7_PCCP_After_PLCDEF">
             <summary>
-            Für Lifelist etc. um mit "normaler" AG-Nummer zugreifen zu können
+            Struktur S7_PCCP für die Verbindungsparameter beim Gerätetyp S7-PC/CP
             </summary>
         </member>
-        <member name="F:Accon.AGLink.AGL4.S7_PCCP.PlcISO1">
-            <summary>
-            Für Lifelist etc. um mit "normaler" AG-Nummer zugreifen zu können
-            </summary>
-        </member>
-        <member name="F:Accon.AGLink.AGL4.S7_PCCP.ConnTyp">
+        <member name="F:Accon.AGLink.AGL4.S7_PCCP_After_PLCDEF.ConnTyp">
             <summary>
             Art der Verbindung (PG/OP/Sonstige)      
             </summary>
         </member>
-        <member name="F:Accon.AGLink.AGL4.S7_PCCP.lReserveL4">
+        <member name="F:Accon.AGLink.AGL4.S7_PCCP_After_PLCDEF.lReserveL4">
             <summary>
             
             </summary>
         </member>
-        <member name="F:Accon.AGLink.AGL4.S7_PCCP.lReserve">
+        <member name="F:Accon.AGLink.AGL4.S7_PCCP_After_PLCDEF.lReserve">
             <summary>
             
-            </summary>
-        </member>
-        <member name="F:Accon.AGLink.AGL4.S7_PCCP.Proj">
-            <summary>
-            Projektierte Verbindungen
-            </summary>
-        </member>
-        <member name="F:Accon.AGLink.AGL4.S7_PCCP.Route">
-            <summary>
-            Routing-Verbindungen
             </summary>
         </member>
         <member name="T:Accon.AGLink.AGL4.S7PPI">
@@ -13408,21 +13535,6 @@
             Flags for common settings
             </summary>
         </member>
-        <member name="F:Accon.AGLink.AGL4.S7_RED_CONN.Conn1">
-            <summary>
-            Verbindungen je Device
-            </summary>
-        </member>
-        <member name="F:Accon.AGLink.AGL4.S7_RED_CONN.Flags">
-            <summary>
-            Flags für die allgemeinen Optionen
-            </summary>
-        </member>
-        <member name="F:Accon.AGLink.AGL4.S7_RED_CONN.Reserve">
-            <summary>
-            Man weiss ja nie ...
-            </summary>
-        </member>
         <member name="P:Accon.AGLink.AGL4.Rfc1006Server.LocalTsap">
             <summary>
             Setzt oder gibt den lokalen TSAP zutück. Maximal 16 Zeichen, alles drüber wird abgeschnitten.
@@ -14269,6 +14381,36 @@
             <param name="buff"></param>
             <returns></returns>
         </member>
+        <member name="M:Accon.AGLink.IAGLink4Tia.Symbolic_AckMsg(System.UInt64,System.Int32)">
+            <summary>
+            This feature allows you to read the open messages. A connection to the PLC must be already built up
+            </summary>
+            <param name="connNr">Connection handle</param>
+            <param name="CPUAlarmID">the CPU-Alarm ID of the Message</param>
+            <param name="timeout">The timeout value to use</param>
+            <returns></returns>
+        </member>
+        <member name="M:Accon.AGLink.IAGLink4Tia.Symbolic_ReadOpenMsg(System.Int32,System.Int32)">
+            <summary>
+            This feature allows you to read the open messages. A connection to the PLC must be already built up
+            </summary>
+            <param name="connNr">Connection handle</param>
+            <param name="initialAlarmCount">Size of the alarm data array</param>
+            <param name="s7AlarmData">Pointer to an array of alarm data, associated values</param>
+            <param name="neededAlarmCount">Count of the needed/used alarm data</param>
+            <param name="timeout">The timeout value to use</param>
+            <returns></returns>
+        </member>
+        <member name="M:Accon.AGLink.IAGLink4Tia.Symbolic_GetCurrentProtectionLevel(System.Int32)">
+            <summary>
+            Get the current protection level of the connection. 
+            A connection to the PLC must be already built up. See definitionen AGL4.PROTECTION_LEVEL_FULL_ACCESS.
+            </summary>
+            <param name="connNr">Connection number that you got from the call to PLCConnect or PLCConnectEx</param>
+            <param name="currentProtectionLevel">Current protection level of the connection</param>
+            <param name="timeout"></param>
+            <returns></returns>
+        </member>
         <member name="E:Accon.AGLink.IAGLink4Tia.OnConnected">
             <summary>
             Connection successfully established 
@@ -14305,6 +14447,16 @@
             </summary>
         </member>
         <member name="E:Accon.AGLink.IAGLink4Tia.OnSymbolicWriteMixExCompleted">
+            <summary>
+            The asynchronous operation of Symbolic_WriteMixEx has been accomplished
+            </summary>
+        </member>
+        <member name="E:Accon.AGLink.IAGLink4Tia.OnSymbolicAckMsgCompleted">
+            <summary>
+            The asynchronous operation of Symbolic_WriteMixEx has been accomplished
+            </summary>
+        </member>
+        <member name="E:Accon.AGLink.IAGLink4Tia.OnSymbolicReadOpenMsgCompleted">
             <summary>
             The asynchronous operation of Symbolic_WriteMixEx has been accomplished
             </summary>
@@ -20760,6 +20912,18 @@
             </summary>
             <param name="e">Eventdata with AGL4.SymbolicRW field</param>
         </member>
+        <member name="T:Accon.AGLink.AsyncReadOpenMsgEventHandler">
+            <summary>
+            Eventhandler for AGL4.S7_ALARM_TIA[] field functions
+            </summary>
+            <param name="e">Eventdata with AGL4.S7_ALARM_TIA[] field</param>
+        </member>
+        <member name="T:Accon.AGLink.AsyncGetCurrentProtectionLevelEventHandler">
+            <summary>
+            Eventhandler for Symbolic_GetCurrentProtectionLevel()
+            </summary>
+            <param name="e">Eventdata with AGL4.S7_ALARM_TIA[] field</param>
+        </member>
         <member name="T:Accon.AGLink.AGLink4Simotion">
             <summary>
             Führt asynchrone Kommunikation mit den konfigurierten AGs durch
@@ -20962,6 +21126,21 @@
         <member name="E:Accon.AGLink.AGLink4Tia.OnSymbolicWriteMixExCompleted">
             <summary>
             The asynchronous operation of Symbolic_WriteMixEx has been accomplished
+            </summary>
+        </member>
+        <member name="E:Accon.AGLink.AGLink4Tia.OnSymbolicAckMsgCompleted">
+            <summary>
+            The asynchronous operation of Symbolic_AckMsg has been accomplished
+            </summary>
+        </member>
+        <member name="E:Accon.AGLink.AGLink4Tia.OnSymbolicReadOpenMsgCompleted">
+            <summary>
+            The asynchronous operation of Symbolic_ReadOpenMsg has been accomplished
+            </summary>
+        </member>
+        <member name="E:Accon.AGLink.AGLink4Tia.OnSymbolicGetCurrentProtectionLevelCompleted">
+            <summary>
+            The asynchronous operation of GetCurrentProtectionLevel has been accomplished
             </summary>
         </member>
         <member name="T:Accon.AGLink.Factory">
@@ -22370,28 +22549,6 @@
         <member name="P:Accon.AGLink.ConnectionEventArguments.Errordetails">
             <summary>
             Fehlerdetails
-            </summary>
-        </member>
-        <member name="T:Accon.AGLink.NativeMessageReceiver">
-            <summary>
-            Empfägt Window-Messages, die von der AGLink40.dll gesendet werden.
-            Diese Klasse reagiert auf asynchrone Funktionsbenachrichtigungen
-            </summary>
-        </member>
-        <member name="F:Accon.AGLink.NativeMessageReceiver.MESSAGE">
-            <summary>
-            Identifikation, die vom AGLink40.dll für die Benachrichtigung verwendet wird.
-            </summary>
-        </member>
-        <member name="M:Accon.AGLink.NativeMessageReceiver.WndProc(System.Windows.Forms.Message@)">
-            <summary>
-            AGLink sendet eine Windowmessage, die wir hier abfangen und weiterleiten.
-            </summary>
-            <param name="m">Message</param>
-        </member>
-        <member name="P:Accon.AGLink.NativeMessageReceiver.Connected">
-            <summary>
-            Gibt oder setzt ein Flag, welches die Weiterleitung der ankommenden Nachrichten ein und ausschaltet
             </summary>
         </member>
         <member name="T:Accon.AGLink.MemoryObject">

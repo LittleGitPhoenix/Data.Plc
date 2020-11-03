@@ -5,13 +5,10 @@
 #nullable enable
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Threading;
 using Phoenix.Data.Plc.Items;
@@ -120,7 +117,7 @@ namespace Phoenix.Data.Plc.AgLink
 
 		#region Connection Callbacks
 
-		private void OnConnectionErrorOccured(IAGLink4 sender, ConnectionEventArgs args)
+		private void OnConnectionErrorOccurred(IAGLink4 sender, ConnectionEventArgs args)
 			=> base.OnInterrupted(executeReconnect: true);
 
 		private void OnConnectAborted(IAGLink4 sender, ConnectionEventArgs args)
@@ -147,18 +144,18 @@ namespace Phoenix.Data.Plc.AgLink
 				port: 0, //! This value seems to be ignored, as any test with different values always succeeded.
 				timeout: (int)Math.Abs(this.ConnectionData.ConnectionTimeout.TotalMilliseconds),
 				reportType: AsyncReportType.Callbacks,
-				result: out _
+				result: out var result
 			);
 			if (plc is null)
 			{
-				base.Logger.Error($"Creating an instance of the underlying plc connection '{nameof(IAGLink4)}' failed.");
+				base.Logger.Error($"Creating an instance of the underlying plc connection '{nameof(IAGLink4)}' failed. Error was '{AgLinkErrorMapping.GetErrorMessageForCode(result)}'.");
 				return false;
 			}
 			plc.Name = this.ConnectionData.Name;
 			plc.AutoReconnect = false; // Seems not to work, so disable it and handle reconnection manually via the base class.
 
 			// Attach handlers to the event-callbacks when the connection has been interrupted.
-			plc.OnConnectionErrorOccured += this.OnConnectionErrorOccured;
+			plc.OnConnectionErrorOccured += this.OnConnectionErrorOccurred;
 			plc.OnConnectAborted += this.OnConnectAborted;
 
 			// Establish the connection.
@@ -176,7 +173,7 @@ namespace Phoenix.Data.Plc.AgLink
 			this.UnderlyingPlc = null;
 
 			// Remove the handlers to the event-callbacks when the connection has been interrupted.
-			plc.OnConnectionErrorOccured -= this.OnConnectionErrorOccured;
+			plc.OnConnectionErrorOccured -= this.OnConnectionErrorOccurred;
 			plc.OnConnectAborted -= this.OnConnectAborted;
 
 			var result = plc.Disconnect();
@@ -428,7 +425,8 @@ namespace Phoenix.Data.Plc.AgLink
 			}
 			else
 			{
-				AGL4.GetErrorMsg(result, out var errorMessage);
+				//AGL4.GetErrorMsg(result, out var errorMessage);
+				var errorMessage = AgLinkErrorMapping.GetErrorMessageForCode(result);
 				var itemDescriptions = Plc.GetPlcItemDescription(plcItems);
 				if (agLinkResult == AgLinkResult.RecoverableError)
 				{
