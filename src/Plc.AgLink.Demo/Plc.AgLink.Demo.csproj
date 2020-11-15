@@ -1,12 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
+		<TargetFrameworks>net5.0;netstandard2.0;net45</TargetFrameworks>
 		<LangVersion>latest</LangVersion>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<RootNamespace>Phoenix.Data.Plc.AgLink</RootNamespace>
 		<AssemblyName>Phoenix.Data.Plc.AgLink.Demo</AssemblyName>
-		<Version>2.1.1</Version>
+		<Version>2.2.0</Version>
 		<Authors>Felix Leistner</Authors>
 		<Company>Little Phoenix</Company>
 		<Description>Provides plc communication via AGLink demo assemblies.</Description>
@@ -50,22 +50,27 @@
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<TargetPath>AGLink.license</TargetPath>
 		</ContentWithTargetPath>
+		<ContentWithTargetPath Include="Resources\AgLink\AGLink40_Error.txt">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<TargetPath>AGLink40_Error.txt</TargetPath>
+		</ContentWithTargetPath>
 	</ItemGroup>
 
-	<!-- Include the AGLink wrapper assembly, the unmanaged AGLink assemblies and the license file into the NuGet package. -->
+	<!-- Include the AGLink wrapper assembly, the unmanaged AGLink assemblies and the license + error file into the NuGet package. -->
 	<ItemGroup>
 		<None Include="Resources\AgLink\AGL4DotNET.4.dll" Pack="true" PackagePath="lib\netstandard2.0" />
 		<None Include="Resources\AgLink\AGL4DotNET.4.dll" Pack="true" PackagePath="lib\net45" />
 		<None Include="Resources\AgLink\AGL4DotNET.4.xml" Pack="true" PackagePath="lib\netstandard2.0" />
 		<None Include="Resources\AgLink\AGL4DotNET.4.xml" Pack="true" PackagePath="lib\net45" />
 		<None Include="Resources\AgLink\AGLink.license" Pack="true" PackagePath="assets\" />
+		<None Include="Resources\AgLink\AGLink40_Error.txt" Pack="true" PackagePath="assets\" />
 		<None Include="Resources\AgLink\AGLink40.dll" Pack="true" PackagePath="assets\x86\" />
 		<None Include="Resources\AgLink\AGLink40_x64.dll" Pack="true" PackagePath="assets\x64\" />
 	</ItemGroup>
 
 	<!-- Add a custom target to the build folder of the NuGet package. This target will copy the content of the 'assets' folder from the package into the build directory. -->
 	<ItemGroup>
-		<None Include="Resources\AgLink\Phoenix.Data.Plc.AgLink.Demo.targets" Pack="true" PackagePath="build\" />
+		<None Include="Phoenix.Data.Plc.AgLink.Demo.targets" Pack="true" PackagePath="build\" />
 	</ItemGroup>
 
 	<!-- Move the created NuGet packages into another folder. -->

@@ -16,14 +16,7 @@ namespace Phoenix.Data.Plc.Test
 #if NET45
 		private static Task CompletedTask = Task.FromResult(false);
 #endif
-
-		public Data Data { get; }
-
-		public PlcTest()
-		{
-			this.Data = new Data();
-		}
-
+		
 		[Test]
 		public void Open_Connection_Raises_Connected_Event()
 		{
@@ -110,7 +103,7 @@ namespace Phoenix.Data.Plc.Test
 		public async Task Read_Without_Connection()
 		{
 			// Arrange
-			var byteItem = new BytePlcItem(dataBlock: Data.Datablock, position: 0, initialValue: Data.TargetBytes[0]);
+			var byteItem = new BytePlcItem(dataBlock: 0, position: 0, initialValue: byte.MaxValue);
 			var plcMock = new Mock<Plc>("MockPlc") { CallBase = true };
 			plcMock
 				.Setup(p => p.OpenConnection())
@@ -156,7 +149,7 @@ namespace Phoenix.Data.Plc.Test
 			// Now await the read task and check the result.
 			var result = await readTask;
 			Assert.True(byteItem.Value == result);
-			Assert.True(byteItem.Value == Data.TargetBytes[0]);
+			Assert.True(byteItem.Value == byte.MaxValue);
 		}
 
 		/// <summary>
@@ -168,7 +161,7 @@ namespace Phoenix.Data.Plc.Test
 			// Arrange
 			byte iteration = 0;
 			byte threshold = 5;
-			var byteItem = new BytePlcItem(dataBlock: Data.Datablock, position: 0, initialValue: Data.TargetBytes[0]);
+			var byteItem = new BytePlcItem(dataBlock: 0, position: 0, initialValue: byte.MaxValue);
 			var plcMock = new Mock<Plc>("MockPlc") { CallBase = true };
 			plcMock
 				.Setup(p => p.OpenConnection())
@@ -215,7 +208,7 @@ namespace Phoenix.Data.Plc.Test
 			Assert.True(iteration == threshold + 1);
 			Assert.True(interruptedCounter == threshold);
 			Assert.True(byteItem.Value == result);
-			Assert.True(byteItem.Value == Data.TargetBytes[0]);
+			Assert.True(byteItem.Value == byte.MaxValue);
 		}
 		
 		/// <summary>

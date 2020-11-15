@@ -12,13 +12,6 @@ namespace Phoenix.Data.Plc.Test
 	[TestFixture]
 	public class ItemTest
 	{
-		public Data Data { get; }
-
-		public ItemTest()
-		{
-			this.Data = new Data();
-		}
-
 		[Test]
 		public void CheckItemIdentifierAndPlcString()
 		{
@@ -44,9 +37,14 @@ namespace Phoenix.Data.Plc.Test
 		[Test]
 		public void CheckClone()
 		{
-			IPlcItem plcItem = new BytesPlcItem(dataBlock: 1234, position: 10, initialValue: Data.TargetBytes); // Explicitly cast this to 'IPlcItem' so that its 'Value' is a 'BitCollection'.
+			// Arrange
+			var data = Enumerable.Range(byte.MinValue, byte.MaxValue).Select(value => (byte) value).ToArray();
+			IPlcItem plcItem = new BytesPlcItem(dataBlock: 1234, position: 10, initialValue: data); //! Explicitly cast this to 'IPlcItem' so that its 'Value' is a 'BitCollection'.
+			
+			// Act
 			IPlcItem clonedPlcItem = plcItem.Clone();
 			
+			// Assert
 			Assert.True(plcItem.Equals(clonedPlcItem));
 			Assert.False( Object.ReferenceEquals(plcItem, clonedPlcItem));
 			Assert.True(plcItem.Value.Equals(clonedPlcItem.Value));
@@ -55,10 +53,15 @@ namespace Phoenix.Data.Plc.Test
 		[Test]
 		public void CheckTypedValueEquality()
 		{
-			var plcItem = new BytesPlcItem(dataBlock: 1234, position: 10, initialValue: Data.TargetBytes);
+			// Arrange
+			var data = Enumerable.Range(byte.MinValue, byte.MaxValue).Select(value => (byte)value).ToArray();
+			var plcItem = new BytesPlcItem(dataBlock: 1234, position: 10, initialValue: data);
 			var typedValue = plcItem.Value;
+
+			// Act
 			var underlyingValue = (byte[]) ((IPlcItem) plcItem).Value;
-			
+
+			// Assert
 			Assert.True(typedValue.SequenceEqual(underlyingValue));
 		}
 

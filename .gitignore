@@ -200,6 +200,7 @@ ClientBin/
 *.pfx
 *.publishsettings
 orleans.codegen.cs
+.ignore/
 
 # Since there are multiple workflows, uncomment next line to ignore bower_components
 # (https://github.com/github/gitignore/pull/1529#issuecomment-104372622)
@@ -286,3 +287,7 @@ __pycache__/
 *.btm.cs
 *.odx.cs
 *.xsd.cs
+
+# Ignore everything in the AGLink resource folder.
+src/Plc.AgLink/⬙/AgLink/
+src/Plc.AgLink.Demo/Resources/AgLink/

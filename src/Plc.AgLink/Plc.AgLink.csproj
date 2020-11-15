@@ -1,15 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
-		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<TargetFrameworks>net5.0;netstandard2.0;net45</TargetFrameworks>
 		<LangVersion>latest</LangVersion>
 		<AssemblyName>Phoenix.Data.Plc.AgLink</AssemblyName>
 		<RootNamespace>Phoenix.Data.Plc.AgLink</RootNamespace>
-		<Version>2.1.1</Version>
+		<Version>2.2.0</Version>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<Authors>Felix Leistner</Authors>
 		<Company>Little Phoenix</Company>
-		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<Description>Base assembly for providing plc communication via AGLink.</Description>
 		<PackageId>Phoenix.Data.Plc.AgLink</PackageId>
 		<Product>Phoenix.Data.Plc.AgLink</Product>
@@ -32,9 +32,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Reference Include="AGL4DotNET.4">
-	    <HintPath>⬙\AgLink\AGL4DotNET.4.dll</HintPath>
-	  </Reference>
+		<Reference Include="AGL4DotNET.4">
+			<HintPath>⬙\AgLink\AGL4DotNET.4.dll</HintPath>
+		</Reference>
 	</ItemGroup>
 
 	<!-- Move the created NuGet packages into another folder. -->

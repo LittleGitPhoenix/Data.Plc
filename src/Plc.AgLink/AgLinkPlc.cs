@@ -2,6 +2,7 @@
 //! This file is subject to the terms and conditions defined in file 'LICENSE.md', which is part of this source code package.
 #endregion
 
+
 #nullable enable
 
 using System;
@@ -38,6 +39,8 @@ namespace Phoenix.Data.Plc.AgLink
 		/// <summary> AGLink plc connection object. </summary>
 		private IAGLink4? UnderlyingPlc { get; set; }
 
+		internal static AgLinkErrorMapping ErrorMapping { get; }
+
 		#endregion
 
 		#region Enumerations
@@ -58,15 +61,15 @@ namespace Phoenix.Data.Plc.AgLink
 		/// </summary>
 		static AgLinkPlc()
 		{
-#if (NET46 || NETSTANDARD)
+#if (NET45)
+			var workingDirectory = new DirectoryInfo(Directory.GetCurrentDirectory());
+#else
 			/*!
 			In .Net Standard it is possible that this assembly is part of a single part executable.
 			In such cases the content of the application is extracted to a temporary folder and therefore the AGLink assemblies and license file will be located in this temporary directory.			
 			When using 'Directory.GetCurrentDirectory()' those files then won't be found.
 			*/
 			var workingDirectory = new DirectoryInfo(System.AppContext.BaseDirectory);
-#else
-			var workingDirectory = new DirectoryInfo(Directory.GetCurrentDirectory());
 #endif
 
 			// Verify existence of unmanaged AGLink assemblies.
@@ -94,6 +97,9 @@ namespace Phoenix.Data.Plc.AgLink
 
 			// Setup other AGLink properties.
 			AGL4.ReturnJobNr(false);
+
+			// Setup error mapping.
+			AgLinkPlc.ErrorMapping = new AgLinkErrorMapping(workingDirectory);
 		}
 
 		/// <summary>
@@ -148,7 +154,7 @@ namespace Phoenix.Data.Plc.AgLink
 			);
 			if (plc is null)
 			{
-				base.Logger.Error($"Creating an instance of the underlying plc connection '{nameof(IAGLink4)}' failed. Error was '{AgLinkErrorMapping.GetErrorMessageForCode(result)}'.");
+				base.Logger.Error($"Creating an instance of the underlying plc connection '{nameof(IAGLink4)}' failed. Error was '{AgLinkPlc.ErrorMapping.GetErrorMessageForCode(result)}'.");
 				return false;
 			}
 			plc.Name = this.ConnectionData.Name;
@@ -426,7 +432,7 @@ namespace Phoenix.Data.Plc.AgLink
 			else
 			{
 				//AGL4.GetErrorMsg(result, out var errorMessage);
-				var errorMessage = AgLinkErrorMapping.GetErrorMessageForCode(result);
+				var errorMessage = AgLinkPlc.ErrorMapping.GetErrorMessageForCode(result);
 				var itemDescriptions = Plc.GetPlcItemDescription(plcItems);
 				if (agLinkResult == AgLinkResult.RecoverableError)
 				{

@@ -3,6 +3,11 @@
 Contains assemblies for communicating with a plc.
 ___
 
+# Table of content
+
+[toc]
+___
+
 # Usage
 
 To get data from or write data to a plc, two things are needed.
@@ -12,7 +17,6 @@ To get data from or write data to a plc, two things are needed.
 
 The first is responsible for establishing the connection to the plc and how to read or write.  
 The later defines what kind of data and where to read it from or write it to the plc.
-
 ___
 
 # IPlc Implementations
@@ -48,17 +52,36 @@ IPlc plc = new MockPlc(initialDataBlocks);
 | :-: | :-: | :-: |
 | :heavy_check_mark: 4.5.0 | :heavy_check_mark: 2.0 | :heavy_check_mark: 2.0 |
 
-This implementation utilizes the proprietary **AGLink** owned by **Delta Logic** for communicating with the plc via **S7 TCP/IP**.
+This implementation utilizes the proprietary **AGLink** library owned by **Delta Logic** for communicating with the plc via **S7 TCP/IP**.
 
 :grey_exclamation: **AGLink** is a commercial product owned by **Delta Logic**. Using the ***Plc.AgLink*** package requires their software, so make sure you are allowed to.
 
-The ***Plc.AgLink*** assembly itself only references the .Net wrapper assembly **AGL4DotNET.4.dll** from the trial version of **AGLink** in order to properly compile. This wrapper assembly will not be copied to the output folder during compilation, nor is it part of the created **NuGet** package. **AGLink** additionally requires some native assemblies on top of the wrapper assembly in order to work properly. Those are also not part of the ***Plc.AgLink*** project and must be provided by [other means](#Providing-AGLink-requisites).
+### Build
 
-### Providing AGLink requisites
+:grey_exclamation: This repository does not contain the necessary **AGLink** libraries and auxiliary files needed to build the projects. Those files must be provided individually.
 
-The ***Plc.AgLink.Demo*** project can be used as a template for providing all additional assemblies and other files that **AGLink** requires. It has a folder _Resources\AgLink_ that contains all files from the trial version. Those could be replaced by registered versions of the same assemblies and additional files. The license code of the commercial version can be saved in the _AGLink.license_ file, that ***Plc.AgLink*** will consume upon startup. 
+#### Plc.AgLink
 
-So basically ***Plc.AgLink.Demo*** is just a container for all the required **AGLink** files and doesn't have any executable code itself. This project will output a separate **NuGet** package that can be easily referenced and will copy all files into the output folder of the referencing project.
+To get the project ***Plc.AgLink*** to build, at least the .Net wrapper assembly **AGL4DotNET.4.dll** must be put into the _⬙\AgLink_ folder of the project. Optionally the **AGL4DotNET.4.xml** documentation file can be added too. Afterwards this project should be compilable. Bear in mind that the wrapper assembly will not be copied to the output folder during compilation, nor will it be part of the created **NuGet** package. Its only purpose within the ***Plc.AgLink*** project is to get it to properly build. Supplying all needed **AGLink** libraries and files must be done via other means. One way is described [below](Plc.AgLink.Demo).
+
+#### Plc.AgLink.Demo
+
+Besides the .Net wrapper assembly **AGL4DotNET.4.dll** **AGLink** requires other files to properly run. The below table lists all those files.
+
+|        File        |      Required      |     Origin     |                    Description                     |
+| :----------------: | :----------------: | :------------: | :------------------------------------------------: |
+|  AGL4DotNET.4.dll  | :heavy_check_mark: | AGLink package |               .Net wrapper assembly                |
+|  AGL4DotNET.4.xml  |                    | AGLink package |              .Net documentation file               |
+|    AGLink40.dll    | :heavy_check_mark: | AGLink package | Native connection assembly for 32 bit architecture |
+|  AGLink40_x64.dll  | :heavy_check_mark: | AGLink package | Native connection assembly for 64 bit architecture |
+| AGLink40_Error.txt |                    | AGLink package |       Contains error code to message mapping       |
+|   AGLink.license   |                    |     custom     |             Contains the license code              |
+
+Typically a separate project should be created that provides those files. The ***Plc.AgLink.Demo*** is an example of one such project. The idea behind it is, that all required files are added to a _Resources\AgLink_ folder of the project. The project directly references the .Net wrapper assembly **AGL4DotNET.4.dll** from this folder. Therefore it will be copied to the output folder of referencing assemblies. The other required files will be copied to the output folder via a special build target defined in ***Phoenix.Data.Plc.AgLink.Demo.targets***.
+
+To provide the license code for the **AGLink** library the file _AGLink.license_ can be used. The content of this file will be parsed during initialization of the ***AgLinkPlc*** class and used to register the product.
+
+To provide better error messages the file _AGLink40_Error.txt_ should be added to the output folder. The content of this file will be parsed during initialization of the ***AgLinkPlc*** class and later on be used to resolve error codes to clear messages.
 
 ### Initialization
 
@@ -237,9 +260,32 @@ ___
 
 # Logging
 
-The ***Phoenix.Data.Plc*** package provides its own small logging facility in form the ***ILogger*** interface and the static ***LogManager*** which is internally used to provide concrete logger instances. Via the static property ***LogManager.LoggerFactory*** the kind of provided ***ILogger*** can be changed externally. The default implementation of the logger factory will return a simple null object. For forwarding the log messages a simple adapter implementing the ***ILogger*** interface can be created and then supplied to the factory property.
+The ***Phoenix.Data.Plc*** package provides its own small logging facility in form the ***ILogger*** interface and the static ***LogManager*** which is internally used to provide concrete logger instances. Via the static property ***LogManager.LoggerFactory*** the kind of provided ***ILogger*** can be changed externally.
+
+```csharp
+// Create a custom ILogger instance and let the log manager use it.
+Phoenix.Data.Plc.Logging.ILogger logger = new ...
+Phoenix.Data.Plc.Logging.LogManager.LoggerFactory = () => logger;
+```
+
+***Phoenix.Data.Plc*** comes with the following ***ILogger*** implementations:
+
+- ***NullLogger***: An implementation that does nothing. This is the default.
+- ***TraceLogger***: An implementation that uses **System.Diagnostics.Trace** to output log messages.
 
 The ***LogManager*** has another static property ***LogAllReadAndWriteOperations*** which instructs the ***Plc*** base class to log all read and write operations. This is disabled by default, as it could be a very costly operation depending on the amount of operations.
+
+```csharp
+// Conditionally log all read and write operations of the plc.
+#if DEBUG
+		Phoenix.Data.Plc.Logging.LogManager.LogAllReadAndWriteOperations = true;
+#else
+		Phoenix.Data.Plc.Logging.LogManager.LogAllReadAndWriteOperations = false;
+#endif
+```
+
+
+
 ___
 
 # Authors
