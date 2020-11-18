@@ -6,7 +6,7 @@
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<RootNamespace>Phoenix.Data.Plc.AgLink</RootNamespace>
 		<AssemblyName>Phoenix.Data.Plc.AgLink.Demo</AssemblyName>
-		<Version>2.2.0</Version>
+		<Version>3.0.0</Version>
 		<Authors>Felix Leistner</Authors>
 		<Company>Little Phoenix</Company>
 		<Description>Provides plc communication via AGLink demo assemblies.</Description>
@@ -29,6 +29,8 @@
 		<None Include="..\..\..\nuget.png" Pack="true" PackagePath="" Link="⬙\nuget.png" />
 		<None Include="..\..\README.md" Pack="true" PackagePath="" Link="⬙\README.md" />
 		<None Include="..\..\LICENSE.md" Pack="true" PackagePath="" Link="⬙\LICENSE.md" />
+		<None Include="..\..\COPYING" Pack="true" PackagePath="" Link="⬙\COPYING" />
+		<None Include="..\..\COPYING.LESSER" Pack="true" PackagePath="" Link="⬙\COPYING.LESSER" />
 	</ItemGroup>
 
 	<!-- Reference the AGLink .NET wrapper assembly. -->

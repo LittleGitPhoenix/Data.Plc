@@ -284,7 +284,86 @@ The ***LogManager*** has another static property ***LogAllReadAndWriteOperations
 #endif
 ```
 
+___
 
+# Helper
+
+The ***Phoenix.Data.Plc.Mock*** package contains a static helper class ***ByteArrayExtensions*** that provides some extensions methods build to help manipulating data with byte arrays. Basically those methods allow for automatically converting basic data types into byte data and then writing this data to any byte array. For values that surpass the size of a single byte, the corresponding endianness has to be specified.
+
+The following functions are available:
+
+```cs
+// Applies a boolean array.
+var data = new byte[45];
+var booleans = new bool[] { true, true, false, false };
+data.ApplyValue(bytePosition: 10, booleans);
+data.ApplyValue(bytePosition: 10, bitPosition: BitPosition.X3, booleans);
+```
+```cs
+// Applies a byte.
+var data = new byte[45];
+var @byte = byte.MaxValue;
+data.ApplyValue(bytePosition: 10, @byte);
+```
+```cs
+// Applies another byte array.
+var data = new byte[45];
+var bytes = new byte[] {byte.MaxValue, byte.MaxValue};
+data.ApplyValue(bytePosition: 10, bytes);
+```
+```cs
+// Applies a short (Int16).
+var data = new byte[45];
+var @short = Int16.MinValue;
+data.ApplyValue(bytePosition: 10, @short, DataConverter.Endianness.BigEndian);
+```
+```cs
+// Applies an ushort (UInt16).
+var data = new byte[45];
+var @ushort = UInt16.MaxValue;
+data.ApplyValue(bytePosition: 10, @ushort, DataConverter.Endianness.LittleEndian);
+```
+```cs
+// Applies an int (Int32).
+var data = new byte[45];
+var @int = Int32.MinValue;
+data.ApplyValue(bytePosition: 10, @int, DataConverter.Endianness.BigEndian);
+```
+```cs
+// Applies an uint (UInt32).
+var data = new byte[45];
+var @uint = UInt32.MaxValue;
+data.ApplyValue(bytePosition: 10, @uint, DataConverter.Endianness.LittleEndian);
+```
+```cs
+// Applies a long (Int64).
+var data = new byte[45];
+var @long = Int64.MinValue;
+data.ApplyValue(bytePosition: 10, @long, DataConverter.Endianness.BigEndian);
+```
+```cs
+// Applies an ulong (UInt64).
+var data = new byte[45];
+var @ulong = UInt64.MaxValue;
+data.ApplyValue(bytePosition: 10, @ulong, DataConverter.Endianness.LittleEndian);
+```
+```cs
+// Applies a string.
+var data = new byte[45];
+var @string = "Foo";
+data.ApplyValue(bytePosition: 10, @string, Encoding.ASCII);
+```
+
+
+Those methods directly operate on the original byte array and additionally also return it back to the caller which allows for chaining multiple commands.
+
+```csharp
+var data = new byte[45]
+				.ApplyValue(bytePosition: 10, value: ushort.MaxValue, DataConverter.Endianness.BigEndian)
+				.ApplyValue(bytePosition: 15, value: long.MaxValue, DataConverter.Endianness.LittleEndian)
+				.ApplyValue(bytePosition: 30, value: "Bar", Encoding.ASCII)
+				;
+```
 
 ___
 
