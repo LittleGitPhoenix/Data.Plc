@@ -6,6 +6,8 @@ ___
 ## Functionality
 ___
 
+- [ ] ***MockPlc*** should accept a plc id as constructor parameter.
+- [ ] Make ***MockPlc*** configurable via passing an external ***IPlcConfiguration*** instance to it. This instance should define callback-driven behaviors that are applied before and after reading or writing.
 - [x] ~~Don't hard-code the **AGLink** license information into the code. Use a separate (and maybe AES encrypted) file instead.~~~
 - [x] ~~Create a new ***IPlc*** implementation that logs all read / write operations. Use a decorator.~~  
 → Implementing logging as decorator will lead to only being able to write log entries at the start or at the end of any method. So the ***PLC*** base class uses its own logging facility.
@@ -13,7 +15,7 @@ ___
 → The concrete **AGLink** assemblies are outsourced into a separate project. 
 - [x] ~~Try to make the package .NET Framework 4.5 compatible.~~
 - [x] ~~Include the typed plc items in the main ***Plc*** assembly. Typical usage would otherwise require to always add two **NuGet** packages.~~
-- [x] ~Implement dynamic items for strings and bytes.~ 
+- [x] ~~Implement dynamic items for strings and bytes.~~
 
 ## Unit Tests
 ___
@@ -37,4 +39,3 @@ ___
   - [ ] UInt64PlcItem
   - [x] ~~Utf8PlcItem~~
   - [ ] WordPlcItem
-

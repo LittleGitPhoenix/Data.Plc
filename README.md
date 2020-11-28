@@ -25,9 +25,9 @@ The following concrete implementations for accessing a plc are currently availab
 
 ## Plc.Mock
 
-| .NET Framework | .NET Standard | .NET Core |
+| .NET Framework | .NET Standard | .NET |
 | :-: | :-: | :-: |
-| :heavy_check_mark: 4.5.0 | :heavy_check_mark: 2.0 | :heavy_check_mark: 2.0 |
+| :heavy_check_mark: 4.5.0 | :heavy_check_mark: 2.0 | :heavy_check_mark: 5.0 |
 
 This provides a mocked plc, that stores its data in-memory. It can be used for test and simulation purposes.
 
@@ -37,10 +37,10 @@ When creating an instance of the **_MockPlc_** class, initially available databl
 
 ``` csharp
 var initialDataBlocks = new Dictionary<ushort, byte[]>()
-      {
-        {65, new byte[] {0,1,2,3, 255} },
-        {1245, new byte[] {0,1,2,3, 255} },
-      };
+	{
+		{65, new byte[] {0,1,2,3, 255} },
+		{1245, new byte[] {0,1,2,3, 255} },
+	};
 IPlc plc = new MockPlc(initialDataBlocks);
 ```
 
@@ -48,9 +48,9 @@ IPlc plc = new MockPlc(initialDataBlocks);
 
 ## Plc.AgLink
 
-| .NET Framework | .NET Standard | .NET Core |
+| .NET Framework | .NET Standard | .NET |
 | :-: | :-: | :-: |
-| :heavy_check_mark: 4.5.0 | :heavy_check_mark: 2.0 | :heavy_check_mark: 2.0 |
+| :heavy_check_mark: 4.5.0 | :heavy_check_mark: 2.0 | :heavy_check_mark: 5.0 |
 
 This implementation utilizes the proprietary **AGLink** library owned by **Delta Logic** for communicating with the plc via **S7 TCP/IP**.
 
@@ -62,7 +62,7 @@ This implementation utilizes the proprietary **AGLink** library owned by **Delta
 
 #### Plc.AgLink
 
-To get the project ***Plc.AgLink*** to build, at least the .Net wrapper assembly **AGL4DotNET.4.dll** must be put into the _⬙\AgLink_ folder of the project. Optionally the **AGL4DotNET.4.xml** documentation file can be added too. Afterwards this project should be compilable. Bear in mind that the wrapper assembly will not be copied to the output folder during compilation, nor will it be part of the created **NuGet** package. Its only purpose within the ***Plc.AgLink*** project is to get it to properly build. Supplying all needed **AGLink** libraries and files must be done via other means. One way is described [below](Plc.AgLink.Demo).
+To get the project ***Plc.AgLink*** to build, at least the .Net wrapper assembly **AGL4DotNET.4.dll** must be put into the _⬙\AgLink_ folder of the project. Optionally the **AGL4DotNET.4.xml** documentation file can be added too. Afterwards this project should be compilable. Bear in mind that the wrapper assembly will not be copied to the output folder during compilation, nor will it be part of the created **NuGet** package. Its only purpose within the ***Plc.AgLink*** project is to get it to properly build. Supplying all needed **AGLink** libraries and files must be done via other means. One way is described [below](#Plc.AgLink.Demo).
 
 #### Plc.AgLink.Demo
 
@@ -71,11 +71,13 @@ Besides the .Net wrapper assembly **AGL4DotNET.4.dll** **AGLink** requires other
 |        File        |      Required      |     Origin     |                    Description                     |
 | :----------------: | :----------------: | :------------: | :------------------------------------------------: |
 |  AGL4DotNET.4.dll  | :heavy_check_mark: | AGLink package |               .Net wrapper assembly                |
-|  AGL4DotNET.4.xml  |                    | AGLink package |              .Net documentation file               |
+|  AGL4DotNET.4.xml  | :grey_exclamation: | AGLink package |              .Net documentation file               |
 |    AGLink40.dll    | :heavy_check_mark: | AGLink package | Native connection assembly for 32 bit architecture |
 |  AGLink40_x64.dll  | :heavy_check_mark: | AGLink package | Native connection assembly for 64 bit architecture |
-| AGLink40_Error.txt |                    | AGLink package |       Contains error code to message mapping       |
-|   AGLink.license   |                    |     custom     |             Contains the license code              |
+| AGLink40_Error.txt | :grey_exclamation: | AGLink package |       Contains error code to message mapping       |
+|   AGLink.license   | :grey_exclamation: |     custom     |             Contains the license code              |
+
+:grey_exclamation: Can be omitted in a custom implementation, but is required for the ***Plc.AgLink.Demo*** to build.
 
 Typically a separate project should be created that provides those files. The ***Plc.AgLink.Demo*** is an example of one such project. The idea behind it is, that all required files are added to a _Resources\AgLink_ folder of the project. The project directly references the .Net wrapper assembly **AGL4DotNET.4.dll** from this folder. Therefore it will be copied to the output folder of referencing assemblies. The other required files will be copied to the output folder via a special build target defined in ***Phoenix.Data.Plc.AgLink.Demo.targets***.
 
@@ -132,12 +134,12 @@ var item = new Utf8PlcItem(0, 4, 10, identifier: "UTF-8");
 ``` csharp
 var itemBuilder = new Phoenix.Data.Plc.Items.Builder.PlcItemBuilder();
 var item = itemBuilder
-        .ConstructUtf8PlcItem("UTF-8")
-        .AtDatablock(0)
-        .AtPosition(4)
-        .WithLength(10)
-        .Build()
-        ;
+	.ConstructUtf8PlcItem("UTF-8")
+	.AtDatablock(0)
+	.AtPosition(4)
+	.WithLength(10)
+	.Build()
+	;
 ```
 
 ## Reading / Writing plc items
@@ -210,9 +212,9 @@ ___
 
 ## PollingPlcMonitor
 
-| .NET Framework | .NET Standard | .NET Core |
+| .NET Framework | .NET Standard | .NET |
 | :-: | :-: | :-: |
-| :heavy_check_mark: 4.5.0 | :heavy_check_mark: 2.0 | :heavy_check_mark: 2.0 |
+| :heavy_check_mark: 4.5.0 | :heavy_check_mark: 2.0 | :heavy_check_mark: 5.0 |
 
 This monitor internally uses an ***IPlc*** and regularly polls monitored ***IPlcItems*** and checks if their data has changed. It provides the ***PollingMonitorablePlc*** wrapper class that combines both the plc and the monitor instance.
 
@@ -247,14 +249,14 @@ IMonitorablePlc monitoredPlc = new IPlc().MakeMonitorable();
 **Create a new _PollingMonitorablePlc_ instance via fluent syntax and custom polling frequency configuration.**
 ``` csharp
 IMonitorablePlc monitoredPlc = new MockPlc().MakeMonitorable
-      (
-        new Dictionary<string, uint>
-        {
-          {"FastItem", 200},
-          {"LightspeedItem", 50},          
-          {"SlowItem", 1000},
-        }
-      );
+	(
+		new Dictionary<string, uint>
+		{
+			{"FastItem", 200},
+			{"LightspeedItem", 50},          
+			{"SlowItem", 1000},
+		}
+	);
 ```
 ___
 
@@ -278,9 +280,9 @@ The ***LogManager*** has another static property ***LogAllReadAndWriteOperations
 ```csharp
 // Conditionally log all read and write operations of the plc.
 #if DEBUG
-		Phoenix.Data.Plc.Logging.LogManager.LogAllReadAndWriteOperations = true;
+	Phoenix.Data.Plc.Logging.LogManager.LogAllReadAndWriteOperations = true;
 #else
-		Phoenix.Data.Plc.Logging.LogManager.LogAllReadAndWriteOperations = false;
+	Phoenix.Data.Plc.Logging.LogManager.LogAllReadAndWriteOperations = false;
 #endif
 ```
 
@@ -359,14 +361,14 @@ Those methods directly operate on the original byte array and additionally also 
 
 ```csharp
 var data = new byte[45]
-				.ApplyValue(bytePosition: 10, value: ushort.MaxValue, DataConverter.Endianness.BigEndian)
-				.ApplyValue(bytePosition: 15, value: long.MaxValue, DataConverter.Endianness.LittleEndian)
-				.ApplyValue(bytePosition: 30, value: "Bar", Encoding.ASCII)
-				;
+	.ApplyValue(bytePosition: 10, value: ushort.MaxValue, DataConverter.Endianness.BigEndian)
+	.ApplyValue(bytePosition: 15, value: long.MaxValue, DataConverter.Endianness.LittleEndian)
+	.ApplyValue(bytePosition: 30, value: "Bar", Encoding.ASCII)
+	;
 ```
 
 ___
 
 # Authors
 
-* **Felix Leistner** - _Initial release_
+* **Felix Leistner**: _v1.x_ - _v3.x_
