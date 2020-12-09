@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ___
 
+## 3.1.0 (2020-12-09)
+
+### Changed
+
+- License is now limited to [**LGPL-3.0**](https://www.gnu.org/licenses/lgpl-3.0.html) only and no longer any later version.
+
+### Fixed
+
+- The required **AGL4DotNET.4.dll** was not copied to the output folder of **.Net 5.0** projects and even manually adding this file didn't help, as it was not added to the ***.deps.json** file too. Therefore the project has been restructured to make it clearer, which changes must be made, when adding new build targets.
+___
+
 ## 3.0.0 (2020-11-18)
 
 ### Changed

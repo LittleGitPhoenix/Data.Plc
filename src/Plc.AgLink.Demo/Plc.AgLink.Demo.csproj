@@ -6,11 +6,11 @@
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<RootNamespace>Phoenix.Data.Plc.AgLink</RootNamespace>
 		<AssemblyName>Phoenix.Data.Plc.AgLink.Demo</AssemblyName>
-		<Version>3.0.0</Version>
+		<Version>3.1.0</Version>
 		<Authors>Felix Leistner</Authors>
 		<Company>Little Phoenix</Company>
 		<Description>Provides plc communication via AGLink demo assemblies.</Description>
-		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<IncludeSymbols>true</IncludeSymbols>
 		<PackageIcon>nuget.png</PackageIcon>
 		<PackageIconUrl>https://www.little-phoenix.de/nuget/nuget.ico</PackageIconUrl>
@@ -60,10 +60,14 @@
 
 	<!-- Include the AGLink wrapper assembly, the unmanaged AGLink assemblies and the license + error file into the NuGet package. -->
 	<ItemGroup>
-		<None Include="Resources\AgLink\AGL4DotNET.4.dll" Pack="true" PackagePath="lib\netstandard2.0" />
+		<!-- The wrapper assembly needs to be put into the lib folder of EVERY target framework.
+		Otherwise it wont be part of the debs.json which then leads to an TypeInitializationException during runtime of consuming projects.
+		The reason is that AGL4DotNET.4.dll can't be found, even when it is in the root of the output folder of the consuming project. -->
 		<None Include="Resources\AgLink\AGL4DotNET.4.dll" Pack="true" PackagePath="lib\net45" />
-		<None Include="Resources\AgLink\AGL4DotNET.4.xml" Pack="true" PackagePath="lib\netstandard2.0" />
-		<None Include="Resources\AgLink\AGL4DotNET.4.xml" Pack="true" PackagePath="lib\net45" />
+		<None Include="Resources\AgLink\AGL4DotNET.4.dll" Pack="true" PackagePath="lib\netstandard2.0" />
+		<None Include="Resources\AgLink\AGL4DotNET.4.dll" Pack="true" PackagePath="lib\net5.0" />
+
+		<None Include="Resources\AgLink\AGL4DotNET.4.xml" Pack="true" PackagePath="assets\" />
 		<None Include="Resources\AgLink\AGLink.license" Pack="true" PackagePath="assets\" />
 		<None Include="Resources\AgLink\AGLink40_Error.txt" Pack="true" PackagePath="assets\" />
 		<None Include="Resources\AgLink\AGLink40.dll" Pack="true" PackagePath="assets\x86\" />

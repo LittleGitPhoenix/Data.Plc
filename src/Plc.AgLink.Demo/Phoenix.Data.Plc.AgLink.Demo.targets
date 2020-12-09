@@ -2,6 +2,13 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
 	<ItemGroup>
+		<None Include="$(MSBuildThisFileDirectory)\..\assets\AGL4DotNET.4.xml">
+			<Visible>false</Visible>
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
 		<None Include="$(MSBuildThisFileDirectory)\..\assets\AGLink.license">
 			<Visible>false</Visible>
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

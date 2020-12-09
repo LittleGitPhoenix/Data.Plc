@@ -6,6 +6,7 @@ ___
 ## Functionality
 ___
 
+- [ ] Use [**ArrayPools**](https://adamsitnik.com/Array-Pool/) to improve performance.
 - [ ] ***MockPlc*** should accept a plc id as constructor parameter.
 - [ ] Make ***MockPlc*** configurable via passing an external ***IPlcConfiguration*** instance to it. This instance should define callback-driven behaviors that are applied before and after reading or writing.
 - [x] ~~Don't hard-code the **AGLink** license information into the code. Use a separate (and maybe AES encrypted) file instead.~~~
