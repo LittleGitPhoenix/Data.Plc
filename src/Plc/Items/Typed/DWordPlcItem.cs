@@ -10,12 +10,15 @@ namespace Phoenix.Data.Plc.Items.Typed
 	/// <summary>
 	/// <see cref="IPlcItem"/> for <c>S7-DWord</c>.
 	/// </summary>
-	public sealed class DWordPlcItem : UInt32PlcItem, INumericPlcItem, IDeepCloneable<DWordPlcItem>
+	public sealed class DWordPlcItem : TypedBytesPlcItem<UInt32>, INumericPlcItem, IDeepCloneable<DWordPlcItem>
 	{
 		#region Delegates / Events
 		#endregion
 
 		#region Constants
+
+		internal static DataConverter.Endianness Endianness = DataConverter.Endianness.BigEndian;
+
 		#endregion
 
 		#region Fields
@@ -29,11 +32,38 @@ namespace Phoenix.Data.Plc.Items.Typed
 		/// <inheritdoc />
 		/// <param name="position"> The position where the <c>S7-DWord</c> within the <see cref="IPlcItem.DataBlock"/> begins. </param>
 		public DWordPlcItem(ushort dataBlock, ushort position, uint initialValue = uint.MinValue, string identifier = default)
-			: base(dataBlock, position, DataConverter.Endianness.BigEndian, initialValue, identifier) { }
+			: base
+			(
+				PlcItemType.Data,
+				dataBlock,
+				position,
+				byteAmount: sizeof(uint),
+				false,
+				initialValue,
+				identifier
+			)
+		{ }
 
 		#endregion
 
 		#region Methods
+
+		#region Convert
+
+		/// <inheritdoc />
+		public override uint ConvertFromData(BitCollection data)
+		{
+			return DataConverter.ToUInt32(data, Endianness);
+		}
+
+		/// <inheritdoc />
+		public override BitCollection ConvertToData(uint value)
+		{
+			var bytes = DataConverter.ToBytes(value, Endianness);
+			return new BitCollection(false, bytes);
+		}
+
+		#endregion
 
 		#region Clone
 

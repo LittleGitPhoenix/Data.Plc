@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ___
 
+## 4.0.0 (2021-01-10)
+
+### Updated
+
+- Phoenix.Data.Plc ~~3.1.0~~ → [**4.0.0**](..\..\Plc\⬙\CHANGELOG.md)
+
+### Changed
+
+- The class `AgLinkPlc` ca no longer be instantiated directly. This change was necessary for the new way required  **AGLink** files have to be provided. Best practice now is to create a custom class that inherits from `AgLinkPlc` and provides all requirements via its static constructor. An example how to do this can be found in the `DemoAgLinkPlc` class of the ***Plc.AgLink.Demo*** project.
+
+### Fixed
+
+- If reading or writing `IPlcItems` failed, then this will now raise an `ReadOrWritePlcException`. Previously this didn't raise an exception, because the error code returned by **AGLink** when reading or writing may have indicated, that everything was okay. Whether an **AGLink** item failed was stored inside the `Result` property of the item. This fixed required breaking changes in the base `Plc`class.
+___
+
 ## 3.1.0 (2020-12-09)
 
 ### Changed
@@ -24,7 +39,7 @@ ___
 ### Added
 
 - Now also targeting **.NET5.0**.
-- ***AgLinkErrorMapping*** no longer contains the error messages directly but rather parses an optional file **AGLink40_Error.txt** to get the mapping.
+- `AgLinkErrorMapping` no longer contains the error messages directly but rather parses an optional file **AGLink40_Error.txt** to get the mapping.
 
 ### Removed
 
@@ -35,7 +50,7 @@ ___
 
 ### Fixed
 
-- Updated ***AgLinkErrorMapping*** with the error codes from the new version of the **AGLink** assembly.
+- Updated `AgLinkErrorMapping` with the error codes from the new version of the **AGLink** assembly.
 ___
 
 ## 2.1.0 (2020-11-04)
@@ -53,21 +68,21 @@ ___
 
 ### Updated
 
-- Phoenix.Data.Plc ~~1.6.0~~ → **2.0.0**
+- Phoenix.Data.Plc ~~1.6.0~~ → [**2.0.0**](..\..\Plc\⬙\CHANGELOG.md)
 ___
 
 ## 1.3.0 (2020-08-28)
 
 ### Changed
 
-- The ***Id*** provided by ***IAgLinkPlcConnectionData*** is now passed down to the plc base class.
+- The `Id` provided by `IAgLinkPlcConnectionData` is now passed down to the plc base class.
 ___
 
 ## 1.2.0 (2020-08-27)
 
 ### Changed
 
-- Extracted the new ***IAgLinkPlcConnectionData*** interface from ***AgLinkPlcConnectionData*** so that consumers can use their existing classes without the need for an adapter.
+- Extracted the new `IAgLinkPlcConnectionData` interface from `AgLinkPlcConnectionData` so that consumers can use their existing classes without the need for an adapter.
 ___
 
 ## 1.1.0 (2020-04-29)

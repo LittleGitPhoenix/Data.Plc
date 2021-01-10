@@ -420,7 +420,7 @@ namespace Phoenix.Data.Plc
 						if (this.ConnectionState == PlcConnectionState.Disconnected)
 						{
 							var itemDescriptions = Plc.GetPlcItemDescription(plcItems);
-							throw new PlcException(PlcExceptionType.NotConnected, $"Cannot {usageType.ToString().ToLower()} the plc items ({itemDescriptions}) because {this:LOG} is not connected. All items will be put on hold.");
+							throw new NotConnectedPlcException($"Cannot {usageType.ToString().ToLower()} the plc items ({itemDescriptions}) because {this:LOG} is not connected. All items will be put on hold.");
 						}
 					}
 
@@ -432,8 +432,8 @@ namespace Phoenix.Data.Plc
 				{
 					return false;
 				}
-				// Catch only recoverable exceptions.
-				catch (PlcException ex) when (ex.ExceptionType != PlcExceptionType.UnrecoverableConnection)
+				// Handle not connected exceptions by trying to re-connect and halting the items until a connection was established.
+				catch (NotConnectedPlcException ex)
 				{
 					this.Logger.Error(ex.Message);
 
@@ -466,6 +466,11 @@ namespace Phoenix.Data.Plc
 					//TODO Check if cancellation happened because of disposing.
 
 					this.Logger.Info($"The previously suspended plc items of {this:LOG} will now be handled again.");
+				}
+				// Throw on read or write exceptions.
+				catch (ReadOrWritePlcException)
+				{
+					throw;
 				}
 			}
 

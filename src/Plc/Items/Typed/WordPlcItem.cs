@@ -10,18 +10,30 @@ namespace Phoenix.Data.Plc.Items.Typed
 	/// <summary>
 	/// <see cref="IPlcItem"/> for <c>S7-Word</c>.
 	/// </summary>
-	public sealed class WordPlcItem : UInt16PlcItem, INumericPlcItem, IDeepCloneable<WordPlcItem>
+	//public sealed class WordPlcItem : UInt16PlcItem, INumericPlcItem, IDeepCloneable<WordPlcItem>
+	public sealed class WordPlcItem : TypedBytesPlcItem<UInt16>, INumericPlcItem, IDeepCloneable<WordPlcItem>
 	{
 		#region Delegates / Events
 		#endregion
 
 		#region Constants
+
+		internal static DataConverter.Endianness Endianness = DataConverter.Endianness.BigEndian;
+
 		#endregion
 
 		#region Fields
 		#endregion
 
 		#region Properties
+
+		/// <inheritdoc />
+		uint INumericPlcItem.Value
+		{
+			get => this.Value;
+			set => this.Value = value > ushort.MaxValue ? ushort.MaxValue : (ushort)value;
+		}
+
 		#endregion
 
 		#region (De)Constructors
@@ -29,11 +41,38 @@ namespace Phoenix.Data.Plc.Items.Typed
 		/// <inheritdoc />
 		/// <param name="position"> The position where the <c>S7-Word</c> within the <see cref="IPlcItem.DataBlock"/> begins. </param>
 		public WordPlcItem(ushort dataBlock, ushort position, ushort initialValue = ushort.MinValue, string identifier = default)
-			: base(dataBlock, position, DataConverter.Endianness.BigEndian, initialValue, identifier) { }
+			: base
+			(
+				PlcItemType.Data,
+				dataBlock,
+				position,
+				byteAmount: sizeof(ushort),
+				false,
+				initialValue,
+				identifier
+			)
+		{ }
 
 		#endregion
 
 		#region Methods
+
+		#region Convert
+
+		/// <inheritdoc />
+		public override ushort ConvertFromData(BitCollection data)
+		{
+			return DataConverter.ToUInt16(data, Endianness);
+		}
+
+		/// <inheritdoc />
+		public override BitCollection ConvertToData(ushort value)
+		{
+			var bytes = DataConverter.ToBytes(value, Endianness);
+			return new BitCollection(false, bytes);
+		}
+
+		#endregion
 
 		#region Clone
 
@@ -53,8 +92,8 @@ namespace Phoenix.Data.Plc.Items.Typed
 			return new WordPlcItem(base.DataBlock, base.Position, this.Value, identifier);
 		}
 
-#endregion
+		#endregion
 
-#endregion
+		#endregion
 	}
 }

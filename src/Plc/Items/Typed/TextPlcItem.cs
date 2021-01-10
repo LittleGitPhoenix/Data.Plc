@@ -81,6 +81,7 @@ namespace Phoenix.Data.Plc.Items.Typed
 				identifier
 			)
 		{
+			// Set the encoding and override the initial value. This must be done here, as the base class cannot convert the string to data without knowing the encoding.
 			this.Encoding = encoding;
 			this.Value = initialValue;
 		}

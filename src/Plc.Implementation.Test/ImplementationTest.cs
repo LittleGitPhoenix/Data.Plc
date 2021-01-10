@@ -15,6 +15,10 @@ namespace Phoenix.Data.Plc.Implementation.Test
 
 		#region Fields
 
+#if NET45
+		protected static Task CompletedTask = Task.FromResult(false);
+#endif
+
 		private readonly object _lock;
 
 		#endregion

@@ -58,14 +58,30 @@ namespace Phoenix.Data.Plc.Mock
 		/// <summary>
 		/// Constructor
 		/// </summary>
-		public MockPlc() : this(null) { }
-
+		public MockPlc()
+			: this(null) { }
+		
 		/// <summary>
 		/// Constructor
 		/// </summary>
 		/// <param name="initialDataBlocks"> Initial data. </param>
 		public MockPlc(Dictionary<ushort, byte[]> initialDataBlocks)
-			: base(nameof(MockPlc))
+			: this(-1, initialDataBlocks) { }
+
+		/// <summary>
+		/// Constructor
+		/// </summary>
+		/// <param name="plcId"> The id of the plc. </param>
+		public MockPlc(int plcId)
+			: this(plcId, null) { }
+
+		/// <summary>
+		/// Constructor
+		/// </summary>
+		/// <param name="plcId"> The id of the plc. </param>
+		/// <param name="initialDataBlocks"> Initial data. </param>
+		public MockPlc(int plcId, Dictionary<ushort, byte[]> initialDataBlocks)
+			: base(plcId, nameof(MockPlc))
 		{
 			// Save parameters.
 

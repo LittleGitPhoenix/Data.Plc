@@ -199,6 +199,31 @@ namespace Phoenix.Data.Plc.Implementation.Test
 			);
 		}
 
+		[Test]
+		public virtual void ReadUndefinedDatablock()
+		{
+			// Arrange
+			var validItem = new BytesPlcItem(dataBlock: this.Data.Datablock, position: 0, byteAmount: (ushort)this.Data.TargetBytes.Length);
+			var invalidItem = new BytesPlcItem(dataBlock: ushort.MaxValue, position: 1, byteAmount: 100); //! Hopefully that datablock doesn't exists in the test system...
+
+			base.ExecuteTest
+			(
+				(plc) =>
+				{
+					// Act + Assert
+					var ex = Assert.ThrowsAsync<ReadPlcException>(() => plc.ReadItemsAsync(new[] {validItem, invalidItem}));
+					Assert.That(ex.ValidItems.FirstOrDefault(), Is.EqualTo(validItem));
+					Assert.That(ex.FailedItems.FirstOrDefault().FailedItem, Is.EqualTo(invalidItem));
+
+#if NET45
+					return CompletedTask;
+#else
+					return System.Threading.Tasks.Task.CompletedTask;
+#endif
+				}
+			);
+		}
+
 		#endregion
 
 		#endregion

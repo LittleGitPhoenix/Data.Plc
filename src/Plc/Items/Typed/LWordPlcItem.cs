@@ -10,12 +10,15 @@ namespace Phoenix.Data.Plc.Items.Typed
 	/// <summary>
 	/// <see cref="IPlcItem"/> for <c>S7-LWord</c>.
 	/// </summary>
-	public sealed class LWordPlcItem : UInt64PlcItem, IDeepCloneable<LWordPlcItem>
+	public sealed class LWordPlcItem : TypedBytesPlcItem<UInt64>, IDeepCloneable<LWordPlcItem>
 	{
 		#region Delegates / Events
 		#endregion
 
 		#region Constants
+
+		internal static DataConverter.Endianness Endianness = DataConverter.Endianness.BigEndian;
+
 		#endregion
 
 		#region Fields
@@ -29,11 +32,40 @@ namespace Phoenix.Data.Plc.Items.Typed
 		/// <inheritdoc />
 		/// <param name="position"> The position where the <c>S7-LWord</c> within the <see cref="IPlcItem.DataBlock"/> begins. </param>
 		public LWordPlcItem(ushort dataBlock, ushort position, ulong initialValue = ulong.MinValue, string identifier = default)
-			: base(dataBlock, position, DataConverter.Endianness.BigEndian, initialValue, identifier) { }
+			: base
+			(
+				PlcItemType.Data,
+				dataBlock,
+				position,
+				byteAmount: sizeof(ulong),
+				false,
+				initialValue,
+				identifier
+			)
+		{ }
 
 		#endregion
 
 		#region Methods
+
+		#region Convert
+
+		/// <inheritdoc />
+		public override ulong ConvertFromData(BitCollection data)
+		{
+			return DataConverter.ToUInt64(data, Endianness);
+		}
+
+		/// <inheritdoc />
+		public override BitCollection ConvertToData(ulong value)
+		{
+			var bytes = DataConverter.ToBytes(value, Endianness);
+			return new BitCollection(false, bytes);
+		}
+
+		#endregion
+
+		#region Clone
 
 		/// <inheritdoc />
 		public new LWordPlcItem Clone() => this.Clone(null);
@@ -47,6 +79,8 @@ namespace Phoenix.Data.Plc.Items.Typed
 		{
 			return new LWordPlcItem(base.DataBlock, base.Position, this.Value, identifier);
 		}
+
+		#endregion
 
 		#endregion
 	}

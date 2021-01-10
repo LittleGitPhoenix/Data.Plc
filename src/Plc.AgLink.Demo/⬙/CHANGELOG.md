@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ___
 
+## 4.0.0 (2021-01-10)
+
+### Changed
+
+- Because of the new way **.Net 5** handles execution of applications published as single file, the previous mechanism of providing **AGLink** requirements like the license key or the unmanaged assembly via a custom build target is no longer applicable. Instead this project no has a new `DemoAgLinkPlc` class that inherits from the now abstract base class `AgLinkPlc`. `DemoAgLinkPlc` provides all requirements that are bundled as embedded resources via its static constructor.
+
+### Updated
+
+- Phoenix.Data.Plc.AgLink ~~3.1.0~~ → [**4.0.0**](..\..\Plc.AgLink\⬙\CHANGELOG.md)
+___
+
 ## 3.1.0 (2020-12-09)
 
 ### Changed
@@ -52,7 +63,7 @@ ___
 
 ### Updated
 
-- Phoenix.Data.Plc ~~1.6.0~~ → **2.0.0**
+- Phoenix.Data.Plc ~~1.6.0~~ → [**2.0.0**](..\..\Plc\⬙\CHANGELOG.md)
 ___
 
 ## 1.0.0 (2020-03-31)

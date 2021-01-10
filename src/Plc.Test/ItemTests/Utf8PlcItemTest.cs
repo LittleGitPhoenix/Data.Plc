@@ -44,6 +44,21 @@ namespace Phoenix.Data.Plc.Test.ItemTests
 		}
 
 		[Test]
+		public void Check_Initial_Data()
+		{
+			// Arrange
+			var targetValue = "Some test message.";
+			var targetData = Encoding.UTF8.GetBytes(targetValue);
+
+			// Act
+			var item = new Utf8PlcItem(0, 0, targetValue);
+
+			// Assert: Number → Data
+			Assert.That(item.Value, Is.EqualTo(targetValue));
+			Assert.That((byte[])((IPlcItem)item).Value, Is.EqualTo(targetData));
+		}
+
+		[Test]
 		public void Check_ToData()
 		{
 			var target = Guid.NewGuid().ToString();

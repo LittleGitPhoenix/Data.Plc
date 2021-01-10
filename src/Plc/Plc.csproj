@@ -6,7 +6,7 @@
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<AssemblyName>Phoenix.Data.Plc</AssemblyName>
 		<RootNamespace>Phoenix.Data.Plc</RootNamespace>
-		<Version>3.1.0</Version>
+		<Version>4.0.0</Version>
 		<Authors>Felix Leistner</Authors>
 		<Company>Little Phoenix</Company>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>

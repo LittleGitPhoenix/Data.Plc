@@ -1,129 +1,128 @@
 using System;
-using System.IO;
 using NUnit.Framework;
-using Phoenix.Data.Plc.AgLink;
 
 namespace Phoenix.Data.Plc.AgLink.Test
 {
 	public class AgLinkErrorMappingTest
 	{
-		void ExecuteTestWithWorkingDirectory(Action<DirectoryInfo> callback)
+		[Test]
+		public void Check_Default_constructor_Yields_Nothing()
 		{
-			var workingDirectory = new DirectoryInfo(Path.Combine(Directory.GetCurrentDirectory(), $".test_{Guid.NewGuid()}"));
-			if (!workingDirectory.Exists)
-			{
-				workingDirectory.Create();
-				workingDirectory.Refresh();
-			}
-			try
-			{
-				callback.Invoke(workingDirectory);
-			}
-			finally
-			{
-				if (workingDirectory.Exists) workingDirectory.Delete(true);
-			}
+			// Act
+			var errorMapping = new AgLinkErrorMapping();
+
+			// Assert
+			Assert.IsEmpty(errorMapping.ErrorCodeMapping);
 		}
 
 		[Test]
-		public void Check_Loading_Empty_Error_File_Yields_Nothing()
+		public void Check_Loading_Valid_Single_Error_File_Content()
 		{
-			this.ExecuteTestWithWorkingDirectory
-			(
-				workingDirectory =>
-				{
-					// Arrange
-					//File.WriteAllLines(Path.Combine(workingDirectory.FullName, "empty.txt"));
-					var errorFile = new FileInfo(Path.Combine(workingDirectory.FullName, "empty.txt"));
-					errorFile.Create().Dispose();
-					errorFile.Refresh();
+			// Arrange
+			var content = "0x00001;Test1\n0x00002;Test2";
 
-					// Act
-					var errorMapping = new AgLinkErrorMapping(errorFile);
+			// Act
+			var errorMapping = new AgLinkErrorMapping(content);
 
-					// Assert
-					Assert.IsEmpty(errorMapping.ErrorCodeMapping);
-				}
-			);
+			// Assert
+			Assert.That(errorMapping.ErrorCodeMapping, Has.Count.EqualTo(2));
 		}
 
 		[Test]
-		public void Check_Loading_Valid_Error_File()
+		public void Check_Loading_Valid_Separated_Error_File_Content()
 		{
-			this.ExecuteTestWithWorkingDirectory
-			(
-				workingDirectory =>
-				{
-					// Arrange
-					var filePath = Path.Combine(workingDirectory.FullName, "errors.txt");
-					var content = new string[]
-					{
-						"0x00001;Test1",
-						"0x00002;Test2",
-					};
-					File.WriteAllLines(filePath, content);
-					var errorFile = new FileInfo(filePath);
-					
-					// Act
-					var errorMapping = new AgLinkErrorMapping(errorFile);
+			// Arrange
+			var content = new string[]
+			{
+				"0x00001;Test1",
+				"0x00002;Test2",
+			};
+			
+			// Act
+			var errorMapping = new AgLinkErrorMapping(content);
 
-					// Assert
-					Assert.That(errorMapping.ErrorCodeMapping, Has.Count.EqualTo(2));
-				}
-			);
+			// Assert
+			Assert.That(errorMapping.ErrorCodeMapping, Has.Count.EqualTo(2));
+		}
+		
+		[Test]
+		public void Check_Loading_Empty_Single_Error_File_Content_Yields_Nothing()
+		{
+			// Arrange
+			var content = String.Empty;
+
+			// Act
+			var errorMapping = new AgLinkErrorMapping(content);
+
+			// Assert
+			Assert.IsEmpty(errorMapping.ErrorCodeMapping);
+		}
+
+		[Test]
+		public void Check_Loading_Empty_Separated_Error_File_Content_Yields_Nothing()
+		{
+			// Arrange
+			var content = new string[0];
+
+			// Act
+			var errorMapping = new AgLinkErrorMapping(content);
+
+			// Assert
+			Assert.IsEmpty(errorMapping.ErrorCodeMapping);
 		}
 
 		[Test]
 		public void Check_Duplicate_Entries_Are_Ignored()
 		{
-			this.ExecuteTestWithWorkingDirectory
-			(
-				workingDirectory =>
-				{
-					// Arrange
-					var filePath = Path.Combine(workingDirectory.FullName, "errors.txt");
-					var content = new string[]
-					{
-						"0x00001;Test1",
-						"0x00001;Test2",
-					};
-					File.WriteAllLines(filePath, content);
-					var errorFile = new FileInfo(filePath);
-					
-					// Act
-					var errorMapping = new AgLinkErrorMapping(errorFile);
+			// Arrange
+			var content = new string[]
+			{
+				"0x00001;Test1",
+				"0x00001;Test2",
+			};
 
-					// Assert
-					Assert.That(errorMapping.ErrorCodeMapping, Has.Count.EqualTo(1));
-				}
-			);
+			// Act
+			var errorMapping = new AgLinkErrorMapping(content);
+
+			// Assert
+			Assert.That(errorMapping.ErrorCodeMapping, Has.Count.EqualTo(1));
 		}
 
 		[Test]
 		public void Check_Code_Lookup()
 		{
-			this.ExecuteTestWithWorkingDirectory
-			(
-				workingDirectory =>
-				{
-					// Arrange
-					var filePath = Path.Combine(workingDirectory.FullName, "errors.txt");
-					var content = new string[]
-					{
-						"0x00001;Test1",
-						"0x00002;Test2",
-					};
-					File.WriteAllLines(filePath, content);
-					var errorFile = new FileInfo(filePath);
-					var errorMapping = new AgLinkErrorMapping(errorFile);
-					
-					// Act
-					var message = errorMapping.GetErrorMessageForCode(1);
+			// Arrange
+			var content = new string[]
+			{
+				"0x00001;Test1",
+				"0x00002;Test2",
+			}; 
+			var errorMapping = new AgLinkErrorMapping(content);
 
-					// Assert
-					Assert.That(message, Is.EqualTo("Test1"));
-				}
-			);
+			// Act
+			var message = errorMapping.GetErrorMessageForCode(1);
+
+			// Assert
+			Assert.That(message, Is.EqualTo("Test1"));
+		}
+
+		[Test]
+		[TestCase("\n")]
+		[TestCase("\r")]
+		public void Check_Message_Cleanup(string suffix)
+		{
+			// Arrange
+			var content = new string[]
+			{
+				$"0x00001;Test1{suffix}",
+			}; 
+			var errorMapping = new AgLinkErrorMapping(content);
+
+			// Act
+			var message = errorMapping.GetErrorMessageForCode(1);
+
+			// Assert
+			Assert.That(message, Is.EqualTo("Test1"));
 		}
 	}
 }

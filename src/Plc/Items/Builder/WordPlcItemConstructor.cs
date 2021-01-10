@@ -31,7 +31,7 @@ namespace Phoenix.Data.Plc.Items.Builder
 	[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
 	public interface IWordLengthPlcItemConstructor
 	{
-		IWordPlcItemCreator WithOutInitialValue();
+		IWordPlcItemCreator WithoutInitialValue();
 		IWordPlcItemCreator WithInitialValue(ushort initialValue);
 	}
 
@@ -79,7 +79,7 @@ namespace Phoenix.Data.Plc.Items.Builder
 
 		public new IWordLengthPlcItemConstructor AtPosition(ushort bytePosition) => (IWordLengthPlcItemConstructor)base.AtPosition(bytePosition);
 
-		public IWordPlcItemCreator WithOutInitialValue() => this.WithInitialValue(0);
+		public IWordPlcItemCreator WithoutInitialValue() => this.WithInitialValue(0);
 
 		public new IWordPlcItemCreator WithInitialValue(ushort initialValue) => (IWordPlcItemCreator)base.WithInitialValue(initialValue);
 		

@@ -13,8 +13,8 @@ namespace Phoenix.Data.Plc.AgLink.Test
 		public ImplementationConnectionTest()
 			: base
 			(
-				new AgLinkPlc(new AgLinkPlcConnectionData(0, ImplementationConnectionTest.Host, 0, 0)),
-				new AgLinkPlc(new AgLinkPlcConnectionData(0, ImplementationConnectionTest.Host, 0, 0))
+				new DemoAgLinkPlc(new AgLinkPlcConnectionData(0, ImplementationConnectionTest.Host, 0, 0)),
+				new DemoAgLinkPlc(new AgLinkPlcConnectionData(0, ImplementationConnectionTest.Host, 0, 0))
 			) { }
 
 		/// <inheritdoc />

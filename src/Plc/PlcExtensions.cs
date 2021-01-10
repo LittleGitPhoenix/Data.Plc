@@ -27,6 +27,7 @@ namespace Phoenix.Data.Plc
 		/// <param name="plcItem"> The <see cref="IPlcItem{TValue}"/> to read. </param>
 		/// <param name="cancellationToken"> An optional <see cref="CancellationToken"/> for cancelling the read operation. </param>
 		/// <returns> An awaitable task containing the result as <typeparamref name="TValue"/>. </returns>
+		/// <exception cref="ReadPlcException"> Thrown if an exception occurred while reading. </exception>
 		public static async Task<TValue> ReadItemAsync<TValue>(this IPlc plc, IPlcItem<TValue> plcItem, CancellationToken cancellationToken = default)
 		{
 			await plc.ReadItemAsync(plcItem as IPlcItem, cancellationToken);
@@ -40,6 +41,7 @@ namespace Phoenix.Data.Plc
 		/// <param name="plcItem"> The <see cref="IPlcItem"/> to read. </param>
 		/// <param name="cancellationToken"> An optional <see cref="CancellationToken"/> for cancelling the read operation. </param>
 		/// <returns> An awaitable task containing the result as <see cref="Byte"/> array. </returns>
+		/// <exception cref="ReadPlcException"> Thrown if an exception occurred while reading. </exception>
 		public static async Task<BitCollection> ReadItemAsync(this IPlc plc, IPlcItem plcItem, CancellationToken cancellationToken = default)
 		{
 			await plc.ReadItemsAsync(new[] { plcItem }, cancellationToken);
@@ -57,6 +59,7 @@ namespace Phoenix.Data.Plc
 		/// <param name="plcItem"> The <see cref="IPlcItem"/> to write. </param>
 		/// <param name="cancellationToken"> An optional <see cref="CancellationToken"/> for cancelling the write operation. </param>
 		/// <returns> An awaitable task yielding <c>True</c> on success, otherwise <c>False</c>. </returns>
+		/// <exception cref="WritePlcException"> Thrown if an exception occurred while writing. </exception>
 		public static async Task<bool> WriteItemAsync(this IPlc plc, IPlcItem plcItem, CancellationToken cancellationToken = default)
 			=> await plc.WriteItemsAsync(new[] { plcItem }, cancellationToken);
 
@@ -67,6 +70,7 @@ namespace Phoenix.Data.Plc
 		/// <param name="plcItem"> The <see cref="IPlcItem"/> to write. </param>
 		/// <param name="cancellationToken"> An optional <see cref="CancellationToken"/> for cancelling the write operation. </param>
 		/// <returns> An awaitable task yielding <c>True</c> on success, otherwise <c>False</c>. </returns>
+		/// <exception cref="WritePlcException"> Thrown if an exception occurred while writing. </exception>
 		public static async Task<bool> WriteItemWithValidationAsync(this IPlc plc, IPlcItem plcItem, CancellationToken cancellationToken = default)
 			=> await plc.WriteItemsWithValidationAsync(new[] { plcItem }, cancellationToken);
 
@@ -77,6 +81,7 @@ namespace Phoenix.Data.Plc
 		/// <param name="plcItems"> The <see cref="IPlcItem"/>s to write. </param>
 		/// <param name="cancellationToken"> An optional <see cref="CancellationToken"/> for cancelling the write operation. </param>
 		/// <returns> An awaitable task yielding <c>True</c> on success, otherwise <c>False</c>. </returns>
+		/// <exception cref="ReadOrWritePlcException"> Thrown if an exception occurred while writing or while validating. </exception>
 		public static async Task<bool> WriteItemsWithValidationAsync(this IPlc plc, ICollection<IPlcItem> plcItems, CancellationToken cancellationToken = default)
 		{
 			var success = await plc.WriteItemsAsync(plcItems, cancellationToken);
@@ -95,6 +100,7 @@ namespace Phoenix.Data.Plc
 		/// <param name="plcItems"> The <see cref="IPlcItem"/>s whose write result should be validated. </param>
 		/// <param name="cancellationToken"> An optional <see cref="CancellationToken"/> for cancelling the write operation. </param>
 		/// <returns> An awaitable <see cref="Task"/> yielding <c>True</c> on success, otherwise <c>False</c>. </returns>
+		/// <exception cref="ReadOrWritePlcException"> Thrown if an exception occurred while writing or while validating. </exception>
 		private static async Task<bool> ValidateWriteResultAsync(this IPlc plc, ICollection<IPlcItem> plcItems, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested();

@@ -3,14 +3,15 @@
 	<PropertyGroup>
 		<TargetFrameworks>net5.0;netstandard2.0;net45</TargetFrameworks>
 		<LangVersion>latest</LangVersion>
+		<Nullable>enable</Nullable>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<RootNamespace>Phoenix.Data.Plc.AgLink</RootNamespace>
 		<AssemblyName>Phoenix.Data.Plc.AgLink.Demo</AssemblyName>
-		<Version>3.1.0</Version>
+		<Version>4.0.0</Version>
 		<Authors>Felix Leistner</Authors>
 		<Company>Little Phoenix</Company>
 		<Description>Provides plc communication via AGLink demo assemblies.</Description>
-		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
 		<IncludeSymbols>true</IncludeSymbols>
 		<PackageIcon>nuget.png</PackageIcon>
 		<PackageIconUrl>https://www.little-phoenix.de/nuget/nuget.ico</PackageIconUrl>
@@ -36,47 +37,22 @@
 	<!-- Reference the AGLink .NET wrapper assembly. -->
 	<ItemGroup>
 		<Reference Include="Resources\AgLink\AGL4DotNET.4.dll" />
-	</ItemGroup>
-
-	<!-- Copy the unmanaged AGLink assemblies and the license file to the root of the output directory. This is needed if the project is directly referenced. -->
-	<ItemGroup>
-		<ContentWithTargetPath Include="Resources\AgLink\AGLink40.dll">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-			<TargetPath>AGLink40.dll</TargetPath>
-		</ContentWithTargetPath>
-		<ContentWithTargetPath Include="Resources\AgLink\AGLink40_x64.dll">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-			<TargetPath>AGLink40_x64.dll</TargetPath>
-		</ContentWithTargetPath>
-		<ContentWithTargetPath Include="Resources\AgLink\AGLink.license">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-			<TargetPath>AGLink.license</TargetPath>
-		</ContentWithTargetPath>
-		<ContentWithTargetPath Include="Resources\AgLink\AGLink40_Error.txt">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-			<TargetPath>AGLink40_Error.txt</TargetPath>
-		</ContentWithTargetPath>
-	</ItemGroup>
-
-	<!-- Include the AGLink wrapper assembly, the unmanaged AGLink assemblies and the license + error file into the NuGet package. -->
-	<ItemGroup>
-		<!-- The wrapper assembly needs to be put into the lib folder of EVERY target framework.
+		<!--
+		The wrapper assembly needs to be put into the lib folder of EVERY target framework.
 		Otherwise it wont be part of the debs.json which then leads to an TypeInitializationException during runtime of consuming projects.
-		The reason is that AGL4DotNET.4.dll can't be found, even when it is in the root of the output folder of the consuming project. -->
+		The reason is that AGL4DotNET.4.dll can't be found, even when it is in the root of the output folder of the consuming project.
+		-->
 		<None Include="Resources\AgLink\AGL4DotNET.4.dll" Pack="true" PackagePath="lib\net45" />
 		<None Include="Resources\AgLink\AGL4DotNET.4.dll" Pack="true" PackagePath="lib\netstandard2.0" />
 		<None Include="Resources\AgLink\AGL4DotNET.4.dll" Pack="true" PackagePath="lib\net5.0" />
-
-		<None Include="Resources\AgLink\AGL4DotNET.4.xml" Pack="true" PackagePath="assets\" />
-		<None Include="Resources\AgLink\AGLink.license" Pack="true" PackagePath="assets\" />
-		<None Include="Resources\AgLink\AGLink40_Error.txt" Pack="true" PackagePath="assets\" />
-		<None Include="Resources\AgLink\AGLink40.dll" Pack="true" PackagePath="assets\x86\" />
-		<None Include="Resources\AgLink\AGLink40_x64.dll" Pack="true" PackagePath="assets\x64\" />
 	</ItemGroup>
 
-	<!-- Add a custom target to the build folder of the NuGet package. This target will copy the content of the 'assets' folder from the package into the build directory. -->
+	<!-- Embedded resoures. -->
 	<ItemGroup>
-		<None Include="Phoenix.Data.Plc.AgLink.Demo.targets" Pack="true" PackagePath="build\" />
+		<EmbeddedResource Include="Resources\AgLink\AGLink.license" />
+		<EmbeddedResource Include="Resources\AgLink\AGLink40_Error.txt" />
+		<EmbeddedResource Include="Resources\AgLink\AGLink40.dll" />
+		<EmbeddedResource Include="Resources\AgLink\AGLink40_x64.dll" />
 	</ItemGroup>
 
 	<!-- Move the created NuGet packages into another folder. -->

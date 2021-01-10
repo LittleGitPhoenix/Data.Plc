@@ -2,25 +2,23 @@
 //! This file is subject to the terms and conditions defined in file 'LICENSE.md', which is part of this source code package.
 #endregion
 
-
-#nullable enable
-
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
 using Phoenix.Data.Plc.Items;
 using Accon.AGLink;
 
+#nullable enable
+
 namespace Phoenix.Data.Plc.AgLink
 {
 	/// <summary>
 	/// <see cref="Plc"/> implementation utilizing <c>AGLink</c>.
 	/// </summary>
-	public sealed class AgLinkPlc : Plc
+	/// <remarks> Since <c>AGLink</c> needs additional components, this class cannot be instantiated anymore. Instead inherit from this class an provide the requirements in the static constructor of the sub-class. </remarks>
+	public abstract class AgLinkPlc : Plc
 	{
 		#region Delegates / Events
 		#endregion
@@ -39,7 +37,8 @@ namespace Phoenix.Data.Plc.AgLink
 		/// <summary> AGLink plc connection object. </summary>
 		private IAGLink4? UnderlyingPlc { get; set; }
 
-		internal static AgLinkErrorMapping ErrorMapping { get; }
+		/// <summary> <see cref="AgLinkErrorMapping"/> used to resolve error codes to messages. </summary>
+		protected internal static AgLinkErrorMapping ErrorMapping { get; internal set; }
 
 		#endregion
 
@@ -47,9 +46,8 @@ namespace Phoenix.Data.Plc.AgLink
 
 		private enum AgLinkResult
 		{
-			UnrecoverableError = -1,
 			Success = 0,
-			RecoverableError = 1,
+			Error = 1,
 		}
 
 		#endregion
@@ -61,52 +59,18 @@ namespace Phoenix.Data.Plc.AgLink
 		/// </summary>
 		static AgLinkPlc()
 		{
-#if (NET45)
-			var workingDirectory = new DirectoryInfo(Directory.GetCurrentDirectory());
-#else
-			/*!
-			In .Net Standard it is possible that this assembly is part of a single part executable.
-			In such cases the content of the application is extracted to a temporary folder and therefore the AGLink assemblies and license file will be located in this temporary directory.			
-			When using 'Directory.GetCurrentDirectory()' those files then won't be found.
-			*/
-			var workingDirectory = new DirectoryInfo(System.AppContext.BaseDirectory);
-#endif
-
-			// Verify existence of unmanaged AGLink assemblies.
-			var unmanagedAgLinkAssemblyFile = new FileInfo(Path.Combine(workingDirectory.FullName, $"AGLink40{(Environment.Is64BitProcess ? "_x64" : "")}.dll"));
-			if (!unmanagedAgLinkAssemblyFile.Exists)
-			{
-#if DEBUG
-				Debug.WriteLine($"The unmanaged AGLink assembly '{unmanagedAgLinkAssemblyFile.Name}' does not exist in the working directory '{workingDirectory.FullName}'. Therefore using any instance of '{nameof(AgLinkPlc)}' will probably fail.");
-#else
-				throw new ApplicationException($"The unmanaged AGLink assembly '{unmanagedAgLinkAssemblyFile.Name}' does not exist in the working directory '{workingDirectory.FullName}'. Please ensure its existence and then try again.");
-#endif
-			}
-
-			// Try to get the license key and activate AGLink.
-			var licenseKey = AgLinkPlc.GetLicenseKey(workingDirectory);
-			if (licenseKey != null)
-			{
-				AGL4.Activate(licenseKey);
-				Debug.WriteLine($"AgLink has been activated with license key '{licenseKey}'.");
-			}
-			else
-			{
-				Debug.WriteLine($"No license key for AgLink has been found.");
-			}
-
+			// Setup null-error mapping.
+			AgLinkPlc.ErrorMapping = new AgLinkErrorMapping();
+			
 			// Setup other AGLink properties.
 			AGL4.ReturnJobNr(false);
-
-			// Setup error mapping.
-			AgLinkPlc.ErrorMapping = new AgLinkErrorMapping(workingDirectory);
 		}
 
 		/// <summary>
 		/// Constructor
 		/// </summary>
 		/// <param name="connectionData"> <see cref="IAgLinkPlcConnectionData"/> </param>
-		public AgLinkPlc(IAgLinkPlcConnectionData connectionData)
+		protected AgLinkPlc(IAgLinkPlcConnectionData connectionData)
 			: base(connectionData.Id, connectionData.Name)
 		{
 			// Save parameters.
@@ -132,7 +96,7 @@ namespace Phoenix.Data.Plc.AgLink
 		#endregion
 
 		/// <inheritdoc />
-		protected override bool OpenConnection()
+		protected sealed override bool OpenConnection()
 		{
 			if (base.ConnectionState == PlcConnectionState.Connected) return true;
 
@@ -170,7 +134,7 @@ namespace Phoenix.Data.Plc.AgLink
 		}
 
 		/// <inheritdoc />
-		protected override bool CloseConnection()
+		protected sealed override bool CloseConnection()
 		{
 			if (base.ConnectionState == PlcConnectionState.Disconnected) return true;
 			if (this.UnderlyingPlc is null) return true;
@@ -193,7 +157,7 @@ namespace Phoenix.Data.Plc.AgLink
 		#region Read / Write
 
 		/// <inheritdoc />
-		protected override async Task PerformReadWriteAsync(ICollection<IPlcItem> plcItems, PlcItemUsageType usageType, CancellationToken cancellationToken)
+		protected sealed override async Task PerformReadWriteAsync(ICollection<IPlcItem> plcItems, PlcItemUsageType usageType, CancellationToken cancellationToken)
 		{
 			try
 			{
@@ -222,17 +186,100 @@ namespace Phoenix.Data.Plc.AgLink
 			const PlcItemUsageType usageType = PlcItemUsageType.Read;
 			var underlyingPlc = AgLinkPlc.VerifyConnectivity(this, plcItems, usageType);
 
-			/*
-			 * Create special plc items that will store which AGLink items are used for reading.
-			 * This is done via position information (start and amount) of the AGLink items array because those items are structs
-			 * and therefore cannot be used on a reference based solution.
-			 */
+			// Create the mapping.
+			var (mapping, allAgLinkItems) = AgLinkPlc.CreateMappingAndAgLinkItems(plcItems, usageType);
+
+			// Read from the plc.
+			//! The return value may be zero even if some or all of the items failed. To get the real result the 'Result' property of the AGLink item (AGL4.DATA_RW40.Result) must be checked.
+			var readResult = await Task.Run(() => underlyingPlc.ReadMixEx(allAgLinkItems, allAgLinkItems.Length), cancellationToken);
+
+			// Verify the total result.
+			//! Ignore the total result and inspect the result of each item individually.
+			var result = AgLinkPlc.ConvertToAgLinkResult(readResult);
+			//if (result != AgLinkResult.Success)
+			//{
+			//	var errorMessage = AgLinkPlc.ErrorMapping.GetErrorMessageForCode(readResult);
+			//	var items = plcItems.Select(item => (item, "General reading error.")).ToArray();
+			//	throw new ReadPlcException(new IPlcItem[0], items, $"Could not read any items from {this:LOG}. AGLink returned error code '{result}' ({errorMessage}).");
+			//}
+
+			// Verify the result of all items and transfer the value.
+			var (validItems, failedItems) = AgLinkPlc.VerifyPlcItemResults(mapping, allAgLinkItems, true);
+			if (failedItems.Any()) throw new ReadPlcException(validItems, failedItems, $"Some of the items couldn't be read. See the '{nameof(ReadOrWritePlcException.FailedItems)}' property for further information.");
+		}
+
+		/// <summary>
+		/// Writes the <see cref="IPlcItem.Value"/> of the <paramref name="plcItems"/> to the plc. 
+		/// </summary>
+		/// <param name="plcItems"> The <see cref="IPlcItem"/>s to write. </param>
+		/// <param name="cancellationToken"> A <see cref="CancellationToken"/> for cancelling the write operation. </param>
+		private async Task PerformWriteAsync(ICollection<IPlcItem> plcItems, CancellationToken cancellationToken)
+		{
+			const PlcItemUsageType usageType = PlcItemUsageType.Write;
+			var underlyingPlc = AgLinkPlc.VerifyConnectivity(this, plcItems, usageType);
+
+			// Create the mapping.
+			var (mapping, allAgLinkItems) = AgLinkPlc.CreateMappingAndAgLinkItems(plcItems, usageType);
+
+			// Write to the plc.
+			var writeResult = await Task.Run(() => underlyingPlc.WriteMixEx(allAgLinkItems, allAgLinkItems.Length), cancellationToken);
+
+			// Verify the total result.
+			//! Ignore the total result and inspect the result of each item individually.
+			var result = AgLinkPlc.ConvertToAgLinkResult(writeResult);
+			//if (result != AgLinkResult.Success)
+			//{
+			//	var errorMessage = AgLinkPlc.ErrorMapping.GetErrorMessageForCode(writeResult);
+			//	var items = plcItems.Select(item => (item, "General writing error.")).ToArray();
+			//	throw new WritePlcException(new IPlcItem[0], items, $"Could not write any items to {this:LOG}. AGLink returned error code '{result}' ({errorMessage}).");
+			//}
+
+			// Verify the result of all items.
+			var (validItems, failedItems) = AgLinkPlc.VerifyPlcItemResults(mapping, allAgLinkItems, false);
+			if (failedItems.Any()) throw new WritePlcException(validItems, failedItems, $"Some of the items couldn't be written. See the '{nameof(ReadOrWritePlcException.FailedItems)}' property for further information.");
+		}
+
+		#endregion
+		
+		#region Helper
+
+		/// <summary>
+		/// Verifies that <paramref name="plc.UnderlyingPlc"/> is not <c>Null</c> before reading or writing.
+		/// </summary>
+		/// <remarks> Normally the base class already handles cases where the plc connection is not yet established, but just in case and to keep the compiler from complaining. </remarks>
+		/// <exception cref="NotConnectedPlcException"> Thrown if <paramref name="plc.UnderlyingPlc"/> is <c>Null</c>. </exception>
+		private static IAGLink4 VerifyConnectivity(AgLinkPlc plc, ICollection<IPlcItem> plcItems, PlcItemUsageType usageType)
+		{
+			var underlyingPlc = plc.UnderlyingPlc;
+			if (underlyingPlc is null)
+			{
+				var itemDescriptions = Plc.GetPlcItemDescription(plcItems);
+				throw new NotConnectedPlcException( $"Cannot {usageType.ToString().ToLower()} the plc items ({itemDescriptions}) because {plc:LOG} is not connected. All items will be put on hold.");
+			}
+
+			return underlyingPlc;
+		}
+
+		/// <summary>
+		/// Creates all needed <see cref="AGL4.DATA_RW40"/> items for the <paramref name="plcItems"/> along with a <see cref="ReadPlcItemWrapper"/>  for each.
+		/// </summary>
+		/// <param name="plcItems"> The plc items for which to create the AGLink items. </param>
+		/// <param name="usageType"> The <see cref="Phoenix.Data.Plc.Plc.PlcItemUsageType"/> of the items. </param>
+		/// <returns>
+		/// <para> A <see cref="ValueTuple"/> with: </para>
+		/// <para> Mapping: The <see cref="ReadPlcItemWrapper"/>s. </para>
+		/// <para> AllAgLinkItems: The <see cref="AGL4.DATA_RW40"/> items. </para>
+		/// </returns>
+		private static (ICollection<ReadPlcItemWrapper> Mapping, AGL4.DATA_RW40[] AllAgLinkItems) CreateMappingAndAgLinkItems(ICollection<IPlcItem> plcItems, PlcItemUsageType usageType)
+		{
 			var mapping = plcItems
 				.Select(plcItem => new ReadPlcItemWrapper(plcItem))
 				.ToArray()
 				;
 
 			// Create all needed AGLink items.
+			//! Directly storing the AGLink items in the ReadPlcItemWrapper instance won't work, as AGL4.DATA_RW40 is a struct that would consequently be copied on assignment.
+			//! Therefore the ReadPlcItemWrapper only contains the start position and the amount of items in the returned AGLink items array.
 			var previousAmount = 0;
 			var allAgLinkItems = mapping
 				.SelectMany
@@ -250,84 +297,15 @@ namespace Phoenix.Data.Plc.AgLink
 				.ToArray()
 				;
 
-			// Read from the plc.
-			var result = await Task.Run(() => underlyingPlc.ReadMixEx(allAgLinkItems, allAgLinkItems.Length), cancellationToken);
-			
-			// Verify the result.
-			this.VerifyAgLinkResult(result, plcItems, usageType);
-
-			// Iterate each plc item and get the data for all AGLink items that where needed to handle it.
-			foreach (var (plcItem, start, amount) in mapping)
-			{
-				var data = allAgLinkItems.Skip(start).Take(amount).SelectMany(agLinkItem => agLinkItem.B).ToArray();
-				this.TransferValue(plcItem, data);
-			}
+			return (mapping, allAgLinkItems);
 		}
 
 		/// <summary>
-		/// Writes the <see cref="IPlcItem.Value"/> of the <paramref name="plcItems"/> to the plc. 
-		/// </summary>
-		/// <param name="plcItems"> The <see cref="IPlcItem"/>s to write. </param>
-		/// <param name="cancellationToken"> A <see cref="CancellationToken"/> for cancelling the write operation. </param>
-		private async Task PerformWriteAsync(ICollection<IPlcItem> plcItems, CancellationToken cancellationToken)
-		{
-			const PlcItemUsageType usageType = PlcItemUsageType.Write;
-			var underlyingPlc = AgLinkPlc.VerifyConnectivity(this, plcItems, usageType);
-
-			var agLinkItems = plcItems
-				.SelectMany(plcItem => AgLinkPlc.CreateAgLinkItems(plcItem, usageType).ToArray())
-				.ToArray()
-				;
-
-			// Write to the plc.
-			var result = await Task.Run(() => underlyingPlc.WriteMixEx(agLinkItems, agLinkItems.Length), cancellationToken);
-
-			// Verify the result.
-			this.VerifyAgLinkResult(result, plcItems, usageType);
-		}
-
-		#endregion
-
-		#region Helper
-
-		/// <summary>
-		/// Verifies that <paramref name="plc.UnderlyingPlc"/> is not <c>Null</c> before reading or writing.
-		/// </summary>
-		/// <remarks> Normally the base class already handles cases where the plc connection is not yet established, but just in case and to keep the compiler from complaining. </remarks>
-		/// <exception cref="PlcException"> Thrown if <paramref name="plc.UnderlyingPlc"/> is <c>Null</c>. The exception type will be <see cref="PlcExceptionType.NotConnected"/>. </exception>
-		private static IAGLink4 VerifyConnectivity(AgLinkPlc plc, ICollection<IPlcItem> plcItems, PlcItemUsageType usageType)
-		{
-			var underlyingPlc = plc.UnderlyingPlc;
-			if (underlyingPlc is null)
-			{
-				var itemDescriptions = Plc.GetPlcItemDescription(plcItems);
-				throw new PlcException(PlcExceptionType.NotConnected, $"Cannot {usageType.ToString().ToLower()} the plc items ({itemDescriptions}) because {plc:LOG} is not connected. All items will be put on hold.");
-			}
-
-			return underlyingPlc;
-		}
-
-		private static string? GetLicenseKey(DirectoryInfo workingDirectory)
-		{
-			//var regEx = new Regex(@"^aglink\.license$", RegexOptions.IgnoreCase);
-			var licenseFile = workingDirectory
-				.EnumerateFiles("aglink.license", SearchOption.TopDirectoryOnly)
-				.FirstOrDefault()
-				;
-
-			if (licenseFile is null) return null;
-
-			using var reader = licenseFile.OpenText();
-			var licenseKey = reader.ReadToEnd();
-			return String.IsNullOrWhiteSpace(licenseKey) ? null : licenseKey;
-		}
-
-		/// <summary>
-		/// Creates an AGLink plcItem from <paramref name="plcItem"/>.
+		/// Creates AGLink plcItems from <paramref name="plcItem"/>. Some <see cref="IPlcItem"/>s can only be handled by multiple AGLink items.
 		/// </summary>
 		/// <param name="plcItem"> The <see cref="IPlcItem"/> used to build the AGLink item. </param>
 		/// <param name="usageType"> The <see cref="Plc.PlcItemUsageType"/> of the <paramref name="plcItem"/>. </param>
-		/// <returns> A new AGLink item of type <see cref="AGL4.DATA_RW40"/>. </returns>
+		/// <returns> New AGLink items of type <see cref="AGL4.DATA_RW40"/>. </returns>
 		private static IEnumerable<AGL4.DATA_RW40> CreateAgLinkItems(IPlcItem plcItem, PlcItemUsageType usageType)
 		{
 			var agLinkItem = new AGL4.DATA_RW40
@@ -396,11 +374,58 @@ namespace Phoenix.Data.Plc.AgLink
 		}
 
 		/// <summary>
+		/// Verifies the result of all <see cref="AGL4.DATA_RW40"/> items linked to an <see cref="IPlcItem"/> and sorts them into two lists.
+		/// </summary>
+		/// <param name="mapping"> The <see cref="ReadPlcItemWrapper"/>s used to identify which AGLink items belong to which plc item. </param>
+		/// <param name="allAgLinkItems"> The AGLink items themselves. </param>
+		/// <param name="transferData"> Optional flag if the data from the AGLink items should be transferred to the plc items. </param>
+		/// <returns>
+		/// <para> A <see cref="ValueTuple"/> with: </para>
+		/// <para> ValidItems: The <see cref="IPlcItem"/>s that where valid. </para>
+		/// <para> FailedItems: The <see cref="IPlcItem"/> that where not valid together with the error message. </para>
+		/// </returns>
+		private static (ICollection<IPlcItem> ValidItems, ICollection<(IPlcItem FailedItem, string ErrorMessage)>) VerifyPlcItemResults(ICollection<ReadPlcItemWrapper> mapping, ICollection<AGL4.DATA_RW40> allAgLinkItems, bool transferData)
+		{
+			var validItems = new List<IPlcItem>(mapping.Count);
+			var failedItems = new List<(IPlcItem FailedItem, string ErrorMessage)>(0); //! Assume that no errors occur to save precious ram.
+
+			// Iterate each plc item and get the data for all AGLink items that where needed to handle it.
+			foreach (var (plcItem, start, amount) in mapping)
+			{
+				// Get all ag link items of this plc item.
+				var agLinkItems = allAgLinkItems.Skip(start).Take(amount).ToArray();
+
+				// Check if any of those have failed.
+				var itemResult = agLinkItems
+					.Select(agLinkItem => agLinkItem.Result)
+					.FirstOrDefault(resultCode => resultCode != 0)
+					;
+				
+				var result = AgLinkPlc.ConvertToAgLinkResult(itemResult);
+				if (result != AgLinkResult.Success)
+				{
+					failedItems.Add((plcItem, AgLinkPlc.ErrorMapping.GetErrorMessageForCode(itemResult)));
+				}
+				else
+				{
+					validItems.Add(plcItem);
+					if (transferData)
+					{
+						var data = agLinkItems.SelectMany(agLinkItem => agLinkItem.B).ToArray();
+						AgLinkPlc.TransferValue(plcItem, data);
+					}
+				}
+			}
+
+			return (validItems, failedItems);
+		}
+
+		/// <summary>
 		/// Sets the <paramref name="data"/> to the <paramref name="plcItem"/>s <see cref="IPlcItem{TValue}.Value"/>.
 		/// </summary>
 		/// <param name="plcItem"> The <see cref="IPlcItem"/> whose value to set. </param>
 		/// <param name="data"> The new byte data. </param>
-		private void TransferValue(IPlcItem plcItem, byte[] data)
+		private static void TransferValue(IPlcItem plcItem, byte[] data)
 		{
 			if (!plcItem.Value.HandlesFullBytes && plcItem.Value.Length > 1)
 			{
@@ -412,39 +437,7 @@ namespace Phoenix.Data.Plc.AgLink
 				plcItem.Value.TransferValuesFrom(data);
 			}
 		}
-
-		/// <summary>
-		/// Verifies the <paramref name="result"/> of the handled <paramref name="plcItems"/>.
-		/// </summary>
-		/// <param name="result"> The result as <see cref="AgLinkResult"/>. </param>
-		/// <param name="plcItems"> The handled <see cref="IPlcItem"/>s. </param>
-		/// <param name="usageType"> The <see cref="Plc.PlcItemUsageType"/> of the <paramref name="plcItems"/>. </param>
-		/// <exception cref="PlcException"> Thrown if <paramref name="result"/> is not <see cref="AgLinkResult.Success"/>. </exception>
-		private void VerifyAgLinkResult(int result, ICollection<IPlcItem> plcItems, PlcItemUsageType usageType)
-		{
-			var agLinkResult = AgLinkPlc.ConvertToAgLinkResult(result);
-
-			if (agLinkResult == AgLinkResult.Success)
-			{
-				// If handling the plc item was successful, then immediately return the plc items.
-				return;
-			}
-			else
-			{
-				//AGL4.GetErrorMsg(result, out var errorMessage);
-				var errorMessage = AgLinkPlc.ErrorMapping.GetErrorMessageForCode(result);
-				var itemDescriptions = Plc.GetPlcItemDescription(plcItems);
-				if (agLinkResult == AgLinkResult.RecoverableError)
-				{
-					throw new PlcException(usageType == PlcItemUsageType.Read ? PlcExceptionType.ReadError : PlcExceptionType.WriteError, $"Could not {usageType.ToString().ToLower()} the '{itemDescriptions}' from {this:LOG}. AGLink returned error code '{result}'. Items will be handled again.");
-				}
-				else
-				{
-					throw new PlcException(PlcExceptionType.UnrecoverableConnection, $"Could not {usageType.ToString().ToLower()} the '{itemDescriptions}' from {this:LOG}. AGLink returned error code '{result}' ({errorMessage}). This is an unrecoverable error and the items will not be handled again.");
-				}
-			}
-		}
-
+		
 		/// <summary>
 		/// Converts the passed <c>AGLink</c> result into a <see cref="AgLinkResult"/>.
 		/// </summary>
@@ -452,16 +445,12 @@ namespace Phoenix.Data.Plc.AgLink
 		/// <returns> A <see cref="AgLinkResult"/>. </returns>
 		private static AgLinkResult ConvertToAgLinkResult(int result)
 		{
-			/*TODO
-			 * Divide the result code into recoverable and unrecoverable errors and throw an appropriate exception.
-			 * To decide which code is recoverable, somehow get all relevant return values from the AGLink assembly.
-			 */
 			if (result == 0) return AgLinkResult.Success;
-			else return AgLinkResult.UnrecoverableError;
+			else return AgLinkResult.Error;
 		}
 
 		#endregion
-
+		
 		#region IDisposable
 
 		/// <inheritdoc />

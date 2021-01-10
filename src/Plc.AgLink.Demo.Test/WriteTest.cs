@@ -13,7 +13,7 @@ namespace Phoenix.Data.Plc.AgLink.Test
 		public ImplementationWriteTest()
 			: base
 			(
-				new AgLinkPlc(new AgLinkPlcConnectionData(0, ImplementationWriteTest.Host, 0, 0))
+				new DemoAgLinkPlc(new AgLinkPlcConnectionData(0, ImplementationWriteTest.Host, 0, 0))
 			) { }
 
 

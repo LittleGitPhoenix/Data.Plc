@@ -4,8 +4,6 @@
 
 
 using System;
-using System.Collections;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -82,18 +80,20 @@ namespace Phoenix.Data.Plc
 		/// <param name="plcItems"> The <see cref="IPlcItem"/>s to read. </param>
 		/// <param name="cancellationToken"> An optional <see cref="CancellationToken"/> for cancelling the read operation. </param>
 		/// <returns> An awaitable task. </returns>
+		/// <exception cref="ReadPlcException"> Thrown if an exception occurred while reading. </exception>
 		Task ReadItemsAsync(ICollection<IPlcItem> plcItems, CancellationToken cancellationToken = default);
 
 		#endregion
 
 		#region Write
-		
+
 		/// <summary>
 		/// Writes the <paramref name="plcItems"/> to the plc.
 		/// </summary>
 		/// <param name="plcItems"> The <see cref="IPlcItem"/>s to write. </param>
 		/// <param name="cancellationToken"> An optional <see cref="CancellationToken"/> for cancelling the write operation. </param>
 		/// <returns> An awaitable task yielding <c>True</c> on success, otherwise <c>False</c>. </returns>
+		/// <exception cref="WritePlcException"> Thrown if an exception occurred while writing. </exception>
 		Task<bool> WriteItemsAsync(ICollection<IPlcItem> plcItems, CancellationToken cancellationToken = default);
 
 		#endregion

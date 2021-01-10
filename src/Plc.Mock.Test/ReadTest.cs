@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using NUnit.Framework;
 using Phoenix.Data.Plc.Implementation.Test;
@@ -20,5 +19,15 @@ namespace Phoenix.Data.Plc.Mock.Test
 					}
 				)
 			) { }
+
+		#region Overrides of ImplementationReadTest<MockPlc>
+
+		/// <inheritdoc />
+		public override void ReadUndefinedDatablock()
+		{
+			Assert.Ignore("The MockPlc doesn't have any undefined datablock, as they will be created upon first interaction.");
+		}
+
+		#endregion
 	}
 }

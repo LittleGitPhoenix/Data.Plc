@@ -16,6 +16,9 @@ namespace Phoenix.Data.Plc.Items.Typed
 		#endregion
 
 		#region Constants
+
+		internal static DataConverter.Endianness Endianness = DataConverter.Endianness.LittleEndian;
+
 		#endregion
 
 		#region Fields
@@ -49,13 +52,13 @@ namespace Phoenix.Data.Plc.Items.Typed
 		/// <inheritdoc />
 		public override short ConvertFromData(BitCollection data)
 		{
-			return DataConverter.ToInt16(data, DataConverter.Endianness.LittleEndian);
+			return DataConverter.ToInt16(data, Endianness);
 		}
 
 		/// <inheritdoc />
 		public override BitCollection ConvertToData(short value)
 		{
-			var bytes = DataConverter.ToBytes(value, DataConverter.Endianness.LittleEndian);
+			var bytes = DataConverter.ToBytes(value, Endianness);
 			return new BitCollection(false, bytes);
 		}
 

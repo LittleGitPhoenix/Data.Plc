@@ -10,18 +10,18 @@ namespace Phoenix.Data.Plc.Items.Typed
 	/// <summary>
 	/// <see cref="IPlcItem"/> for an <see cref="UInt32"/>.
 	/// </summary>
-	public class UInt32PlcItem : TypedBytesPlcItem<UInt32>, INumericPlcItem, IDeepCloneable<UInt32PlcItem>
+	public sealed class UInt32PlcItem : TypedBytesPlcItem<UInt32>, INumericPlcItem, IDeepCloneable<UInt32PlcItem>
 	{
 		#region Delegates / Events
 		#endregion
 
 		#region Constants
+
+		internal static DataConverter.Endianness Endianness = DataConverter.Endianness.LittleEndian;
+
 		#endregion
 
 		#region Fields
-
-		private readonly DataConverter.Endianness _endianness;
-
 		#endregion
 
 		#region Properties
@@ -40,18 +40,6 @@ namespace Phoenix.Data.Plc.Items.Typed
 		/// <inheritdoc />
 		/// <param name="position"> The position where the <see cref="UInt32"/> within the <see cref="IPlcItem.DataBlock"/> begins. </param>
 		public UInt32PlcItem(ushort dataBlock, ushort position, uint initialValue = uint.MinValue, string identifier = default)
-			: this
-			(
-				dataBlock,
-				position,
-				DataConverter.Endianness.LittleEndian,
-				initialValue,
-				identifier
-			) { }
-
-		/// <inheritdoc />
-		/// <param name="position"> The position where the <see cref="UInt32"/> within the <see cref="IPlcItem.DataBlock"/> begins. </param>
-		protected UInt32PlcItem(ushort dataBlock, ushort position, DataConverter.Endianness endianness, uint initialValue = uint.MinValue, string identifier = default)
 			: base
 			(
 				PlcItemType.Data,
@@ -61,10 +49,7 @@ namespace Phoenix.Data.Plc.Items.Typed
 				false,
 				initialValue,
 				identifier
-			)
-		{
-			_endianness = endianness;
-		}
+			) { }
 
 		#endregion
 
@@ -75,13 +60,13 @@ namespace Phoenix.Data.Plc.Items.Typed
 		/// <inheritdoc />
 		public override uint ConvertFromData(BitCollection data)
 		{
-			return DataConverter.ToUInt32(data, _endianness);
+			return DataConverter.ToUInt32(data, Endianness);
 		}
 
 		/// <inheritdoc />
 		public override BitCollection ConvertToData(uint value)
 		{
-			var bytes = DataConverter.ToBytes(value, _endianness);
+			var bytes = DataConverter.ToBytes(value, Endianness);
 			return new BitCollection(false, bytes);
 		}
 
@@ -102,7 +87,7 @@ namespace Phoenix.Data.Plc.Items.Typed
 		/// <returns> A new <see cref="UInt32PlcItem"/>. </returns>
 		public new UInt32PlcItem Clone(string identifier)
 		{
-			return new UInt32PlcItem(base.DataBlock, base.Position, _endianness, this.Value, identifier);
+			return new UInt32PlcItem(base.DataBlock, base.Position, this.Value, identifier);
 		}
 
 		#endregion

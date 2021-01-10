@@ -152,64 +152,65 @@ namespace Phoenix.Data.Plc.Test
 			Assert.True(byteItem.Value == byte.MaxValue);
 		}
 
-		/// <summary>
-		/// Checks if reading an <see cref="IPlcItem"/> is automatically retried if the read operation throws an <see cref="PlcException"/> as long as it is not <see cref="PlcExceptionType.UnrecoverableConnection"/>.
-		/// </summary>
-		[Test]
-		public async Task Read_With_Automatic_Retry()
-		{
-			// Arrange
-			byte iteration = 0;
-			byte threshold = 5;
-			var byteItem = new BytePlcItem(dataBlock: 0, position: 0, initialValue: byte.MaxValue);
-			var plcMock = new Mock<Plc>("MockPlc") { CallBase = true };
-			plcMock
-				.Setup(p => p.OpenConnection())
-				.Returns(true)
-				.Verifiable()
-				;
-			plcMock
-				.Setup(p => p.CloseConnection())
-				.Returns(true)
-				.Verifiable()
-				;
-			plcMock
-				.Setup(p => p.PerformReadWriteAsync(It.IsAny<ICollection<IPlcItem>>(), It.IsAny<Plc.PlcItemUsageType>(), CancellationToken.None))
-				.Returns
-				(
-					() =>
-					{
-						// Throw recoverable exceptions until the threshold is reached, so that automatic retry is triggered.
-						if (iteration++ < threshold)
-						{
-							throw new PlcException(PlcExceptionType.ReadError, $"Iterations below {threshold} are recoverable errors.");
-						}
+		//! This test cannot work anymore, since each error during reading or writing is automatically unrecoverable.
+		///// <summary>
+		///// Checks if reading an <see cref="IPlcItem"/> is automatically retried if the read operation throws an <see cref="PlcException"/> as long as it is not <see cref="PlcExceptionType.UnrecoverableConnection"/>.
+		///// </summary>
+		//[Test]
+		//public async Task Read_With_Automatic_Retry()
+		//{
+		//	// Arrange
+		//	byte iteration = 0;
+		//	byte threshold = 5;
+		//	var byteItem = new BytePlcItem(dataBlock: 0, position: 0, initialValue: byte.MaxValue);
+		//	var plcMock = new Mock<Plc>("MockPlc") { CallBase = true };
+		//	plcMock
+		//		.Setup(p => p.OpenConnection())
+		//		.Returns(true)
+		//		.Verifiable()
+		//		;
+		//	plcMock
+		//		.Setup(p => p.CloseConnection())
+		//		.Returns(true)
+		//		.Verifiable()
+		//		;
+		//	plcMock
+		//		.Setup(p => p.PerformReadWriteAsync(It.IsAny<ICollection<IPlcItem>>(), It.IsAny<Plc.PlcItemUsageType>(), CancellationToken.None))
+		//		.Returns
+		//		(
+		//			() =>
+		//			{
+		//				// Throw recoverable exceptions until the threshold is reached, so that automatic retry is triggered.
+		//				if (iteration++ < threshold)
+		//				{
+		//					throw new PlcException(PlcExceptionType.ReadError, $"Iterations below {threshold} are recoverable errors.");
+		//				}
 
-						return Task.FromResult(true);
-					}
-				)
-				.Verifiable()
-				;
-			var plc = plcMock.Object;
+		//				return Task.FromResult(true);
+		//			}
+		//		)
+		//		.Verifiable()
+		//		;
+		//	var plc = plcMock.Object;
 
-			var connectedCounter = 0;
-			var disconnectedCounter = 0;
-			var interruptedCounter = 0;
-			plc.Connected += (sender, state) => connectedCounter++;
-			plc.Disconnected += (sender, state) => disconnectedCounter++;
-			plc.Interrupted += (sender, state) => interruptedCounter++;
+		//	var connectedCounter = 0;
+		//	var disconnectedCounter = 0;
+		//	var interruptedCounter = 0;
+		//	plc.Connected += (sender, state) => connectedCounter++;
+		//	plc.Disconnected += (sender, state) => disconnectedCounter++;
+		//	plc.Interrupted += (sender, state) => interruptedCounter++;
 
-			// Connect to the plc.
-			var success = plc.Connect();
-			Assert.True(success);
+		//	// Connect to the plc.
+		//	var success = plc.Connect();
+		//	Assert.True(success);
 
-			// Execute the read function.
-			var result = await plc.ReadItemAsync(byteItem);
-			Assert.True(iteration == threshold + 1);
-			Assert.True(interruptedCounter == threshold);
-			Assert.True(byteItem.Value == result);
-			Assert.True(byteItem.Value == byte.MaxValue);
-		}
+		//	// Execute the read function.
+		//	var result = await plc.ReadItemAsync(byteItem);
+		//	Assert.True(iteration == threshold + 1);
+		//	Assert.True(interruptedCounter == threshold);
+		//	Assert.True(byteItem.Value == result);
+		//	Assert.True(byteItem.Value == byte.MaxValue);
+		//}
 		
 		/// <summary>
 		/// Checks if read operations are logged if <see cref="LogManager.LogAllReadAndWriteOperations"/> is enabled.
