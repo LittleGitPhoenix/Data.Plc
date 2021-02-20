@@ -387,7 +387,7 @@ namespace Phoenix.Data.Plc.AgLink
 		private static (ICollection<IPlcItem> ValidItems, ICollection<(IPlcItem FailedItem, string ErrorMessage)>) VerifyPlcItemResults(ICollection<ReadPlcItemWrapper> mapping, ICollection<AGL4.DATA_RW40> allAgLinkItems, bool transferData)
 		{
 			var validItems = new List<IPlcItem>(mapping.Count);
-			var failedItems = new List<(IPlcItem FailedItem, string ErrorMessage)>(0); //! Assume that no errors occur to save precious ram.
+			var failedItems = new List<(IPlcItem FailedItem, string ErrorMessage)>(0); //! Assume that no errors occur to save memory.
 
 			// Iterate each plc item and get the data for all AGLink items that where needed to handle it.
 			foreach (var (plcItem, start, amount) in mapping)

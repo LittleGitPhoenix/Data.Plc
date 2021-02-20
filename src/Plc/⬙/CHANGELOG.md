@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ___
 
+## 4.1.0 (2021-01-30)
+
+### Added
+
+- New `IPlc` extension method `WriteItemsInOrderAsync` that writes items in the same order that the collection passed to the method enforces.
+- New `BytesPlcItem` extension method `SetValue` that allows to use a string in **Hex** or **byte array** format for setting the value of the item.
+- New `BitPlcItem` extension method `SetValue` that allows to use a string for setting the value of the item.
+
+### Changed
+
+- When disposing any `IPlc` instance inheriting from the `Plc` base class each read or write operation will result in a `ReadOrWritePlcException` being thrown.
+___
+
 ## 4.0.0 (2021-01-10)
 
 ### Changed

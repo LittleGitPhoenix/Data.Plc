@@ -45,7 +45,7 @@ namespace Phoenix.Data.Plc
 		/// <summary> The name of the plc. </summary>
 		string Name { get; }
 
-		/// <summary> THe current <see cref="PlcConnectionState"/>. </summary>
+		/// <summary> The current <see cref="PlcConnectionState"/>. </summary>
 		PlcConnectionState ConnectionState { get; }
 
 		#endregion
@@ -73,7 +73,7 @@ namespace Phoenix.Data.Plc
 		#endregion
 
 		#region Read
-		
+
 		/// <summary>
 		/// Reads the value of the <paramref name="plcItems"/> from the plc.
 		/// </summary>
@@ -81,6 +81,8 @@ namespace Phoenix.Data.Plc
 		/// <param name="cancellationToken"> An optional <see cref="CancellationToken"/> for cancelling the read operation. </param>
 		/// <returns> An awaitable task. </returns>
 		/// <exception cref="ReadPlcException"> Thrown if an exception occurred while reading. </exception>
+		/// <exception cref="DisposedReadPlcException"> Thrown if the <see cref="IPlc"/> used for reading has already been or is disposed while reading. </exception>
+		/// <remarks> The order in which the items will be read, is not guaranteed. </remarks>
 		Task ReadItemsAsync(ICollection<IPlcItem> plcItems, CancellationToken cancellationToken = default);
 
 		#endregion
@@ -94,6 +96,8 @@ namespace Phoenix.Data.Plc
 		/// <param name="cancellationToken"> An optional <see cref="CancellationToken"/> for cancelling the write operation. </param>
 		/// <returns> An awaitable task yielding <c>True</c> on success, otherwise <c>False</c>. </returns>
 		/// <exception cref="WritePlcException"> Thrown if an exception occurred while writing. </exception>
+		/// <exception cref="DisposedWritePlcException"> Thrown if the <see cref="IPlc"/> used for writing has already been or is disposed while reading. </exception>
+		/// <remarks> The order in which the items will be written, is not guaranteed. </remarks>
 		Task<bool> WriteItemsAsync(ICollection<IPlcItem> plcItems, CancellationToken cancellationToken = default);
 
 		#endregion

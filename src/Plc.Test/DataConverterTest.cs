@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
+using MoreLinq;
 using NUnit.Framework;
 
 namespace Phoenix.Data.Plc.Test
@@ -16,7 +17,7 @@ namespace Phoenix.Data.Plc.Test
 				var booleans = base.Booleans.Skip(index).Take(8).ToArray();
 				var targetByte = index / 8;
 				var actualByte = DataConverter.ToByte(booleans);
-								
+
 				Assert.AreEqual(targetByte, actualByte);
 			}
 		}
@@ -193,6 +194,22 @@ namespace Phoenix.Data.Plc.Test
 			Assert.AreEqual(actual, target);
 		}
 
+		[Test]
+		[Category("Value ⇒ Data conversion")]
+		[TestCase("255,255,255,255,0,0,0,0", new byte[] { 255, 255, 255, 255, 0, 0, 0, 0 })]
+		[TestCase("255; 255; 255; 255; 0; 0; 0; 0", new byte[] { 255, 255, 255, 255, 0, 0, 0, 0 })]
+		[TestCase("FFFFFFFF00000000", new byte[] { 255, 255, 255, 255, 0, 0, 0, 0 })]
+		[TestCase("FF, FF, FF, FF, 00, 00, 00, 00", new byte[] { 255, 255, 255, 255, 0, 0, 0, 0 })]
+		public void Check_String_To_Data_Conversion(string value, byte[] target)
+		{
+			// Act
+			var result = DataConverter.TryGetBytesFromString(value, out var data);
+
+			// Assert
+			Assert.True(result);
+			Assert.AreEqual(data, target);
+		}
+
 		#endregion
 
 		#region Data ⇒ Value conversion
@@ -275,9 +292,9 @@ namespace Phoenix.Data.Plc.Test
 			Assert.AreEqual(actual, target);
 		}
 
-		#endregion
+#endregion
 
-		#region Endianness Conversion
+#region Endianness Conversion
 
 		[Test]
 		[Category("Endianness Conversion")]
@@ -395,6 +412,124 @@ namespace Phoenix.Data.Plc.Test
 			var newTime = stopWatch.ElapsedTicks;
 
 			Assert.IsTrue(newTime < oldTime);
+		}
+
+		#endregion
+
+		#region Helper
+		
+		[Test]
+		[Category("Helper")]
+		[TestCase("", ' ')]
+		[TestCase("#", ' ')]
+		[TestCase("0x", ' ')]
+		[TestCase("", ',')]
+		[TestCase("#", ',')]
+		[TestCase("0x", ',')]
+		[TestCase("", ';')]
+		[TestCase("#", ';')]
+		[TestCase("0x", ';')]
+		[TestCase("", '-')]
+		[TestCase("#", '-')]
+		[TestCase("0x", '-')]
+		public void Check_Hex_RegEx_Succeeds(string prefix, char separator)
+		{
+			// Arrange
+			var bytes = Enumerable.Range(byte.MinValue, byte.MaxValue).Select(number => (byte)number).ToArray();
+			var hexArray = BitConverter.ToString(bytes).Split('-').ToArray();
+			var value = prefix + String.Join(separator.ToString(), hexArray);
+
+			// Act
+			var match = DataConverter.HexRegEx.Match(value);
+
+			// Assert
+			Assert.True(match.Success);
+			Assert.True(match.Groups["HexString"].Success);
+			var captures = match.Groups["HexString"].Captures;
+			Assert.That(captures, Has.Count.EqualTo(hexArray.Length));
+			for (int index = 0; index < captures.Count; index++)
+			{
+				Assert.That(captures[index].Value, Is.EqualTo(hexArray[index]), $"Sequences mismatch at index {index}.");
+			}
+		}
+		[Test]
+		[Category("Helper")]
+		[TestCase("0x00FFGG")]
+		[TestCase("Hex:00FF25")]
+		[TestCase("Test")]
+		public void Check_Hex_RegEx_Fails(string hexString)
+		{
+			// Act
+			var match = DataConverter.HexRegEx.Match(hexString);
+			
+			// Assert
+			Assert.False(match.Success);
+			Assert.False(match.Groups["HexString"].Success);
+		}
+		
+		[Test]
+		[Category("Helper")]
+		[TestCase(',')]
+		[TestCase(';')]
+		[TestCase('-')]
+		public void Check_Bytes_RegEx_Succeeds(char separator)
+		{
+			// Arrange
+			var target = Enumerable.Range(byte.MinValue, byte.MaxValue).Select(number => (byte)number).ToArray();
+			var value = String.Join(separator.ToString(), target);
+
+			// Act
+			var match = DataConverter.BytesRegEx.Match(value);
+
+			// Assert
+			Assert.True(match.Success);
+			Assert.True(match.Groups["ByteString"].Success);
+			var captures = match.Groups["ByteString"].Captures;
+			Assert.That(captures, Has.Count.EqualTo(target.Length));
+			for (int index = 0; index < captures.Count; index++)
+			{
+				Assert.That(captures[index].Value, Is.EqualTo(target[index].ToString()), $"Sequences mismatch at index {index}.");
+			}
+		}
+
+		[Test]
+		[Category("Helper")]
+		public void Check_Bytes_RegEx_Fails_Single_Values()
+		{
+			void Execute(string value)
+			{
+				// Act
+				var match = DataConverter.BytesRegEx.Match(value);
+
+				// Assert
+				Assert.False(match.Success);
+				Assert.False(match.Groups["ByteString"].Success);
+			}
+
+			// Arrange
+			Enumerable
+				.Range(-999, 999)
+				.ForEach(number => Execute(number.ToString()))
+				;
+
+			Enumerable
+				.Range(byte.MaxValue + 1, 999)
+				.ForEach(number => Execute(number.ToString()))
+				;
+		}
+
+		[Test]
+		[TestCase("0, 255, 256, 255")]
+		[TestCase("0#255")]
+		[Category("Helper")]
+		public void Check_Bytes_RegEx_Fails_Multiple_Values(string byteString)
+		{
+			// Act
+			var match = DataConverter.BytesRegEx.Match(byteString);
+
+			// Assert
+			Assert.False(match.Success);
+			Assert.False(match.Groups["ByteString"].Success);
 		}
 
 		#endregion

@@ -92,6 +92,68 @@ namespace Phoenix.Data.Plc
 			// Validate the write result.
 			return await plc.ValidateWriteResultAsync(plcItems, cancellationToken);
 		}
+		
+		/// <summary>
+		/// Writes the <paramref name="plcItems"/> to the plc in the order defined by the implementation of <paramref name="plcItems"/>.
+		/// </summary>
+		/// <param name="plc"> The extended <see cref="IPlcItem"/> instance. </param>
+		/// <param name="plcItems"> The <see cref="IPlcItem"/>s to write. </param>
+		/// <param name="continueOnError"> Flag if writing should commence even if one item fails. Default is false. </param>
+		/// <param name="throwOnError"> Flag if an <see cref="WritePlcException"/> should be thrown if one or all items (depends on <paramref name="continueOnError"/>) fail. </param>
+		/// <param name="cancellationToken"> An optional <see cref="CancellationToken"/> for cancelling the write operation. </param>
+		/// <returns> An awaitable task yielding <c>True</c> on success, otherwise <c>False</c>. </returns>
+		/// <exception cref="WritePlcException"> Thrown if an exception occurred while writing and <paramref name="throwOnError"/> is true. </exception>
+		public static async Task<bool> WriteItemsInOrderAsync(this IPlc plc, ICollection<IPlcItem> plcItems, bool continueOnError = false, bool throwOnError = false, CancellationToken cancellationToken = default)
+		{
+			var validItems = new List<IPlcItem>(plcItems.Count);
+			var failedItems = new List<(IPlcItem FailedItem, string ErrorMessage)>();
+			foreach (var plcItem in plcItems)
+			{
+				var success = true;
+				try
+				{
+					success = await plc.WriteItemAsync(plcItem, cancellationToken);
+				}
+				catch (WritePlcException)
+				{
+					success = false;
+				}
+				
+				if (success)
+				{
+					validItems.Add(plcItem);
+				}
+				else
+				{
+					failedItems.Add((plcItem, "Ordered writing failed because the write-result of this item returned false."));
+					if (continueOnError)
+					{
+						continue;
+					}
+					else if (throwOnError)
+					{
+						throw new WritePlcException(validItems, failedItems);
+					}
+					else
+					{
+						return false;
+					}
+				}
+			}
+
+			if (!failedItems.Any())
+			{
+				return true;
+			}
+			else if (throwOnError)
+			{
+				throw new WritePlcException(validItems, failedItems);
+			}
+			else
+			{
+				return false;
+			}
+		}
 
 		/// <summary>
 		/// Validates the write result of the <paramref name="plcItems"/> by reading and comparing their <see cref="IPlcItem.Value"/> with the target value.

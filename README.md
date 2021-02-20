@@ -12,7 +12,7 @@ ___
 
 To get data from or write data to a plc, two things are needed.
 
-- An instance of a concrete [`IPlc`](#IPlc-Implementations).
+- An instance of a specific [`IPlc`](#IPlc-Implementations).
 - At least one [`IPlcItem`](#PlcItems).
 
 The first is responsible for establishing the connection to the plc and how to read or write.  
@@ -21,7 +21,7 @@ ___
 
 # IPlc Implementations
 
-The following concrete implementations for accessing a plc are currently available as separate NuGet packages:
+The following specific implementations for accessing a plc are currently available as separate NuGet packages:
 
 ## Plc.Mock
 
@@ -123,7 +123,8 @@ Here the `DemoAgLinkPlc` class provides the resources for **AGLink**:
 
 ```csharp
 public sealed class DemoAgLinkPlc : AgLinkPlc
-{	static DemoAgLinkPlc()
+{
+	static DemoAgLinkPlc()
 	{
 		// Extract the unmanaged assembly.
 		var (unmanagedAgLinkAssemblyFile, resourceStream) = DemoAgLinkPlcEmbeddedRequirementsHelper.LoadUnmanagedAssembly();
@@ -248,20 +249,11 @@ An `IPlcItem` contains all data needed to read or write to the plc.
 | Value | `BitCollection` | Specialized class that holds the bits and bytes of the item. |
 
 
-To make working with plc items easier, specialized items for the most common data types exist in the namespace ***Phoenix.Data.Plc.Items.Typed***. Those items automatically convert the underlying `BitCollection` into more concrete types:
-
-- BitPlcItem
-- BytesPlcItem
-- EnumPlcItem
-- Int16PlcItem
-- Utf8PlcItem
-- WordPlcItem
-- [DynamicPlcItems](#DynamicPlcItems)
-- ...
+To make working with plc items easier, specialized items for the most common data types exist in the namespace ***Phoenix.Data.Plc.Items.Typed***. Those items automatically convert the underlying `BitCollection` into more specific types. A hopefully complete list of all available items can be found [here](#Typed-plc-items).
 
 ## Initialization
 
-Creating a new `IPlcItem` can be done either by using the constructor of any concrete item or more guided via builder pattern.
+Creating a new `IPlcItem` can be done either by using the constructor of any specific item or more guided via builder pattern.
 
 **Constructor**
 ``` csharp
@@ -317,6 +309,64 @@ Task<bool> WriteItemWithValidationAsync(this IPlc plc, IPlcItem plcItem, Cancell
 Task<bool> WriteItemsWithValidationAsync(this IPlc plc, ICollection<IPlcItem> plcItems, CancellationToken cancellationToken = default)
 ```
 
+## Read or write errors
+
+Reading or writing can throw a `ReadOrWritePlcException` that should be handled by consuming code. This exception contains two collections identifying which items succeeded and which failed:
+- ValidItems: This is a pure collection of `IPlcItems`that succeeded.
+- FailedItems: This is a tuple containing the failed `IPlcItem`together with an error message.
+
+:heavy_exclamation_mark: Trying to read or write anything to/from an `IPlc` inheriting from the `Plc` base class that is currently **not connected**, will not fail. Rather all `IPlcItems` that are affected will be put on hold until the connection has been established. This means that calling ```await plc.ReadItemsAsync(...)``` or ```await plc.WriteItemsAsync(...)``` won't return until the connection is up and running.
+
+:heavy_exclamation_mark: Trying to read or write anything to/from an `IPlc` inheriting from the `Plc` base class that has been disposed will result in a `ReadOrWritePlcException`. The same goes for read or write operations whose `IPlcItems` have been put on hold.
+
+## Typed plc items
+
+### Data plc items
+
+- BitPlcItem
+
+	Has an extension method `SetValue` that allows to use a string for setting the value of the item. Every value except the following will be treated as **false** (comparison is case-insensitive): **true**, **yes**, **ok**, **1**.
+
+- BitsPlcItem
+
+- BytePlcItem
+
+- BytesPlcItem
+
+	Has an extension method `SetValue` that allows to use a string in **Hex** or **byte array** format for setting the value of the item. Acceptable string values are:
+
+	- HEX
+		- Can be prefixed with either **0x**, **#** or nothing.
+		- The values can be chained together or separated by either **,** **;** **-** or **whitespace**.
+	- Bytes
+		- No prefix allowed here.
+		- The values must be separated by either **,** **;** **-** or **whitespace**.
+
+- DynamicBytesPlcItem (see [DynamicPlcItems](#DynamicPlcItems) for more information)
+
+### Numeric plc items
+
+- Int16PlcItem
+- Int32PlcItem
+- Int64PlcItem
+- UInt16PlcItem
+- UInt32PlcItem
+- UInt64PlcItem
+- WordPlcItem
+- DWordPlcItem
+- LWordPlcItem
+
+### Text plc items
+
+Those items typically inherit from `TextPlcItem` and provide different text encodings.
+
+- Utf8PlcItem
+- DynamicUtf8PlcItem (see [DynamicPlcItems](#DynamicPlcItems) for more information)
+
+### Other plc items
+
+- EnumPlcItem
+
 ## DynamicPlcItems
 
 Those are special `PlcItems` that can be used for dynamic data where the length of the item is not known during design time but rather encoded within the first few bytes of the item itself. A typical usage scenario are strings of different sizes, where the actual string length is the first byte of the item itself.
@@ -339,19 +389,11 @@ Dynamic items additionally provide some special properties that may come in hand
 | `LengthFactor` | This factor will be applied to the length of a dynamic item. It should be used if the `LengthPlcItem` does not provide an absolute byte amount, but rather an amount of items. |
 | `LengthLimit` | This is an optional limit that will be applied to the length being read or written. |
 
-## Read or write errors
-
-Reading or writing can throw a `ReadOrWritePlcException` that should be handled by consuming code. This exception contains two collections identifying which items succeeded and which failed:
-- ValidItems: This is a pure collection of `IPlcItems`that succeeded.
-- FailedItems: This is a tuple containing the failed `IPlcItem`together with an error message.
-
-:heavy_exclamation_mark: Trying to read or write anything to/from an `IPlc` inheriting from the `Plc` base class that is currently **not connected**, will not fail. Rather all `IPlcItems` that are affected will be put on hold until the connection has been established. This means that calling ```await plc.ReadItemsAsync(...)``` or ```await plc.WriteItemsAsync(...)``` won't return until the connection is up and running.
-
 ___
 
 # PlcMonitor
 
-Sometimes it may be necessary to monitor data within a plc and react if this data changes. This can be done with one of the concrete [`IPlcMonitor` Implementations](#IPlcMonitor-Implementations). The `IPlcMonitor` can be used on its own, or wrapped together with an `IPlc` as an `IMonitorablePlc`. Later should be used, if monitoring data is done regularly. This way the two dependencies `IPlc` and `IPlcMonitor` can be replaced by just a single `IMonitorablePlc`.
+Sometimes it may be necessary to monitor data within a plc and react if this data changes. This can be done with one of the specific [`IPlcMonitor` Implementations](#IPlcMonitor-Implementations). The `IPlcMonitor` can be used on its own, or wrapped together with an `IPlc` as an `IMonitorablePlc`. Later should be used, if monitoring data is done regularly. This way the two dependencies `IPlc` and `IPlcMonitor` can be replaced by just a single `IMonitorablePlc`.
 
 ___
 
@@ -409,7 +451,7 @@ ___
 
 # Logging
 
-The ***Phoenix.Data.Plc*** package provides its own small logging facility in form the `ILogger` interface and the static `LogManager` which is internally used to provide concrete logger instances. Via the static property `LogManager.LoggerFactory` the kind of provided `ILogger` can be changed externally.
+The ***Phoenix.Data.Plc*** package provides its own small logging facility in form the `ILogger` interface and the static `LogManager` which is internally used to provide specific logger instances. Via the static property `LogManager.LoggerFactory` the kind of provided `ILogger` can be changed externally.
 
 ```csharp
 // Create a custom ILogger instance and let the log manager use it.

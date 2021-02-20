@@ -4,6 +4,9 @@
 
 
 using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace Phoenix.Data.Plc
 {
@@ -12,6 +15,13 @@ namespace Phoenix.Data.Plc
 	/// </summary>
 	public static class DataConverter
 	{
+		/// <summary> Regular expression to extract hex data from a string. </summary>
+		//internal static Regex HexRegEx = new Regex(@"^(#|0x)?(?<PureHex>(?:(?:[A-F0-9]{2}))+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+		internal static Regex HexRegEx = new Regex(@"^(?:#|0x)?(?:(?<HexString>(?:(?:[A-F0-9]{2}))+)(?:, ?|; ?|-| |$))+$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+		/// <summary> Regular expression to extract bytes from a string. </summary>
+		internal static Regex BytesRegEx = new Regex(@"^(?:(?<ByteString>[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(?:, ?|; ?|-| |$))+$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
 		/// <summary> Different byte order types. </summary>
 		public enum Endianness : byte
 		{
@@ -190,9 +200,118 @@ namespace Phoenix.Data.Plc
 			}
 		}
 
-		#endregion
+		/// <summary>
+		/// Tries to convert <paramref name="value"/> into <paramref name="data"/>.
+		/// </summary>
+		/// <param name="value"> The value to convert. </param>
+		/// <param name="data"> The <see cref="byte"/> array where the result will be written to. </param>
+		/// <returns> True on success, otherwise false. </returns>
+#if NETFRAMEWORK || NETSTANDARD2_0
+		public static bool TryGetBytesFromString(string value, out byte[] data)
+#else
+		public static bool TryGetBytesFromString(string value, [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out byte[] data)
+#endif
+		{
+			var success = DataConverter.TryGetBytesFromHexString(value, out data);
+			if (success) return true;
 
-		#region Unsigned
+			success = DataConverter.TryGetBytesFromByteString(value, out data);
+			if (success) return true;
+
+			return false;
+		}
+
+		/// <summary>
+		/// Tries to convert <paramref name="value"/> into <paramref name="data"/>.
+		/// </summary>
+		/// <param name="value"> The value to convert. </param>
+		/// <param name="data"> The <see cref="byte"/> array where the result will be written to. </param>
+		/// <returns> True on success, otherwise false. </returns>
+#if NETFRAMEWORK || NETSTANDARD2_0
+		public static bool TryGetBytesFromHexString(string value, out byte[] data)
+#else
+		public static bool TryGetBytesFromHexString(string value, [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out byte[] data)
+#endif
+		{
+			// Verify the input string.
+			var match = DataConverter.HexRegEx.Match(value);
+			var group = match.Groups["HexString"];
+			if (!match.Success || !group.Success)
+			{
+				data = null;
+				return false;
+			}
+			
+			// Convert to bytes.
+			var captures = group.Captures;
+			var tempData = new List<byte>(captures.Count);
+			//! Each capture group may contain multiple hex values (e.g. FF, string:"FF,7D00,AB,DD5796" → group#01:FF, group#02:7D00, group#03:AB, group#04:DD5796).
+			foreach (Capture capture in captures)
+			{
+				var hexString = capture.Value;
+				if (hexString.Length == 2)
+				{
+					var @byte = Byte.Parse(hexString, NumberStyles.HexNumber);
+					tempData.Add(@byte);
+				}
+				else
+				{
+#if NETFRAMEWORK || NETSTANDARD2_0
+#else
+					var hexSpan = hexString.AsSpan();
+#endif
+					for (int index = 0; index < hexString.Length; index += 2)
+					{
+#if NETFRAMEWORK || NETSTANDARD2_0
+						var part = hexString.Substring(index, 2);
+#else
+						var part = hexSpan.Slice(index, 2);
+#endif
+						var @byte = Byte.Parse(part, NumberStyles.HexNumber);
+						tempData.Add(@byte);
+					}
+				}
+			}
+			data = tempData.ToArray();
+			return true;
+		}
+
+		/// <summary>
+		/// Tries to convert <paramref name="value"/> into <paramref name="data"/>.
+		/// </summary>
+		/// <param name="value"> The value to convert. </param>
+		/// <param name="data"> The <see cref="byte"/> array where the result will be written to. </param>
+		/// <returns> True on success, otherwise false. </returns>
+#if NETFRAMEWORK || NETSTANDARD2_0
+		public static bool TryGetBytesFromByteString(string value, out byte[] data)
+#else
+		public static bool TryGetBytesFromByteString(string value, [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out byte[] data)
+#endif
+		{
+			// Verify the input string.
+			var match = DataConverter.BytesRegEx.Match(value);
+			var group = match.Groups["ByteString"];
+			if (!match.Success || !group.Success)
+			{
+				data = null;
+				return false;
+			}
+
+			// Convert to bytes.
+			var captures = group.Captures;
+			data = new byte[captures.Count];
+			for (int i = 0; i < captures.Count; i++)
+			{
+				var part = captures[i].Value;
+				var @byte = byte.Parse(part);
+				data[i] = @byte;
+			}
+			return true;
+		}
+
+#endregion
+
+#region Unsigned
 
 		/// <summary>
 		/// Converts the <paramref name="value"/> into a <see cref="Byte"/> array.
@@ -290,13 +409,13 @@ namespace Phoenix.Data.Plc
 			}
 		}
 
-		#endregion
+#endregion
 
-		#endregion
+#endregion
 
-		#region Data ⇒ Value
+#region Data ⇒ Value
 
-		#region Signed
+#region Signed
 
 		/// <summary>
 		/// Converts the <paramref name="data"/> into a <see cref="short"/>.
@@ -379,9 +498,9 @@ namespace Phoenix.Data.Plc
 			}
 		}
 
-		#endregion
+#endregion
 
-		#region Unsigned
+#region Unsigned
 
 		/// <summary>
 		/// Converts the <paramref name="data"/> into a <see cref="ushort"/>.
@@ -464,13 +583,13 @@ namespace Phoenix.Data.Plc
 			}
 		}
 
-		#endregion
+#endregion
 
-		#endregion
+#endregion
 
-		#region Endianness Conversion
+#region Endianness Conversion
 
-		#region Signed
+#region Signed
 
 		/// <summary>
 		/// Swaps the bytes of <paramref name="value"/> so it can be used in BigEndian systems (Siemens plc).
@@ -502,9 +621,9 @@ namespace Phoenix.Data.Plc
 			return (long) SwapBytes((ulong) value);
 		}
 
-		#endregion
+#endregion
 
-		#region Unsigned
+#region Unsigned
 
 		/// <summary>
 		/// Swaps the bytes of <paramref name="value"/> so it can be used in BigEndian systems (Siemens plc).
@@ -564,8 +683,8 @@ namespace Phoenix.Data.Plc
 			return swapped;
 		}
 
-		#endregion
+#endregion
 
-		#endregion
+#endregion
 	}
 }

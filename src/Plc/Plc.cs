@@ -92,6 +92,13 @@ namespace Phoenix.Data.Plc
 
 		#region Fields
 
+		/// <summary>
+		/// This <see cref="CancellationTokenSource"/> that will be canceled when the instance is disposed.
+		/// </summary>
+		private readonly CancellationTokenSource _disposeTokenSource;
+		
+		private readonly CancellationToken _disposeToken;
+
 		private int _isReconnecting;
 
 		private readonly object _connectionStateChangeLock;
@@ -176,6 +183,8 @@ namespace Phoenix.Data.Plc
 			
 			// Initialize fields.
 			this.ConnectionState = PlcConnectionState.Disconnected;
+			_disposeTokenSource = new CancellationTokenSource();
+			_disposeToken = _disposeTokenSource.Token;
 			_isReconnecting = 0;
 			_connectionStateChangeLock = new object();
 			_waitQueue = new ConcurrentQueue<CancellationTokenSource>();
@@ -285,7 +294,7 @@ namespace Phoenix.Data.Plc
 		/// <inheritdoc />
 		public async Task ReadItemsAsync(ICollection<IPlcItem> plcItems, CancellationToken cancellationToken = default)
 		{
-			await this.ReadItemsAsync(plcItems.IsReadOnly ? new List<IPlcItem>(plcItems) : (IList<IPlcItem>)plcItems, cancellationToken);
+			await this.ReadItemsAsync(plcItems.IsReadOnly ? new List<IPlcItem>(plcItems) : (IList<IPlcItem>) plcItems, cancellationToken);
 
 			// Since this may be a costly operation, check if logging is even enabled.
 			if (LogManager.LogAllReadAndWriteOperations)
@@ -311,8 +320,9 @@ namespace Phoenix.Data.Plc
 				dynamicPlcItem =>
 				{
 					// Remove the dynamic items and replace them with a just the numeric item that will be read to get the length.
-					plcItems.Remove(dynamicPlcItem);
-					plcItems.Add(dynamicPlcItem.LengthPlcItem);
+					var position = plcItems.IndexOf(dynamicPlcItem);
+					plcItems.RemoveAt(position);
+					plcItems.Insert(position, dynamicPlcItem.LengthPlcItem);
 
 					// Save the flexible part of the dynamic item separately, so that they can be read after the numerical item has been updated.
 					flexiblePlcItems.Add(dynamicPlcItem.FlexiblePlcItem);
@@ -333,7 +343,7 @@ namespace Phoenix.Data.Plc
 		/// <inheritdoc />
 		public async Task<bool> WriteItemsAsync(ICollection<IPlcItem> plcItems, CancellationToken cancellationToken = default)
 		{
-			var success = await this.WriteItemsAsync(plcItems.IsReadOnly ? new List<IPlcItem>(plcItems) : (IList<IPlcItem>)plcItems, cancellationToken);
+			var success = await this.WriteItemsAsync(plcItems.IsReadOnly ? new List<IPlcItem>(plcItems) : (IList<IPlcItem>) plcItems, cancellationToken);
 
 			// Since this may be a costly operation, check if logging is even enabled.
 			if (LogManager.LogAllReadAndWriteOperations)
@@ -367,9 +377,10 @@ namespace Phoenix.Data.Plc
 			(
 				dynamicPlcItem =>
 				{
-					// Remove the dynamic items and replace them with a just the flexible item that will be written first.
-					plcItems.Remove(dynamicPlcItem);
-					plcItems.Add(dynamicPlcItem.FlexiblePlcItem);
+					// Remove the dynamic items and replace them with the flexible item that will be written first.
+					var position = plcItems.IndexOf(dynamicPlcItem);
+					plcItems.RemoveAt(position);
+					plcItems.Insert(position, dynamicPlcItem.FlexiblePlcItem);
 
 					// Save the numeric part of the dynamic item separately, so that they can be written afterwards.
 					lengthPlcItems.Add(dynamicPlcItem.LengthPlcItem);
@@ -399,9 +410,10 @@ namespace Phoenix.Data.Plc
 		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
 		private async Task<bool> ExecuteReadWriteAsync(ICollection<IPlcItem> plcItems, PlcItemUsageType usageType, CancellationToken cancellationToken)
 		{
+			cancellationToken = this.BuildLinkedToken(cancellationToken);
+
 			// Allow only items that have a length greater than zero. This is mostly needed for dynamic items.
 			plcItems = plcItems.Where(item => item.Value.Length > 0).ToList();
-
 			if (!plcItems.Any()) return true;
 
 			while (true)
@@ -428,8 +440,13 @@ namespace Phoenix.Data.Plc
 					break;
 				}
 				// This handles task cancellation.
-				catch (TaskCanceledException)
+				catch (OperationCanceledException)
 				{
+					if (_disposeToken.IsCancellationRequested)
+					{
+						if (usageType == PlcItemUsageType.Read) throw new DisposedReadPlcException(plcItems);
+						else throw new DisposedWritePlcException(plcItems);
+					}
 					return false;
 				}
 				// Handle not connected exceptions by trying to re-connect and halting the items until a connection was established.
@@ -452,19 +469,31 @@ namespace Phoenix.Data.Plc
 						}
 					}
 
-					// Indefinite wait until the task gets canceled.
+					// Indefinitely wait until the task gets canceled.
 					try
 					{
 						await Task.Delay(Timeout.Infinite, sleepCancellationToken);
 					}
-					catch (TaskCanceledException)
+					catch (OperationCanceledException)
 					{
+						// Throw special dispose exception if the dispose token was canceled.
+						if (_disposeToken.IsCancellationRequested)
+						{
+							if (usageType == PlcItemUsageType.Read) throw new DisposedReadPlcException(plcItems);
+							else throw new DisposedWritePlcException(plcItems);
+						}
 						// Stop execution if the original (external) token was canceled.
-						if (cancellationToken.IsCancellationRequested) return false;
+						else if (cancellationToken.IsCancellationRequested)
+						{
+							return false;
+						}
+						// In all other cases just keep going.
+						else
+						{
+							/* ignore */
+						}
 					}
-
-					//TODO Check if cancellation happened because of disposing.
-
+					
 					this.Logger.Info($"The previously suspended plc items of {this:LOG} will now be handled again.");
 				}
 				// Throw on read or write exceptions.
@@ -488,6 +517,40 @@ namespace Phoenix.Data.Plc
 		#endregion
 
 		#region Helper
+
+		/// <summary>
+		/// Creates a linked <see cref="CancellationToken"/> from <paramref name="cancellationToken"/> and the internal <see cref="_disposeToken"/>.
+		/// </summary>
+		/// <param name="cancellationToken"> The external <see cref="CancellationToken"/> used to create a linked token. </param>
+		/// <returns> A new <see cref="CancellationToken"/>. </returns>
+		internal CancellationToken BuildLinkedToken(CancellationToken cancellationToken)
+		{
+			CancellationTokenSource source;
+			try
+			{
+				source = CancellationTokenSource.CreateLinkedTokenSource(_disposeToken, cancellationToken);
+			}
+			catch (ObjectDisposedException)
+			{
+				// If any of the cancellation tokens used to create the dispose- or the external token has been disposed, then create a new and already canceled token source.
+				source = new CancellationTokenSource();
+				source.Cancel();
+			}
+
+			var token = source.Token;
+			token.Register
+			(
+				() =>
+				{
+					try
+					{
+						source.Dispose();
+					}
+					catch { /* ignore */ }
+				}
+			);
+			return token;
+		}
 
 		/// <summary>
 		/// Returns a readable representation of the <paramref name="plcItems"/>.
@@ -529,10 +592,18 @@ namespace Phoenix.Data.Plc
 			if (disposing)
 			{
 				this.Disconnect();
+				try
+				{
+					_disposeTokenSource?.Cancel();
+					_disposeTokenSource?.Dispose();
+				}
+				catch (ObjectDisposedException) { /* ignore → Could be thrown if 'IPlc.Dispose' is called multiple times. */ }
 			}
 		}
 
 		#endregion
+
+		#region IFormattable
 
 		/// <summary>
 		/// Returns a string that represents the current object.
@@ -566,6 +637,8 @@ namespace Phoenix.Data.Plc
 					return $"[<{this.GetType().Name}> :: Name: {this.Name}]";
 			}
 		}
+
+		#endregion
 
 		#endregion
 	}

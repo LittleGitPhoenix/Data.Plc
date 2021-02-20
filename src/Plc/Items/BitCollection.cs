@@ -217,7 +217,7 @@ namespace Phoenix.Data.Plc.Items
 				var oldBits = _bits;
 				var oldLength = this.Length;
 
-				Array.Resize(ref _bits, (int)newLength);
+				Array.Resize(ref _bits, (int) newLength);
 				this.SynchronizeBytes();
 
 				//? Should this raise change notification? Maybe only if the array got truncated?
@@ -305,7 +305,7 @@ namespace Phoenix.Data.Plc.Items
 			lock (_valueAccessLockObject)
 			{
 				// Change the size if needed.
-				var changes = this.AutomaticallyAdaptSize ? this.Resize_Internal((uint)booleans.Length) : new BitChanges(booleans.Length / 4); // Assume that a quarter of all bits changed.
+				var changes = this.AutomaticallyAdaptSize ? this.Resize_Internal((uint) booleans.Length) : new BitChanges(Math.Max(Math.Min(sizeof(ushort) * 8, booleans.Length), booleans.Length / 4)); // In general assume that a quarter of all bits changed. Only for small collections assume everything changed.
 
 				for (var bitPosition = startPosition; bitPosition < Math.Min(this.Bits.Length, booleans.Length) + startPosition; bitPosition++)
 				{

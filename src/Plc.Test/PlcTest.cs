@@ -16,7 +16,7 @@ namespace Phoenix.Data.Plc.Test
 #if NET45
 		private static Task CompletedTask = Task.FromResult(false);
 #endif
-		
+
 		[Test]
 		public void Open_Connection_Raises_Connected_Event()
 		{
@@ -100,7 +100,7 @@ namespace Phoenix.Data.Plc.Test
 		/// Checks if reading an <see cref="IPlcItem"/> is paused as long the connection to the plc hasn't been established and will automatically be continued if the connection is available.
 		/// </summary>
 		[Test]
-		public async Task Read_Without_Connection()
+		public async Task Check_If_Reading_Is_Paused_If_Not_Connected()
 		{
 			// Arrange
 			var byteItem = new BytePlcItem(dataBlock: 0, position: 0, initialValue: byte.MaxValue);
@@ -150,6 +150,326 @@ namespace Phoenix.Data.Plc.Test
 			var result = await readTask;
 			Assert.True(byteItem.Value == result);
 			Assert.True(byteItem.Value == byte.MaxValue);
+		}
+
+		/// <summary>
+		/// Checks if reading an <see cref="IPlcItem"/> stops, if the plc instance is disposed.
+		/// </summary>
+		[Test]
+		public async Task Check_If_Reading_Is_Canceled_If_Plc_Is_Disposed()
+		{
+			// Arrange
+			var byteItem = new BytePlcItem(dataBlock: 0, position: 0, initialValue: byte.MaxValue);
+			var plcMock = new Mock<Plc>("MockPlc") { CallBase = true };
+			plcMock
+				.Setup(p => p.OpenConnection())
+				.Returns(true)
+				.Verifiable()
+				;
+			plcMock
+				.Setup(p => p.CloseConnection())
+				.Returns(true)
+				.Verifiable()
+				;
+			plcMock
+				.Setup(p => p.PerformReadWriteAsync(It.IsAny<ICollection<IPlcItem>>(), It.IsAny<Plc.PlcItemUsageType>(), CancellationToken.None))
+#if NET45
+				.Returns(CompletedTask)
+#else
+				.Returns(Task.CompletedTask)
+#endif
+				.Verifiable()
+				;
+			var plc = (IPlc) plcMock.Object;
+			
+			// Disconnect before reading and then wait a little bit.
+			plc.Disconnect();
+			var readTask = plc.ReadItemsAsync(new IPlcItem[] {byteItem});
+			await Task.Delay(1000);
+			
+			// Act
+			plc.Dispose();
+
+			// Assert
+			Assert.ThrowsAsync<DisposedReadPlcException>(() => readTask);
+			Assert.That(readTask.Status, Is.EqualTo(TaskStatus.Faulted));
+		}
+
+		/// <summary>
+		/// Checks if reading an <see cref="IPlcItem"/> from a disposed <see cref="IPlc"/> throws a <see cref="ReadOrWritePlcException"/>.
+		/// </summary>
+		[Test]
+		public void Check_If_Reading_From_A_Disposed_Plc_Throws()
+		{
+			// Arrange
+			var byteItem = new BytePlcItem(dataBlock: 0, position: 0, initialValue: byte.MaxValue);
+			var plcMock = new Mock<Plc>("MockPlc") { CallBase = true };
+			plcMock
+				.Setup(p => p.OpenConnection())
+				.Returns(true)
+				.Verifiable()
+				;
+			plcMock
+				.Setup(p => p.CloseConnection())
+				.Returns(true)
+				.Verifiable()
+				;
+			plcMock
+				.Setup(p => p.PerformReadWriteAsync(It.IsAny<ICollection<IPlcItem>>(), It.IsAny<Plc.PlcItemUsageType>(), CancellationToken.None))
+#if NET45
+				.Returns(CompletedTask)
+#else
+				.Returns(Task.CompletedTask)
+#endif
+				.Verifiable()
+				;
+			var plc = (IPlc) plcMock.Object;
+			
+			// Act
+			plc.Dispose();
+			
+			// Assert
+			Assert.ThrowsAsync<DisposedReadPlcException>(() => plc.ReadItemsAsync(new IPlcItem[] {byteItem}));
+		}
+
+		/// <summary>
+		/// Checks if disposing a <see cref="IPlc"/> while some <see cref="IPlcItem"/> have been put on hold throws a <see cref="ReadOrWritePlcException"/>.
+		/// </summary>
+		[Test]
+		public void Check_If_Disposing_A_Plc_With_Waiting_Items_For_Reading_Throws()
+		{
+			// Arrange
+			var byteItem = new BytePlcItem(dataBlock: 0, position: 0, initialValue: byte.MaxValue);
+			var plcMock = new Mock<Plc>("MockPlc") { CallBase = true };
+			plcMock
+				.Setup(p => p.OpenConnection())
+				.Returns(true)
+				.Verifiable()
+				;
+			plcMock
+				.Setup(p => p.CloseConnection())
+				.Returns(true)
+				.Verifiable()
+				;
+			plcMock
+				.Setup(p => p.PerformReadWriteAsync(It.IsAny<ICollection<IPlcItem>>(), It.IsAny<Plc.PlcItemUsageType>(), CancellationToken.None))
+#if NET45
+				.Returns(CompletedTask)
+#else
+				.Returns(Task.CompletedTask)
+#endif
+				.Verifiable()
+				;
+			var plc = (IPlc) plcMock.Object;
+			var readTask = plc.ReadItemsAsync(new IPlcItem[] {byteItem});
+			
+			// Act
+			Task.Run
+			(
+				async () =>
+				{
+					await Task.Delay(1000);
+					plc.Dispose();
+				}
+			);
+
+			// Assert
+			Assert.ThrowsAsync<DisposedReadPlcException>(() => readTask);
+		}
+
+		/// <summary>
+		/// Checks if writing an <see cref="IPlcItem"/> is paused as long the connection to the plc hasn't been established and will automatically be continued if the connection is available.
+		/// </summary>
+		[Test]
+		public async Task Check_If_Writing_Is_Paused_If_Not_Connected()
+		{
+			// Arrange
+			var byteItem = new BytePlcItem(dataBlock: 0, position: 0, initialValue: byte.MaxValue);
+			var plcMock = new Mock<Plc>("MockPlc") { CallBase = true };
+			plcMock
+				.Setup(p => p.OpenConnection())
+				.Returns(true)
+				.Verifiable()
+				;
+			plcMock
+				.Setup(p => p.CloseConnection())
+				.Returns(true)
+				.Verifiable()
+				;
+			plcMock
+				.Setup(p => p.PerformReadWriteAsync(It.IsAny<ICollection<IPlcItem>>(), It.IsAny<Plc.PlcItemUsageType>(), CancellationToken.None))
+#if NET45
+				.Returns(CompletedTask)
+#else
+				.Returns(Task.CompletedTask)
+#endif
+				.Verifiable()
+				;
+			var plc = (IPlc) plcMock.Object;
+
+			// Disconnect before reading.
+			var success = plc.Disconnect();
+			Assert.True(success);
+
+			// Execute the write function.
+			var writeTask = plc.WriteItemAsync(byteItem);
+
+			// Create a new task that automatically ends after some time.
+			var waitTask = Task.Delay(3000);
+
+			// Wait until one of the tasks finishes.
+			await Task.WhenAny(new[] { writeTask, waitTask });
+
+			// The write task should still be running.
+			Assert.False(writeTask.Status == TaskStatus.RanToCompletion);
+
+			// Connect to the plc.
+			success = plc.Connect();
+			Assert.True(success);
+
+			// Now await the write task and check the result.
+			var result = await writeTask;
+			Assert.True(result);
+			Assert.True(byteItem.Value == byte.MaxValue);
+		}
+
+		/// <summary>
+		/// Checks if writing an <see cref="IPlcItem"/> is canceled if the plc instance is disposed.
+		/// </summary>
+		[Test]
+		public async Task Check_If_Writing_Is_Canceled_If_Plc_Is_Disposed()
+		{
+			// Arrange
+			var byteItem = new BytePlcItem(dataBlock: 0, position: 0, initialValue: byte.MaxValue);
+			var plcMock = new Mock<Plc>("MockPlc") { CallBase = true };
+			plcMock
+				.Setup(p => p.OpenConnection())
+				.Returns(true)
+				.Verifiable()
+				;
+			plcMock
+				.Setup(p => p.CloseConnection())
+				.Returns(true)
+				.Verifiable()
+				;
+			plcMock
+				.Setup(p => p.PerformReadWriteAsync(It.IsAny<ICollection<IPlcItem>>(), It.IsAny<Plc.PlcItemUsageType>(), CancellationToken.None))
+#if NET45
+				.Returns(CompletedTask)
+#else
+				.Returns(Task.CompletedTask)
+#endif
+				.Verifiable()
+				;
+			var plc = (IPlc) plcMock.Object;
+			
+			// Disconnect before writing and then wait a little bit.
+			plc.Disconnect();
+			var writeTask = plc.WriteItemsAsync(new IPlcItem[] {byteItem});
+			await Task.Delay(1000);
+			
+			// Act
+			plc.Dispose();
+
+			// Assert
+			Assert.ThrowsAsync<DisposedWritePlcException>(() => writeTask);
+			Assert.That(writeTask.Status, Is.EqualTo(TaskStatus.Faulted));
+		}
+
+		/// <summary>
+		/// Checks if writing an <see cref="IPlcItem"/> to a disposed <see cref="IPlc"/> throws a <see cref="ReadOrWritePlcException"/>.
+		/// </summary>
+		[Test]
+		public void Check_If_Writing_To_A_Disposed_Plc_Throws()
+		{
+			// Arrange
+			var byteItem = new BytePlcItem(dataBlock: 0, position: 0, initialValue: byte.MaxValue);
+			var plcMock = new Mock<Plc>("MockPlc") { CallBase = true };
+			plcMock
+				.Setup(p => p.OpenConnection())
+				.Returns(true)
+				.Verifiable()
+				;
+			plcMock
+				.Setup(p => p.CloseConnection())
+				.Returns(true)
+				.Verifiable()
+				;
+			plcMock
+				.Setup(p => p.PerformReadWriteAsync(It.IsAny<ICollection<IPlcItem>>(), It.IsAny<Plc.PlcItemUsageType>(), CancellationToken.None))
+#if NET45
+				.Returns(CompletedTask)
+#else
+				.Returns(Task.CompletedTask)
+#endif
+				.Verifiable()
+				;
+			var plc = (IPlc)plcMock.Object;
+			plc.Dispose();
+
+			// Act
+			plc.Dispose();
+			
+			// Assert
+			Assert.ThrowsAsync<DisposedWritePlcException>(() => plc.WriteItemsAsync(new IPlcItem[] { byteItem }));
+		}
+
+		/// <summary>
+		/// Checks if disposing a <see cref="IPlc"/> while some <see cref="IPlcItem"/> have been put on hold throws a <see cref="ReadOrWritePlcException"/>.
+		/// </summary>
+		[Test]
+		public void Check_If_Disposing_A_Plc_With_Waiting_Items_For_Writing_Throws()
+		{
+			// Arrange
+			var byteItem = new BytePlcItem(dataBlock: 0, position: 0, initialValue: byte.MaxValue);
+			var plcMock = new Mock<Plc>("MockPlc") { CallBase = true };
+			plcMock
+				.Setup(p => p.OpenConnection())
+				.Returns(true)
+				.Verifiable()
+				;
+			plcMock
+				.Setup(p => p.CloseConnection())
+				.Returns(true)
+				.Verifiable()
+				;
+			plcMock
+				.Setup(p => p.PerformReadWriteAsync(It.IsAny<ICollection<IPlcItem>>(), It.IsAny<Plc.PlcItemUsageType>(), CancellationToken.None))
+#if NET45
+				.Returns(CompletedTask)
+#else
+				.Returns(Task.CompletedTask)
+#endif
+				.Verifiable()
+				;
+			var plc = (IPlc)plcMock.Object;
+			var writeTask = plc.WriteItemsAsync(new IPlcItem[] { byteItem });
+
+			// Act
+			Task.Run
+			(
+				async () =>
+				{
+					await Task.Delay(1000);
+					plc.Dispose();
+				}
+			);
+
+			// Assert
+			Assert.ThrowsAsync<DisposedWritePlcException>(() => writeTask);
+		}
+
+		[Test]
+		public void Check_Linked_Token()
+		{
+			var externalTokenSource = new CancellationTokenSource(500);
+			var externalToken = externalTokenSource.Token;
+			var internalTokenSource = new CancellationTokenSource();
+			var internalToken = internalTokenSource.Token;
+
+			var mergedToken = CancellationTokenSource.CreateLinkedTokenSource(externalToken, internalToken).Token;
+
+			Assert.ThrowsAsync<TaskCanceledException>(() => Task.Delay(Timeout.InfiniteTimeSpan, mergedToken));
 		}
 
 		//! This test cannot work anymore, since each error during reading or writing is automatically unrecoverable.
@@ -211,7 +531,7 @@ namespace Phoenix.Data.Plc.Test
 		//	Assert.True(byteItem.Value == result);
 		//	Assert.True(byteItem.Value == byte.MaxValue);
 		//}
-		
+
 		/// <summary>
 		/// Checks if read operations are logged if <see cref="LogManager.LogAllReadAndWriteOperations"/> is enabled.
 		/// </summary>

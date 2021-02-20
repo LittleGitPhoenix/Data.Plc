@@ -7,6 +7,7 @@ using System;
 
 namespace Phoenix.Data.Plc.Items.Typed
 {
+
 	/// <summary>
 	/// <see cref="IPlcItem"/> representing a <see cref="bool"/>.
 	/// </summary>
