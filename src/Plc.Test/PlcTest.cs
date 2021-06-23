@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -460,7 +461,7 @@ namespace Phoenix.Data.Plc.Test
 		}
 
 		[Test]
-		public void Check_Linked_Token()
+		public void Check_Merged_Token_Is_Canceled_On_External_Token()
 		{
 			var externalTokenSource = new CancellationTokenSource(500);
 			var externalToken = externalTokenSource.Token;
@@ -470,6 +471,76 @@ namespace Phoenix.Data.Plc.Test
 			var mergedToken = CancellationTokenSource.CreateLinkedTokenSource(externalToken, internalToken).Token;
 
 			Assert.ThrowsAsync<TaskCanceledException>(() => Task.Delay(Timeout.InfiniteTimeSpan, mergedToken));
+		}
+
+		[Test]
+		public void Check_Merged_Token_Is_Canceled_On_Internal_Token()
+		{
+			var externalTokenSource = new CancellationTokenSource();
+			var externalToken = externalTokenSource.Token;
+			var internalTokenSource = new CancellationTokenSource(500);
+			var internalToken = internalTokenSource.Token;
+
+			var mergedToken = CancellationTokenSource.CreateLinkedTokenSource(externalToken, internalToken).Token;
+
+			Assert.ThrowsAsync<TaskCanceledException>(() => Task.Delay(Timeout.InfiniteTimeSpan, mergedToken));
+		}
+
+#if DEBUG
+		/// <summary>
+		/// Checks that the <see cref="CancellationTokenSource"/> that is created while reading/writing is properly disposed.
+		/// </summary>
+		[Test]
+		public async Task Check_That_The_Internal_CancellationTokenSource_Is_Disposed_After_Reading_Or_Writing()
+		{
+			// Arrange
+			using var externalTokenSource = new CancellationTokenSource();
+			var externalToken = externalTokenSource.Token;
+			var byteItem = new BytePlcItem(dataBlock: 0, position: 0, initialValue: byte.MaxValue);
+			var plcMock = new Mock<Plc>("MockPlc") { CallBase = true };
+			plcMock
+				.Setup(p => p.OpenConnection())
+				.Returns(true)
+				.Verifiable()
+				;
+			plcMock
+				.Setup(p => p.CloseConnection())
+				.Returns(true)
+				.Verifiable()
+				;
+			plcMock
+				.Setup(p => p.PerformReadWriteAsync(It.IsAny<ICollection<IPlcItem>>(), It.IsAny<Plc.PlcItemUsageType>(), CancellationToken.None))
+#if NET45
+				.Returns(CompletedTask)
+#else
+				.Returns(Task.CompletedTask)
+#endif
+				.Verifiable()
+				;
+			plcMock
+				.Setup(p => p.LinkedTokenWasCanceled())
+				.Verifiable()
+				;
+			using var plc = plcMock.Object;
+			plc.Connect();
+
+			// Act
+			await plc.ReadItemAsync(byteItem, CancellationToken.None);
+
+			// Assert
+			plcMock.Verify(p => p.LinkedTokenWasCanceled(), Times.Once);
+			Assert.False(externalTokenSource.IsCancellationRequested);
+			Assert.False(externalToken.IsCancellationRequested);
+		}
+#endif
+
+		/// <summary>
+		/// Checks that the <see cref="CancellationTokenSource"/> that is created while reading/writing is properly disposed.
+		/// </summary>
+		[Test]
+		public void Check_Memory_Usage()
+		{
+			Assert.Ignore("The mocked plc instance needed to perform this test, seems to have massive memory leaks itself. So this test has been moved to the real implementations.");
 		}
 
 		//! This test cannot work anymore, since each error during reading or writing is automatically unrecoverable.

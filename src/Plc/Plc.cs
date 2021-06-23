@@ -410,101 +410,119 @@ namespace Phoenix.Data.Plc
 		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
 		private async Task<bool> ExecuteReadWriteAsync(ICollection<IPlcItem> plcItems, PlcItemUsageType usageType, CancellationToken cancellationToken)
 		{
-			cancellationToken = this.BuildLinkedToken(cancellationToken);
-
 			// Allow only items that have a length greater than zero. This is mostly needed for dynamic items.
 			plcItems = plcItems.Where(item => item.Value.Length > 0).ToList();
 			if (!plcItems.Any()) return true;
 
-			while (true)
+			var cancellationTokenSource = this.BuildLinkedTokenSource(cancellationToken);
+			cancellationToken = cancellationTokenSource.Token;
+			try
 			{
-				try
+				while (true)
 				{
-					cancellationToken.ThrowIfCancellationRequested();
-
-					lock (_connectionStateChangeLock)
-					{
-						// If no active connection is available, then throw an exception.
-						/*!
-						 * This means, that reading/writing items while the plc is not connected, will result in the calling function to indefinitely wait,
-						 * because no reconnect will be made when the connection was deliberately not established.
-						 */
-						if (this.ConnectionState == PlcConnectionState.Disconnected)
-						{
-							var itemDescriptions = Plc.GetPlcItemDescription(plcItems);
-							throw new NotConnectedPlcException($"Cannot {usageType.ToString().ToLower()} the plc items ({itemDescriptions}) because {this:LOG} is not connected. All items will be put on hold.");
-						}
-					}
-
-					await Task.Run(() => this.PerformReadWriteAsync(plcItems, usageType, cancellationToken), cancellationToken);
-					break;
-				}
-				// This handles task cancellation.
-				catch (OperationCanceledException)
-				{
-					if (_disposeToken.IsCancellationRequested)
-					{
-						if (usageType == PlcItemUsageType.Read) throw new DisposedReadPlcException(plcItems);
-						else throw new DisposedWritePlcException(plcItems);
-					}
-					return false;
-				}
-				// Handle not connected exceptions by trying to re-connect and halting the items until a connection was established.
-				catch (NotConnectedPlcException ex)
-				{
-					this.Logger.Error(ex.Message);
-
-					// Create a cancellation token source for this handle callback that is linked to the external one.
-					var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-					_waitQueue.Enqueue(cancellationTokenSource);
-					var sleepCancellationToken = cancellationTokenSource.Token;
-
-					// Check if a reconnection could be useful.
-					lock (_connectionStateChangeLock)
-					{
-						// Don't reconnect if the connection is disconnected to begin with.
-						if (this.ConnectionState != PlcConnectionState.Disconnected)
-						{
-							this.OnInterrupted(executeReconnect: true);
-						}
-					}
-
-					// Indefinitely wait until the task gets canceled.
 					try
 					{
-						await Task.Delay(Timeout.Infinite, sleepCancellationToken);
+						cancellationToken.ThrowIfCancellationRequested();
+
+						lock (_connectionStateChangeLock)
+						{
+							// If no active connection is available, then throw an exception.
+							/*!
+							 * This means, that reading/writing items while the plc is not connected, will result in the calling function to indefinitely wait,
+							 * because no reconnect will be made when the connection was deliberately not established.
+							 */
+							if (this.ConnectionState == PlcConnectionState.Disconnected)
+							{
+								var itemDescriptions = Plc.GetPlcItemDescription(plcItems);
+								throw new NotConnectedPlcException($"Cannot {usageType.ToString().ToLower()} the plc items ({itemDescriptions}) because {this:LOG} is not connected. All items will be put on hold.");
+							}
+						}
+
+						await Task.Run(() => this.PerformReadWriteAsync(plcItems, usageType, cancellationToken), cancellationToken);
+						break;
 					}
+					// This handles task cancellation.
 					catch (OperationCanceledException)
 					{
-						// Throw special dispose exception if the dispose token was canceled.
 						if (_disposeToken.IsCancellationRequested)
 						{
 							if (usageType == PlcItemUsageType.Read) throw new DisposedReadPlcException(plcItems);
 							else throw new DisposedWritePlcException(plcItems);
 						}
-						// Stop execution if the original (external) token was canceled.
-						else if (cancellationToken.IsCancellationRequested)
-						{
-							return false;
-						}
-						// In all other cases just keep going.
-						else
-						{
-							/* ignore */
-						}
+						return false;
 					}
-					
-					this.Logger.Info($"The previously suspended plc items of {this:LOG} will now be handled again.");
-				}
-				// Throw on read or write exceptions.
-				catch (ReadOrWritePlcException)
-				{
-					throw;
-				}
-			}
+					// Handle not connected exceptions by trying to re-connect and halting the items until a connection was established.
+					catch (NotConnectedPlcException ex)
+					{
+						this.Logger.Error(ex.Message);
 
-			return true;
+						// Create a cancellation token source for this handle callback that is linked to the external one.
+						var sleepCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+						_waitQueue.Enqueue(sleepCancellationTokenSource);
+						var sleepCancellationToken = sleepCancellationTokenSource.Token;
+
+						// Check if a reconnection could be useful.
+						lock (_connectionStateChangeLock)
+						{
+							// Don't reconnect if the connection is disconnected to begin with.
+							if (this.ConnectionState != PlcConnectionState.Disconnected)
+							{
+								this.OnInterrupted(executeReconnect: true);
+							}
+						}
+
+						// Indefinitely wait until the task gets canceled.
+						try
+						{
+							await Task.Delay(Timeout.Infinite, sleepCancellationToken);
+						}
+						catch (OperationCanceledException)
+						{
+							// Throw special dispose exception if the dispose token was canceled.
+							if (_disposeToken.IsCancellationRequested)
+							{
+								if (usageType == PlcItemUsageType.Read) throw new DisposedReadPlcException(plcItems);
+								else throw new DisposedWritePlcException(plcItems);
+							}
+							// Stop execution if the original (external) token was canceled.
+							else if (cancellationToken.IsCancellationRequested)
+							{
+								return false;
+							}
+							// In all other cases just keep going.
+							else
+							{
+								/* ignore */
+							}
+						}
+
+						this.Logger.Info($"The previously suspended plc items of {this:LOG} will now be handled again.");
+					}
+					// Throw on read or write exceptions.
+					catch (ReadOrWritePlcException)
+					{
+						throw;
+					}
+				}
+
+				return true;
+			}
+			finally
+			{
+				cancellationTokenSource.Dispose();
+				cancellationTokenSource = null;
+#if DEBUG
+				this.LinkedTokenWasCanceled();
+#endif
+			}
 		}
+
+#if DEBUG
+		/// <summary>
+		/// This method is only used to check if the internally created CancellationTokenSource during read or write operations is disposed.
+		/// </summary>
+		internal virtual void LinkedTokenWasCanceled() { }
+#endif
 
 		/// <summary>
 		/// Asynchronously reads or writes the <paramref name="plcItems"/> to / from the plc.
@@ -519,11 +537,11 @@ namespace Phoenix.Data.Plc
 		#region Helper
 
 		/// <summary>
-		/// Creates a linked <see cref="CancellationToken"/> from <paramref name="cancellationToken"/> and the internal <see cref="_disposeToken"/>.
+		/// Creates a linked <see cref="CancellationTokenSource"/> from <paramref name="cancellationToken"/> and the internal <see cref="_disposeToken"/>.
 		/// </summary>
-		/// <param name="cancellationToken"> The external <see cref="CancellationToken"/> used to create a linked token. </param>
-		/// <returns> A new <see cref="CancellationToken"/>. </returns>
-		internal CancellationToken BuildLinkedToken(CancellationToken cancellationToken)
+		/// <param name="cancellationToken"> The external <see cref="CancellationToken"/> used to create a linked token source. </param>
+		/// <returns> A new <see cref="CancellationTokenSource"/>. </returns>
+		internal CancellationTokenSource BuildLinkedTokenSource(CancellationToken cancellationToken)
 		{
 			CancellationTokenSource source;
 			try
@@ -532,24 +550,11 @@ namespace Phoenix.Data.Plc
 			}
 			catch (ObjectDisposedException)
 			{
-				// If any of the cancellation tokens used to create the dispose- or the external token has been disposed, then create a new and already canceled token source.
+				// If any of the cancellation tokens, used to create the new token source, has been disposed, then create a new and already canceled token source.
 				source = new CancellationTokenSource();
 				source.Cancel();
 			}
-
-			var token = source.Token;
-			token.Register
-			(
-				() =>
-				{
-					try
-					{
-						source.Dispose();
-					}
-					catch { /* ignore */ }
-				}
-			);
-			return token;
+			return source;
 		}
 
 		/// <summary>
