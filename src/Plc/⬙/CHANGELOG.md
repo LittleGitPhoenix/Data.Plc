@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ___
 
+## 4.2.0 (2021-11-??)
+
+### Added
+
+- The `BitPlcItemConstructor` now allows for specifing the value of the new `BitPlcItem` directly via the `WithValue` method. This is usefull, if the value is only known during runtime.
+
+### Changed
+
+- If an attempt to `Connect` to a plc failed, the base `Plc` class now automatically invokes its `Disconnect` method. This is done, so that an implementing class can properly unload used resources.
+
+___
+
 ## 4.1.1 (2021-06-23)
 
 ### Fixed

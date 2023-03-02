@@ -1,8 +1,19 @@
-﻿# Changelog
+﻿﻿﻿# Changelog
 
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+___
+
+## 4.1.0 (2021-11-??)
+
+### Changed
+
+- Newly create data blocks for the `MockPlc` are now just emtpy byte arrays. Previously those where byte arrays with a length of **256**.
+
+### References
+
+:large_blue_circle: Phoenix.Data.Plc ~~4.1.1~~ → [**4.2.0**](..\..\Plc\⬙\CHANGELOG.md)
 ___
 
 ## 4.0.1 (2021-06-23)
@@ -11,9 +22,9 @@ ___
 
 - Reading or writing `IPlcItems`caused a memory leak due to an undisposed `CancellationTokenSource` that was introduced with **Phoenix.Data.Plc 4.0.0**.
 
-### Updated
+### References
 
-- Phoenix.Data.Plc ~~4.0.0~~ → [**4.1.1**](..\..\Plc\⬙\CHANGELOG.md)
+:large_blue_circle: Phoenix.Data.Plc ~~4.0.0~~ → [**4.1.1**](..\..\Plc\⬙\CHANGELOG.md)
 ___
 
 ## 4.0.0 (2021-01-10)
@@ -24,9 +35,9 @@ This is just a version bump. No breaking changes where implemented into this pro
 
 - New constructors that accept a predefined plc id.
 
-### Updated
+### References
 
-- Phoenix.Data.Plc ~~3.1.0~~ → [**4.0.0**](..\..\Plc\⬙\CHANGELOG.md)
+:large_blue_circle: Phoenix.Data.Plc ~~3.1.0~~ → [**4.0.0**](..\..\Plc\⬙\CHANGELOG.md)
 ___
 
 ## 3.1.0 (2020-12-09)
@@ -52,9 +63,9 @@ ___
 
 ## 2.0.0 (2020-09-13)
 
-### Updated
+### References
 
-- Phoenix.Data.Plc ~~1.6.0~~ → [**2.0.0**](..\..\Plc\⬙\CHANGELOG.md)
+:large_blue_circle: Phoenix.Data.Plc ~~1.6.0~~ → [**2.0.0**](..\..\Plc\⬙\CHANGELOG.md)
 ___
 
 ## 1.1.0 (2020-09-04)

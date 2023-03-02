@@ -98,6 +98,35 @@ namespace Phoenix.Data.Plc.Test
 		}
 
 		/// <summary>
+		/// Checks if opening a connection fails, the <see cref="IPlc.Disconnect"/> method is implicitly invoked.
+		/// </summary>
+		[Test]
+		public void Check_Failure_On_Connect_Calls_Disconnect()
+		{
+			// Arrange
+			var plcMock = new Mock<Plc>("MockPlc") { CallBase = true };
+			plcMock
+				.Setup(mock => mock.OpenConnection())
+				.Returns(false)
+				.Verifiable()
+				;
+			plcMock
+				.Setup(mock => mock.CloseConnection())
+				.Returns(true)
+				.Verifiable()
+				;
+			var plc = plcMock.Object;
+
+			// Act
+			var success = plc.Connect();
+
+			// Assert
+			Assert.False(success);
+			plcMock.Verify(mock => mock.OpenConnection(), Times.Once);
+			plcMock.Verify(mock => mock.CloseConnection(), Times.Once);
+		}
+
+		/// <summary>
 		/// Checks if reading an <see cref="IPlcItem"/> is paused as long the connection to the plc hasn't been established and will automatically be continued if the connection is available.
 		/// </summary>
 		[Test]

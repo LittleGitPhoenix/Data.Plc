@@ -37,7 +37,7 @@ namespace Phoenix.Data.Plc.Mock
 		/// Constructor
 		/// </summary>
 		internal DataRegion()
-			: this(new byte[byte.MaxValue]) // By default each new DataRegion can contain 256 bytes.
+			: this(new byte[0])
 		{ }
 
 		/// <summary>

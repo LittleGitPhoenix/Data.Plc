@@ -46,6 +46,7 @@ namespace Phoenix.Data.Plc.Items.Builder
 	{
 		IBitPlcItemCreator AsSet();
 		IBitPlcItemCreator AsUnset();
+		IBitPlcItemCreator WithValue(bool value);
 	}
 
 	[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
@@ -111,6 +112,8 @@ namespace Phoenix.Data.Plc.Items.Builder
 		public IBitPlcItemCreator AsSet() => (IBitPlcItemCreator)base.WithInitialValue(true);
 
 		public IBitPlcItemCreator AsUnset() => (IBitPlcItemCreator)base.WithInitialValue(false);
+
+		public IBitPlcItemCreator WithValue(bool value) => (IBitPlcItemCreator)base.WithInitialValue(value);
 
 		public override BitPlcItem Build()
 		{

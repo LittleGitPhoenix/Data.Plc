@@ -204,8 +204,20 @@ namespace Phoenix.Data.Plc
 			lock (_connectionStateChangeLock)
 			{
 				var success = this.OpenConnection();
-				if (success) this.OnConnected();
-				return success;
+				if (success)
+				{
+					this.OnConnected();
+					return true;
+				}
+				else
+				{
+					try
+					{
+						this.Disconnect();
+					}
+					catch (Exception) { /* ignore */ }
+					return false;
+				}
 			}
 		}
 
