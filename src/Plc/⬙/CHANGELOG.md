@@ -7,7 +7,7 @@ ___
 
 ## 5.0.0
 
-:calendar: _2023-03-??_
+:calendar: _2023-03-02_
 
 |                   .NET                    |     .NET Standard      |     .NET Framework     |
 | :---------------------------------------: | :--------------------: | :--------------------: |
@@ -23,7 +23,7 @@ ___
 
 ### References
 
-:large_blue_circle: System.Memory ~~4.5.4~~ → **5.5.5** (.NET Framework and .NET Standard only)
+:large_blue_circle: System.Memory ~~4.5.4~~ → **4.5.5** (.NET Framework and .NET Standard only)
 
 ___
 
