@@ -68,11 +68,11 @@ public sealed class AgLinkPlcConnectionData : IAgLinkPlcConnectionData
 	/// <param name="slot"> <see cref="Slot"/> </param>
 	/// <param name="connectionTimeout"> Optional timeout for establishing the connection. Default value is 5000 milliseconds. </param>
 	/// <returns> <c>TRUE</c> if successful, otherwise <c>FALSE</c>. </returns>
-	public AgLinkPlcConnectionData(int id, string name, byte deviceNumber, string ip, byte rack, byte slot, TimeSpan connectionTimeout = default)
+	public AgLinkPlcConnectionData(int id, string? name, byte deviceNumber, string ip, byte rack, byte slot, TimeSpan connectionTimeout = default)
 	{
 		// Save parameters.
 		this.Id = id;
-		this.Name = String.IsNullOrWhiteSpace(name) ? $"AGLinkPlc@{ip}" : name;
+		this.Name = String.IsNullOrWhiteSpace(name) ? $"AGLinkPlc@{ip}" : name!;
 		this.DeviceNumber = deviceNumber;
 		this.Ip = ip;
 		this.Rack = rack;

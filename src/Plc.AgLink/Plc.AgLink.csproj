@@ -3,7 +3,7 @@
 	<PropertyGroup>
 		<TargetFrameworks>net7.0;net6.0;netstandard2.0;net48</TargetFrameworks>
 		<LangVersion>latest</LangVersion>
-		<Nullable>disable</Nullable>
+		<Nullable>enable</Nullable>
 		<ImplicitUsings>disable</ImplicitUsings>
 		<AssemblyName>Phoenix.Data.Plc.AgLink</AssemblyName>
 		<RootNamespace>Phoenix.Data.Plc.AgLink</RootNamespace>

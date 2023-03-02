@@ -5,8 +5,6 @@
 using System.Diagnostics;
 using Accon.AGLink;
 
-#nullable enable
-
 namespace Phoenix.Data.Plc.AgLink;
 
 /// <summary>

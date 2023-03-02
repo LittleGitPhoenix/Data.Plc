@@ -2,8 +2,6 @@
 //! This file is subject to the terms and conditions defined in file 'LICENSE.md', which is part of this source code package.
 #endregion
 
-#nullable enable
-
 using System.Text.RegularExpressions;
 using Accon.AGLink;
 

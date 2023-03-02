@@ -4,8 +4,6 @@
 
 using System.Reflection;
 
-#nullable enable
-
 namespace Phoenix.Data.Plc.AgLink;
 
 /// <summary>

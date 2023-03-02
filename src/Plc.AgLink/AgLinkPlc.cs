@@ -5,8 +5,6 @@
 using Phoenix.Data.Plc.Items;
 using Accon.AGLink;
 
-#nullable enable
-
 namespace Phoenix.Data.Plc.AgLink;
 
 /// <summary>
