@@ -2,7 +2,9 @@
 
 	<PropertyGroup>
 		<TargetFrameworks>net6.0;net48</TargetFrameworks>
-		<IsPackable>false</IsPackable>
+		<LangVersion>latest</LangVersion>
+		<Nullable>disable</Nullable>
+		<ImplicitUsings>disable</ImplicitUsings>
 		<AssemblyName>Phoenix.Data.Plc.Monitor.Polling.Test</AssemblyName>
 		<RootNamespace>Phoenix.Data.Plc.Monitor.Polling.Test</RootNamespace>
 		<Authors>Felix Leistner</Authors>
@@ -10,6 +12,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="AutoFixture.AutoMoq" Version="4.17.0" />
 		<PackageReference Include="Moq" Version="4.18.4" />
 		<PackageReference Include="nunit" Version="3.13.3" />
 		<PackageReference Include="NUnit3TestAdapter" Version="4.4.2">
