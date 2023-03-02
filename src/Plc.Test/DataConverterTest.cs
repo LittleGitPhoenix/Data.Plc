@@ -408,7 +408,7 @@ public class DataConverterTest : DataTest
 		stopWatch.Stop();
 		var newTime = stopWatch.ElapsedTicks;
 
-		Assert.IsTrue(newTime < oldTime);
+		Assert.IsTrue(newTime < oldTime, $"New implementation should be faster, but actually took {newTime} ticks while the old implementation took {oldTime} ticks.");
 	}
 
 	#endregion

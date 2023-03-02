@@ -665,11 +665,11 @@ public static class DataConverter
 		return ((value & 0xFF00FF00FF00FF00) >> 8) | ((value & 0x00FF00FF00FF00FF) << 8);
 	}
 
-	[Obsolete("This is the old wy of swapping. It is only used for performance comparision.")]
+	[Obsolete("This is the old way of swapping. It is only used for performance comparision.")]
 	internal static ulong SwapBytes_old(ulong value)
 	{
-		ulong uvalue = value;
-		ulong swapped =
+		var uvalue = value;
+		var swapped =
 			((0x00000000000000FF) & (uvalue >> 56)
 			| (0x000000000000FF00) & (uvalue >> 40)
 			| (0x0000000000FF0000) & (uvalue >> 24)

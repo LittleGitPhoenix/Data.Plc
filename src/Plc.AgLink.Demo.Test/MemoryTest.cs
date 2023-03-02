@@ -7,7 +7,7 @@ namespace Phoenix.Data.Plc.Mock.Test;
 [TestFixture]
 public sealed class ImplementationMemoryTest : ImplementationMemoryTest<AgLinkPlc>
 {
-	private static string Host = "PLC1518";
+	private static string Host = "NB0791.lan";
 
 	public ImplementationMemoryTest()
 		: base
@@ -35,6 +35,7 @@ public sealed class ImplementationMemoryTest : ImplementationMemoryTest<AgLinkPl
 	[Test]
 	public async Task Check_Memory_Usage()
 	{
-		await base.CheckMemoryUsage(10000);
+		Assert.Ignore("This test takes relatively long if the connection is capsuled via vpn. Best to execute it only when the test machine and the plc physically connected to the same network.");
+		await base.CheckMemoryUsage(10000, 500);
 	}
 }

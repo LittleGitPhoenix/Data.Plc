@@ -33,15 +33,15 @@ public abstract class ImplementationMemoryTest<TPlc> : ImplementationTest<TPlc>
 	/// <summary>
 	/// Checks that the <see cref="CancellationTokenSource"/> that is created while reading/writing is properly disposed.
 	/// </summary>
-	protected async Task CheckMemoryUsage(int iterations = 100000)
+	protected async Task CheckMemoryUsage(int iterations, int warmupIterations)
 	{
 		// Arrange
-		var byteItem = new BytePlcItem(dataBlock: 0, position: 0, initialValue: byte.MaxValue);
+		var byteItem = new BytePlcItem(dataBlock: 1, position: 0, initialValue: byte.MaxValue);
 		var plc = this.Plc;
 		plc.Connect();
 
 		// Perform some warm-up
-		for (var iteration = 1; iteration <= 500; iteration++)
+		for (var iteration = 1; iteration <= warmupIterations; iteration++)
 		{
 			await plc.ReadItemAsync(byteItem, CancellationToken.None);
 			if (iteration % 100 == 0) await Task.Delay(250, CancellationToken.None);
@@ -79,18 +79,18 @@ public abstract class ImplementationMemoryTest<TPlc> : ImplementationTest<TPlc>
 		var difference = finalMemoryUsage - initialMemoryUsage;
 		Console.WriteLine($"Memory increased by: {difference} MByte");
 
-#if NET45
-			if (difference <= 15)
-			{
-				Assert.Pass();
-			}
-			else
-			{
-				Assert.Inconclusive("When running in .NET Framework 4.5 environment, the memory usage seems not predictable. Tests with 100.000 iterations repetitively showed, that the memory consumption spikes from 180 MByte after warmup to 620 MByte in a linear fashion but then immediately slows down. The final value is then around 635 MByte. Manual memory snapshots showed no significant increase in allocated objects however.");
-			}
-#else
+//#if NETFRAMEWORK
+//			if (difference <= 15)
+//			{
+//				Assert.Pass();
+//			}
+//			else
+//			{
+//				Assert.Inconclusive("When running in .NET Framework 4.5 environment, the memory usage seems not predictable. Tests with 100.000 iterations repetitively showed, that the memory consumption spikes from 180 MByte after warmup to 620 MByte in a linear fashion but then immediately slows down. The final value is then around 635 MByte. Manual memory snapshots showed no significant increase in allocated objects however.");
+//			}
+//#else
 		Assert.That(difference, Is.Not.GreaterThan(15)); //! Both 100.000 and 1.000.000 iterations proofed to not allocate more than 13 MByte.
-#endif
+//#endif
 	}
 
 	#endregion

@@ -23,9 +23,14 @@ ___
 
 - Because of the new way **.Net 5** handles execution of applications published as single file, the previous mechanism of providing **AGLink** requirements like the license key or the unmanaged assembly via a custom build target is no longer applicable. Instead this project no has a new `DemoAgLinkPlc` class that inherits from the now abstract base class `AgLinkPlc`. `DemoAgLinkPlc` provides all requirements that are bundled as embedded resources via its static constructor.
 
-### Updated
+### References
 
-- Phoenix.Data.Plc.AgLink ~~3.1.0~~ → [**4.0.0**](..\..\Plc.AgLink\⬙\CHANGELOG.md)
+
+### References
+
+:large_blue_circle: AGLink ~~5.6.0.0~~ → **6.0.0.0**
+:large_blue_circle: Phoenix.Data.Plc.AgLink ~~4.0.1~~ → [**5.0.0**](..\..\Plc.AgLink\⬙\CHANGELOG.md#5.0.0)
+
 ___
 
 ## 3.1.0
@@ -76,18 +81,18 @@ ___
 
 :calendar: _2020-11-04_
 
-### Updated
+### References
 
-- AGLink ~~5.5.1~~ → **5.6.0**
+:large_blue_circle: AGLink ~~5.5.1~~ → **5.6.0**
 ___
 
 ## 2.0.0
 
 :calendar: _2020-09-13_
 
-### Updated
+### References
 
-- Phoenix.Data.Plc ~~1.6.0~~ → [**2.0.0**](..\..\Plc\⬙\CHANGELOG.md)
+:large_blue_circle: Phoenix.Data.Plc ~~1.6.0~~ → [**2.0.0**](..\..\Plc\⬙\CHANGELOG.md)
 ___
 
 ## 1.0.0

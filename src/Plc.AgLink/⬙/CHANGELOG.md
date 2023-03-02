@@ -12,6 +12,10 @@ ___
 |                   .NET                    |     .NET Standard      |     .NET Framework     |
 | :---------------------------------------: | :--------------------: | :--------------------: |
 | :heavy_check_mark: 6 :heavy_check_mark: 7 | :heavy_check_mark: 2.0 | :heavy_check_mark: 4.8 |
+
+### References
+
+:large_blue_circle: AGLink ~~5.6.0.0~~ → **6.0.0.0**
 ___
 
 ## 4.0.1
@@ -22,18 +26,14 @@ ___
 
 - Reading or writing `IPlcItems`caused a memory leak due to an undisposed `CancellationTokenSource` that was introduced with **Phoenix.Data.Plc 4.0.0**.
 
-### Updated
+### References
 
-- Phoenix.Data.Plc ~~4.0.0~~ → [**4.1.1**](..\..\Plc\⬙\CHANGELOG.md)
+:large_blue_circle: Phoenix.Data.Plc ~~4.0.0~~ → [**4.1.1**](..\..\Plc\⬙\CHANGELOG.md)
 ___
 
 ## 4.0.0
 
 :calendar: _2021-01-10_
-
-### Updated
-
-- Phoenix.Data.Plc ~~3.1.0~~ → [**4.0.0**](..\..\Plc\⬙\CHANGELOG.md)
 
 ### Changed
 
@@ -42,6 +42,10 @@ ___
 ### Fixed
 
 - If reading or writing `IPlcItems` failed, then this will now raise an `ReadOrWritePlcException`. Previously this didn't raise an exception, because the error code returned by **AGLink** when reading or writing may have indicated, that everything was okay. Whether an **AGLink** item failed was stored inside the `Result` property of the item. This fixed required breaking changes in the base `Plc`class.
+
+### References
+
+:large_blue_circle: Phoenix.Data.Plc ~~3.1.0~~ → [**4.0.0**](..\..\Plc\⬙\CHANGELOG.md)
 ___
 
 ## 3.1.0
@@ -93,18 +97,18 @@ ___
 
 - If the connection to the plc couldn't be established, then now a more detailed error will be logged.
 
-### Updated
+### References
 
-- AGLink ~~5.5.1~~ → **5.6.0**
+:large_blue_circle: AGLink ~~5.5.1~~ → **5.6.0**
 ___
 
 ## 2.0.0
 
 :calendar: _2020-09-13_
 
-### Updated
+### References
 
-- Phoenix.Data.Plc ~~1.6.0~~ → [**2.0.0**](..\..\Plc\⬙\CHANGELOG.md)
+:large_blue_circle: Phoenix.Data.Plc ~~1.6.0~~ → [**2.0.0**](..\..\Plc\⬙\CHANGELOG.md)
 ___
 
 ## 1.3.0

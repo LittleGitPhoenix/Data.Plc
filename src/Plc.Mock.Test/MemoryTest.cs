@@ -18,6 +18,6 @@ public sealed class ImplementationMemoryTest : ImplementationMemoryTest<MockPlc>
 	[Test]
 	public async Task Check_Memory_Usage()
 	{
-		await base.CheckMemoryUsage(100000);
+		await base.CheckMemoryUsage(100000, 500);
 	}
 }
