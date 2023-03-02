@@ -25,9 +25,9 @@ The following specific implementations for accessing a plc are currently availab
 
 ## Plc.Mock
 
-| .NET Framework | .NET Standard | .NET |
-| :-: | :-: | :-: |
-| :heavy_check_mark: 4.5.0 | :heavy_check_mark: 2.0 | :heavy_check_mark: 5.0 |
+|                   .NET                    |     .NET Standard      |     .NET Framework     |
+| :---------------------------------------: | :--------------------: | :--------------------: |
+| :heavy_check_mark: 6 :heavy_check_mark: 7 | :heavy_check_mark: 2.0 | :heavy_check_mark: 4.8 |
 
 This provides a mocked plc, that stores its data in-memory. It can be used for test and simulation purposes.
 
@@ -48,9 +48,9 @@ IPlc plc = new MockPlc(initialDataBlocks);
 
 ## Plc.AgLink
 
-| .NET Framework | .NET Standard | .NET |
-| :-: | :-: | :-: |
-| :heavy_check_mark: 4.5.0 | :heavy_check_mark: 2.0 | :heavy_check_mark: 5.0 |
+|                   .NET                    |     .NET Standard      |     .NET Framework     |
+| :---------------------------------------: | :--------------------: | :--------------------: |
+| :heavy_check_mark: 6 :heavy_check_mark: 7 | :heavy_check_mark: 2.0 | :heavy_check_mark: 4.8 |
 
 This implementation utilizes the proprietary **AGLink** library owned by **Delta Logic** for communicating with the plc via **S7 TCP/IP**.
 
@@ -84,7 +84,7 @@ Prior to ***Phoenix.Data.Plc.AgLink v4.x*** those files where provided via a cus
 The first is `AgLinkRequirementsHelper` which has the following static methods that should be called for providing the requirements:
 
 - ````csharp
-static void CopyUnmanagedAssemblies(FileInfo assemblyFile, Stream assemblyContent)
+	static void CopyUnmanagedAssemblies(FileInfo assemblyFile, Stream assemblyContent)
 	````
 	Copy the unmanaged assembly to the working directory. The unmanaged assembly will be deleted automatically once the application ends. This is done by `AgLinkPlc`.
 	
@@ -233,7 +233,16 @@ var connectionData = new AgLinkPlcConnectionData(deviceNumber: 0, ip: "127.0.0.2
 IPlc plc = new DemoAgLinkPlc(connectionData);
 ```
 
-:grey_exclamation: Like all other `IPlc` implementations this one has to be disposed once it is not used anymore.
+<div style='padding:0.1em; border-style: solid; border-width: 0px; border-left-width: 10px; border-color: #37ff00; background-color: #37ff0020' >
+	<span style='margin-left:1em; text-align:left'>
+    	<b>Information</b>
+    </span>
+    <br>
+	<div style='margin-left:1em; margin-right:1em;'>
+		Like all other <i>IPlc</i> implementations this one has to be disposed once it is not used anymore.
+    </div>
+</div> 
+
 ___
 
 # PlcItems
@@ -312,12 +321,28 @@ Task<bool> WriteItemsWithValidationAsync(this IPlc plc, ICollection<IPlcItem> pl
 ## Read or write errors
 
 Reading or writing can throw a `ReadOrWritePlcException` that should be handled by consuming code. This exception contains two collections identifying which items succeeded and which failed:
-- ValidItems: This is a pure collection of `IPlcItems`that succeeded.
-- FailedItems: This is a tuple containing the failed `IPlcItem`together with an error message.
+- `ValidItems`: This is a pure collection of `IPlcItems`that succeeded.
+- `FailedItems`: This is a tuple containing the failed `IPlcItem`together with an error message.
 
-:heavy_exclamation_mark: Trying to read or write anything to/from an `IPlc` inheriting from the `Plc` base class that is currently **not connected**, will not fail. Rather all `IPlcItems` that are affected will be put on hold until the connection has been established. This means that calling ```await plc.ReadItemsAsync(...)``` or ```await plc.WriteItemsAsync(...)``` won't return until the connection is up and running.
+<div style='padding:0.1em; border-style: solid; border-width: 0px; border-left-width: 10px; border-color: #ff0000; background-color: #ff000020' >
+	<span style='margin-left:1em; text-align:left'>
+    	<b>Warning</b>
+    </span>
+    <br>
+	<div style='margin-left:1em; margin-right:1em;'>
+		Trying to read or write anything to/from an <i>IPlc</i> inheriting from the <i>Plc</i> base class that is currently <b>not connected</b>, will not fail. Rather all <i>IPlcItems</i> that are affected will be put on hold until the connection has been established. This means that calling <i>await plc.ReadItemsAsync(...)</i> or <i>await plc.WriteItemsAsync(...)</i> won't return until the connection is up and running.
+    </div>
+</div>
 
-:heavy_exclamation_mark: Trying to read or write anything to/from an `IPlc` inheriting from the `Plc` base class that has been disposed will result in a `ReadOrWritePlcException`. The same goes for read or write operations whose `IPlcItems` have been put on hold.
+<div style='padding:0.1em; border-style: solid; border-width: 0px; border-left-width: 10px; border-color: #ff0000; background-color: #ff000020' >
+	<span style='margin-left:1em; text-align:left'>
+    	<b>Warning</b>
+    </span>
+    <br>
+	<div style='margin-left:1em; margin-right:1em;'>
+		Trying to read or write anything to/from an <i>IPlc</i> inheriting from the <i>Plc</i> base class that has been disposed will result in a <i>ReadOrWritePlcException</i>. The same goes for read or write operations whose <i>IPlcItems</i> have been put on hold.
+    </div>
+</div>
 
 ## Typed plc items
 
@@ -380,7 +405,15 @@ Each `IDynamicPlcItem` internally consists of two separate `PlcItems`.
 
 Reading and writing an `IDynamicPlcItem` always consists of two steps. When reading such an item the `LengthPlcItem` will be read first to obtain the current length and afterwards the data of the `FlexiblePlcItem` is obtained. Writing is the opposite.
 
-:grey_exclamation: Since reading and writing is done in two steps, it cannot be guaranteed, that the data of an `IDynamicPlcItem` is consistent.
+<div style='padding:0.1em; border-style: solid; border-width: 0px; border-left-width: 10px; border-color: #ffd200; background-color: #ffd20020' >
+	<span style='margin-left:1em; text-align:left'>
+    	<b>Hint</b>
+    </span>
+    <br>
+	<div style='margin-left:1em; margin-right:1em;'>
+        Since reading and writing is done in two steps, it cannot be guaranteed, that the data of an `IDynamicPlcItem` is consistent.
+    </div>
+</div>
 
 Dynamic items additionally provide some special properties that may come in handy under certain conditions.
 
@@ -560,4 +593,4 @@ ___
 
 # Authors
 
-* **Felix Leistner**: _v1.x_ - _v4.x_
+* **Felix Leistner**: _v1.x_ - _v5.x_
