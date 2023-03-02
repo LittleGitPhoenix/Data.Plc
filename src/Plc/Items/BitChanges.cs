@@ -19,8 +19,7 @@ public class BitChanges : System.Collections.ObjectModel.ReadOnlyDictionary<uint
 	/// </summary>
 	/// <param name="capacity"> The initial number of elements that the <see cref="BitChanges"/> can contain. </param>
 	public BitChanges(int capacity) : base(new Dictionary<uint, (bool? OldValue, bool? NewValue)>(capacity)) { }
-
-
+	
 	internal void Add(uint bitPosition, (bool? OldValue, bool? NewValue) change)
 	{
 		if (base.ContainsKey(bitPosition))

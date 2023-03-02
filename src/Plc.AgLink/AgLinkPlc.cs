@@ -331,15 +331,8 @@ public abstract class AgLinkPlc : Plc
 			agLinkItem.OpType = AGL4.TYP_BYTE;
 			agLinkItem.BitNr = 0;
 			agLinkItem.OpAnz = (ushort) DataHelper.GetByteAmountForBits(plcItem.Value.Length);
-			if (usageType == PlcItemUsageType.Write)
-			{
-				agLinkItem.B = plcItem.Value;
-			}
-			else
-			{
-				agLinkItem.B = new byte[agLinkItem.OpAnz];
-			}
-
+			agLinkItem.B = usageType == PlcItemUsageType.Write ? plcItem.Value : new byte[agLinkItem.OpAnz];
+			
 			yield return agLinkItem;
 		}
 		else
@@ -351,15 +344,8 @@ public abstract class AgLinkPlc : Plc
 			{
 				var bitAgLinkItem = agLinkItem; // Value type will be copied on assignment.
 				bitAgLinkItem.BitNr = (ushort)(bitPosition + plcItem.BitPosition);
-				if (usageType == PlcItemUsageType.Write)
-				{
-					// Get the relevant bit of this item and set the AGLink byte accordingly.						
-					bitAgLinkItem.B = new byte[] { plcItem.Value[bitPosition] ? (byte)1 : (byte)0 };
-				}
-				else
-				{
-					bitAgLinkItem.B = new byte[1];
-				}
+				// Get the relevant bit of this item and set the AGLink byte accordingly.						
+				bitAgLinkItem.B = usageType == PlcItemUsageType.Write ? new [] { plcItem.Value[bitPosition] ? (byte)1 : (byte)0 } : new byte[1];
 
 				yield return bitAgLinkItem;
 			}
