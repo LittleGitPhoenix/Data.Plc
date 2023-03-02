@@ -21,6 +21,10 @@ ___
 
 - If an attempt to `Connect` to a plc failed, the base `Plc` class now automatically invokes its `Disconnect` method. This is done, so that an implementing class can properly unload used resources.
 
+### References
+
+:large_blue_circle: System.Memory ~~4.5.4~~ → **5.5.5** (.NET Framework and .NET Standard only)
+
 ___
 
 ## 4.1.1
