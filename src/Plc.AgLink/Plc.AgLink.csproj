@@ -1,11 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net5.0;netstandard2.0;net45</TargetFrameworks>
+		<TargetFrameworks>net7.0;net6.0;netstandard2.0;net48</TargetFrameworks>
 		<LangVersion>latest</LangVersion>
 		<AssemblyName>Phoenix.Data.Plc.AgLink</AssemblyName>
 		<RootNamespace>Phoenix.Data.Plc.AgLink</RootNamespace>
-		<Version>4.0.1</Version>
+		<Copyright>2023</Copyright>
+		<Version>5.0.0-beta.1</Version>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<Authors>Felix Leistner</Authors>
