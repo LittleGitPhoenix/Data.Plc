@@ -23,7 +23,7 @@ public abstract class AgLinkRequirementsHelper
 	#region Fields
 		
 	/// <summary> The <see cref="FileInfo"/> instance of the unmanaged AGLink assembly. Kept to later delete the file upon process exit. </summary>
-	private static FileInfo? _unmanagedAgLinkAssemblyFile;
+	private static FileInfo? UnmanagedAgLinkAssemblyFile;
 
 	/// <summary>
 	/// The working directory of the running application.
@@ -91,7 +91,7 @@ public abstract class AgLinkRequirementsHelper
 			AgLinkRequirementsHelper.AutomaticallyDeleteUnmanagedAssembly();
 				
 			// Save a reference to the file, so that it can be deleted when the process ends.
-			_unmanagedAgLinkAssemblyFile = assemblyFile;
+			UnmanagedAgLinkAssemblyFile = assemblyFile;
 		}
 	}
 
@@ -100,9 +100,9 @@ public abstract class AgLinkRequirementsHelper
 		// Delete the unmanaged assembly once the whole process ends.
 		AppDomain.CurrentDomain.ProcessExit += (sender, args) =>
 		{
-			if (_unmanagedAgLinkAssemblyFile?.Exists ?? false)
+			if (UnmanagedAgLinkAssemblyFile?.Exists ?? false)
 			{
-				var command = $"timeout 5 /nobreak >nul | del /F /Q \"{_unmanagedAgLinkAssemblyFile.FullName}\" >nul";
+				var command = $"timeout 5 /nobreak >nul | del /F /Q \"{UnmanagedAgLinkAssemblyFile.FullName}\" >nul";
 				var process = new System.Diagnostics.Process()
 				{
 					StartInfo = new System.Diagnostics.ProcessStartInfo
