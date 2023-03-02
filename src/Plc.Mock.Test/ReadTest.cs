@@ -1,33 +1,29 @@
-using System;
-using System.Collections.Generic;
-using NUnit.Framework;
 using Phoenix.Data.Plc.Implementation.Test;
 
-namespace Phoenix.Data.Plc.Mock.Test
+namespace Phoenix.Data.Plc.Mock.Test;
+
+[TestFixture]
+public sealed class ImplementationReadTest : ImplementationReadTest<MockPlc>
 {
-	[TestFixture]
-	public sealed class ImplementationReadTest : ImplementationReadTest<MockPlc>
-	{
-		public ImplementationReadTest()
-			: base
+	public ImplementationReadTest()
+		: base
+		(
+			data => new MockPlc
 			(
-				data => new MockPlc
-				(
-					initialDataBlocks: new Dictionary<ushort, byte[]>()
-					{
-						{data.Datablock, data.TargetBytes},
-					}
-				)
-			) { }
+				initialDataBlocks: new Dictionary<ushort, byte[]>()
+				{
+					{data.Datablock, data.TargetBytes},
+				}
+			)
+		) { }
 
-		#region Overrides of ImplementationReadTest<MockPlc>
+	#region Overrides of ImplementationReadTest<MockPlc>
 
-		/// <inheritdoc />
-		public override void ReadUndefinedDatablock()
-		{
-			Assert.Ignore("The MockPlc doesn't have any undefined datablock, as they will be created upon first interaction.");
-		}
-
-		#endregion
+	/// <inheritdoc />
+	public override void ReadUndefinedDatablock()
+	{
+		Assert.Ignore("The MockPlc doesn't have any undefined datablock, as they will be created upon first interaction.");
 	}
+
+	#endregion
 }

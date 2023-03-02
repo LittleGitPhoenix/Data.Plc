@@ -1,4 +1,4 @@
-**Copyright © 2018-2021 Felix Leistner**
+**Copyright © 2018-2023 Felix Leistner**
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by

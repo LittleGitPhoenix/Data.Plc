@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29209.62
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33424.131
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plc", "Plc\Plc.csproj", "{CE41CAB0-E2BF-4AAF-88BD-02E37440FE3D}"
 EndProject
@@ -39,7 +39,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Monitor Implementation", "M
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plc.AgLink.Demo", "Plc.AgLink.Demo\Plc.AgLink.Demo.csproj", "{541C724F-DBD5-4159-AEEA-62DB002B86D0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plc.AgLink.Test", "Plc.AgLink.Test\Plc.AgLink.Test.csproj", "{DDBD9681-F265-42D1-A4D1-F9DA0E340A52}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plc.AgLink.Test", "Plc.AgLink.Test\Plc.AgLink.Test.csproj", "{DDBD9681-F265-42D1-A4D1-F9DA0E340A52}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

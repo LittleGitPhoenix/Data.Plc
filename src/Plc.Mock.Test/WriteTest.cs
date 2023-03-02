@@ -1,25 +1,20 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using NUnit.Framework;
 using Phoenix.Data.Plc.Implementation.Test;
 
-namespace Phoenix.Data.Plc.Mock.Test
+namespace Phoenix.Data.Plc.Mock.Test;
+
+[TestFixture]
+public sealed class ImplementationWriteTest : ImplementationWriteTest<MockPlc>
 {
-	[TestFixture]
-	public sealed class ImplementationWriteTest : ImplementationWriteTest<MockPlc>
-	{
-		public ImplementationWriteTest()
-			: base
+	public ImplementationWriteTest()
+		: base
+		(
+			data => new MockPlc
 			(
-				data => new MockPlc
-				(
-					initialDataBlocks: new Dictionary<ushort, byte[]>()
-					{
-						{data.Datablock, data.TargetBytes},
-					}
-				)
+				initialDataBlocks: new Dictionary<ushort, byte[]>()
+				{
+					{data.Datablock, data.TargetBytes},
+				}
 			)
-		{ }
-	}
+		)
+	{ }
 }
