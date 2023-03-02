@@ -6,7 +6,7 @@ namespace Phoenix.Data.Plc.AgLink.Test;
 [TestFixture]
 public sealed class ImplementationReadTest : ImplementationReadTest<AgLinkPlc>
 {
-	private static string Host = "NB0791.lan";
+	private static string Host = "MyPlcHost";
 
 	public ImplementationReadTest()
 		: base

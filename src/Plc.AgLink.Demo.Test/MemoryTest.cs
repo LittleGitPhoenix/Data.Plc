@@ -7,7 +7,7 @@ namespace Phoenix.Data.Plc.Mock.Test;
 [TestFixture]
 public sealed class ImplementationMemoryTest : ImplementationMemoryTest<AgLinkPlc>
 {
-	private static string Host = "NB0791.lan";
+	private static string Host = "MyPlcHost";
 
 	public ImplementationMemoryTest()
 		: base
