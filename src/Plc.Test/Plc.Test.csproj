@@ -3,6 +3,8 @@
 	<PropertyGroup>
 		<TargetFrameworks>net6.0;net48</TargetFrameworks>
 		<LangVersion>latest</LangVersion>
+		<Nullable>disable</Nullable>
+		<ImplicitUsings>disable</ImplicitUsings>
 		<IsPackable>false</IsPackable>
 		<AssemblyName>Phoenix.Data.Plc.Test</AssemblyName>
 		<RootNamespace>Phoenix.Data.Plc.Test</RootNamespace>
