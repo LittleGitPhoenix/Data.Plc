@@ -11,10 +11,6 @@ public abstract class ImplementationTest<TPlc> : IDisposable
 
 	#region Fields
 
-#if NET45
-		protected static Task CompletedTask = Task.FromResult(false);
-#endif
-
 	private readonly object _lock;
 
 	#endregion

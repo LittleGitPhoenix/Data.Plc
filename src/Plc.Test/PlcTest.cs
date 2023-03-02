@@ -7,10 +7,6 @@ namespace Phoenix.Data.Plc.Test;
 [TestFixture]
 public class PlcTest
 {
-#if NET45
-		private static Task CompletedTask = Task.FromResult(false);
-#endif
-
 	[Test]
 	public void Open_Connection_Raises_Connected_Event()
 	{
@@ -140,11 +136,7 @@ public class PlcTest
 			;
 		plcMock
 			.Setup(p => p.PerformReadWriteAsync(It.IsAny<ICollection<IPlcItem>>(), It.IsAny<Plc.PlcItemUsageType>(), CancellationToken.None))
-#if NET45
-				.Returns(CompletedTask)
-#else
 			.Returns(Task.CompletedTask)
-#endif
 			.Verifiable()
 			;
 		var plc = plcMock.Object;
@@ -196,11 +188,7 @@ public class PlcTest
 			;
 		plcMock
 			.Setup(p => p.PerformReadWriteAsync(It.IsAny<ICollection<IPlcItem>>(), It.IsAny<Plc.PlcItemUsageType>(), CancellationToken.None))
-#if NET45
-				.Returns(CompletedTask)
-#else
 			.Returns(Task.CompletedTask)
-#endif
 			.Verifiable()
 			;
 		var plc = (IPlc) plcMock.Object;
@@ -239,11 +227,7 @@ public class PlcTest
 			;
 		plcMock
 			.Setup(p => p.PerformReadWriteAsync(It.IsAny<ICollection<IPlcItem>>(), It.IsAny<Plc.PlcItemUsageType>(), CancellationToken.None))
-#if NET45
-				.Returns(CompletedTask)
-#else
 			.Returns(Task.CompletedTask)
-#endif
 			.Verifiable()
 			;
 		var plc = (IPlc) plcMock.Object;
@@ -276,11 +260,7 @@ public class PlcTest
 			;
 		plcMock
 			.Setup(p => p.PerformReadWriteAsync(It.IsAny<ICollection<IPlcItem>>(), It.IsAny<Plc.PlcItemUsageType>(), CancellationToken.None))
-#if NET45
-				.Returns(CompletedTask)
-#else
 			.Returns(Task.CompletedTask)
-#endif
 			.Verifiable()
 			;
 		var plc = (IPlc) plcMock.Object;
@@ -321,11 +301,7 @@ public class PlcTest
 			;
 		plcMock
 			.Setup(p => p.PerformReadWriteAsync(It.IsAny<ICollection<IPlcItem>>(), It.IsAny<Plc.PlcItemUsageType>(), CancellationToken.None))
-#if NET45
-				.Returns(CompletedTask)
-#else
 			.Returns(Task.CompletedTask)
-#endif
 			.Verifiable()
 			;
 		var plc = (IPlc) plcMock.Object;
@@ -377,11 +353,7 @@ public class PlcTest
 			;
 		plcMock
 			.Setup(p => p.PerformReadWriteAsync(It.IsAny<ICollection<IPlcItem>>(), It.IsAny<Plc.PlcItemUsageType>(), CancellationToken.None))
-#if NET45
-				.Returns(CompletedTask)
-#else
 			.Returns(Task.CompletedTask)
-#endif
 			.Verifiable()
 			;
 		var plc = (IPlc) plcMock.Object;
@@ -420,11 +392,7 @@ public class PlcTest
 			;
 		plcMock
 			.Setup(p => p.PerformReadWriteAsync(It.IsAny<ICollection<IPlcItem>>(), It.IsAny<Plc.PlcItemUsageType>(), CancellationToken.None))
-#if NET45
-				.Returns(CompletedTask)
-#else
 			.Returns(Task.CompletedTask)
-#endif
 			.Verifiable()
 			;
 		var plc = (IPlc)plcMock.Object;
@@ -458,11 +426,7 @@ public class PlcTest
 			;
 		plcMock
 			.Setup(p => p.PerformReadWriteAsync(It.IsAny<ICollection<IPlcItem>>(), It.IsAny<Plc.PlcItemUsageType>(), CancellationToken.None))
-#if NET45
-				.Returns(CompletedTask)
-#else
 			.Returns(Task.CompletedTask)
-#endif
 			.Verifiable()
 			;
 		var plc = (IPlc)plcMock.Object;
@@ -532,11 +496,7 @@ public class PlcTest
 			;
 		plcMock
 			.Setup(p => p.PerformReadWriteAsync(It.IsAny<ICollection<IPlcItem>>(), It.IsAny<Plc.PlcItemUsageType>(), CancellationToken.None))
-#if NET45
-				.Returns(CompletedTask)
-#else
 			.Returns(Task.CompletedTask)
-#endif
 			.Verifiable()
 			;
 		plcMock
@@ -640,11 +600,7 @@ public class PlcTest
 		var plcMock = new Mock<Plc>(Guid.NewGuid().ToString());
 		plcMock
 			.Setup(p => p.ReadItemsAsync(It.IsAny<IList<IPlcItem>>(), CancellationToken.None))
-#if NET45
-				.Returns(CompletedTask)
-#else
 			.Returns(Task.CompletedTask)
-#endif
 			;
 		var plc = plcMock.Object;
 

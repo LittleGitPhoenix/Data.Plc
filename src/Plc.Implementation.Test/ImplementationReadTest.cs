@@ -212,11 +212,7 @@ public abstract class ImplementationReadTest<TPlc> : ImplementationTest<TPlc>
 				Assert.That(ex.ValidItems.FirstOrDefault(), Is.EqualTo(validItem));
 				Assert.That(ex.FailedItems.FirstOrDefault().FailedItem, Is.EqualTo(invalidItem));
 
-#if NET45
-					return CompletedTask;
-#else
 				return System.Threading.Tasks.Task.CompletedTask;
-#endif
 			}
 		);
 	}

@@ -79,11 +79,7 @@ internal class EnumPlcItemConstructor<TEnum>
 
 	public new IEnumLengthPlcItemConstructor<TEnum> AtPosition(ushort bytePosition) => (IEnumLengthPlcItemConstructor<TEnum>) base.AtPosition(bytePosition);
 
-#if NET45
-		public IEnumPlcItemCreator<TEnum> WithoutInitialValue() => (IEnumPlcItemCreator<TEnum>) base.ForByteAmount((ushort) System.Runtime.InteropServices.Marshal.SizeOf(typeof(TEnum)));
-#else
 	public IEnumPlcItemCreator<TEnum> WithoutInitialValue() => (IEnumPlcItemCreator<TEnum>) base.ForByteAmount((ushort) System.Runtime.InteropServices.Marshal.SizeOf<TEnum>());
-#endif
 
 	public new IEnumPlcItemCreator<TEnum> WithInitialValue(TEnum initialValue) => (IEnumPlcItemCreator<TEnum>) base.WithInitialValue(initialValue);
 		

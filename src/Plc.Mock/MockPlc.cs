@@ -135,12 +135,7 @@ public class MockPlc : Plc
 		{
 			plcItem.Value.TransferValuesFrom(_dataRegionManager.Read(plcItem));
 		}
-
-#if NET45
-			return Task.FromResult(false);
-#else
 		return Task.CompletedTask;
-#endif
 	}
 
 	/// <summary>
