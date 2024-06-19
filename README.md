@@ -25,9 +25,9 @@ The following specific implementations for accessing a plc are currently availab
 
 ## Plc.Mock
 
-|                   .NET                    |     .NET Standard      |     .NET Framework     |
-| :---------------------------------------: | :--------------------: | :--------------------: |
-| :heavy_check_mark: 6 :heavy_check_mark: 7 | :heavy_check_mark: 2.0 | :heavy_check_mark: 4.8 |
+| .NET | .NET Standard | .NET Framework |
+| :-: | :-: | :-: |
+| :heavy_minus_sign: | :heavy_check_mark: 2.0 | :heavy_minus_sign: |
 
 This provides a mocked plc, that stores its data in-memory. It can be used for test and simulation purposes.
 
@@ -48,17 +48,19 @@ IPlc plc = new MockPlc(initialDataBlocks);
 
 ## Plc.AgLink
 
-|                   .NET                    |     .NET Standard      |     .NET Framework     |
-| :---------------------------------------: | :--------------------: | :--------------------: |
-| :heavy_check_mark: 6 :heavy_check_mark: 7 | :heavy_check_mark: 2.0 | :heavy_check_mark: 4.8 |
+| .NET | .NET Standard | .NET Framework |
+| :-: | :-: | :-: |
+| :heavy_minus_sign: | :heavy_check_mark: 2.0 | :heavy_minus_sign: |
 
 This implementation utilizes the proprietary **AGLink** library owned by **Delta Logic** for communicating with the plc via **S7 TCP/IP**.
 
-:grey_exclamation: **AGLink** is a commercial product owned by **Delta Logic**. Using the ***Plc.AgLink*** package requires their software, so make sure you are allowed to.
+> [!Caution]
+> **AGLink** is a commercial product owned by **Delta Logic**. Using the ***Plc.AgLink*** package requires their software, so make sure you are allowed to.
 
 ### Build
 
-:grey_exclamation: This repository does not contain the necessary **AGLink** libraries and auxiliary files needed to build the projects. Those files must be provided individually.
+> [!Caution]
+> This repository does not contain the necessary **AGLink** libraries and auxiliary files needed to build the projects. Those files must be provided individually.
 
 #### Plc.AgLink
 
@@ -233,16 +235,8 @@ var connectionData = new AgLinkPlcConnectionData(deviceNumber: 0, ip: "127.0.0.2
 IPlc plc = new DemoAgLinkPlc(connectionData);
 ```
 
-<div style='padding:0.1em; border-style: solid; border-width: 0px; border-left-width: 10px; border-color: #37ff00; background-color: #37ff0020' >
-	<span style='margin-left:1em; text-align:left'>
-    	<b>Information</b>
-    </span>
-    <br>
-	<div style='margin-left:1em; margin-right:1em;'>
-		Like all other <i>IPlc</i> implementations this one has to be disposed once it is not used anymore.
-    </div>
-</div> 
-
+> [!Important]
+> Like all other `IPlc` implementations this one has to be disposed once it is not used anymore.
 ___
 
 # PlcItems
@@ -324,25 +318,11 @@ Reading or writing can throw a `ReadOrWritePlcException` that should be handled 
 - `ValidItems`: This is a pure collection of `IPlcItems`that succeeded.
 - `FailedItems`: This is a tuple containing the failed `IPlcItem`together with an error message.
 
-<div style='padding:0.1em; border-style: solid; border-width: 0px; border-left-width: 10px; border-color: #ff0000; background-color: #ff000020' >
-	<span style='margin-left:1em; text-align:left'>
-    	<b>Warning</b>
-    </span>
-    <br>
-	<div style='margin-left:1em; margin-right:1em;'>
-		Trying to read or write anything to/from an <i>IPlc</i> inheriting from the <i>Plc</i> base class that is currently <b>not connected</b>, will not fail. Rather all <i>IPlcItems</i> that are affected will be put on hold until the connection has been established. This means that calling <i>await plc.ReadItemsAsync(...)</i> or <i>await plc.WriteItemsAsync(...)</i> won't return until the connection is up and running.
-    </div>
-</div>
+> [!Caution]
+> Trying to read or write anything to/from an `IPlc` inheriting from the `Plc` base class that is currently **not connected**, will not fail. Rather all `IPlcItems` that are affected will be put on hold until the connection has been established. This means that calling `await plc.ReadItemsAsync(...)` or `await plc.WriteItemsAsync(...)` won't return until the connection is up and running.
 
-<div style='padding:0.1em; border-style: solid; border-width: 0px; border-left-width: 10px; border-color: #ff0000; background-color: #ff000020' >
-	<span style='margin-left:1em; text-align:left'>
-    	<b>Warning</b>
-    </span>
-    <br>
-	<div style='margin-left:1em; margin-right:1em;'>
-		Trying to read or write anything to/from an <i>IPlc</i> inheriting from the <i>Plc</i> base class that has been disposed will result in a <i>ReadOrWritePlcException</i>. The same goes for read or write operations whose <i>IPlcItems</i> have been put on hold.
-    </div>
-</div>
+> [!Caution]
+> Trying to read or write anything to/from an `IPlc` inheriting from the `Plc` base class that has been disposed will result in a `ReadOrWritePlcException`. The same goes for read or write operations whose `IPlcItems` have been put on hold.
 
 ## Typed plc items
 
@@ -405,15 +385,8 @@ Each `IDynamicPlcItem` internally consists of two separate `PlcItems`.
 
 Reading and writing an `IDynamicPlcItem` always consists of two steps. When reading such an item the `LengthPlcItem` will be read first to obtain the current length and afterwards the data of the `FlexiblePlcItem` is obtained. Writing is the opposite.
 
-<div style='padding:0.1em; border-style: solid; border-width: 0px; border-left-width: 10px; border-color: #ffd200; background-color: #ffd20020' >
-	<span style='margin-left:1em; text-align:left'>
-    	<b>Hint</b>
-    </span>
-    <br>
-	<div style='margin-left:1em; margin-right:1em;'>
-        Since reading and writing is done in two steps, it cannot be guaranteed, that the data of an `IDynamicPlcItem` is consistent.
-    </div>
-</div>
+> [!Important]
+> Since reading and writing is done in two steps, it cannot be guaranteed, that the data of an `IDynamicPlcItem` is consistent.
 
 Dynamic items additionally provide some special properties that may come in handy under certain conditions.
 
@@ -434,9 +407,9 @@ ___
 
 ## PollingPlcMonitor
 
-| .NET Framework | .NET Standard | .NET |
+| .NET | .NET Standard | .NET Framework |
 | :-: | :-: | :-: |
-| :heavy_check_mark: 4.5.0 | :heavy_check_mark: 2.0 | :heavy_check_mark: 5.0 |
+| :heavy_minus_sign: | :heavy_check_mark: 2.0 | :heavy_minus_sign: |
 
 This monitor internally uses an `IPlc` and regularly polls monitored `IPlcItems` and checks if their data has changed. It provides the `PollingMonitorablePlc` wrapper class that combines both the plc and the monitor instance.
 
@@ -444,8 +417,11 @@ This monitor internally uses an `IPlc` and regularly polls monitored `IPlcItems`
 
 The frequency at witch `IPlcItems` are polled has a default value of _300 milliseconds_. This is defined by `PlcItemMonitorConfigurations.DefaultPollingFrequency`. Although this interval should be sufficient enough for most cases, it can be changed to a different value.
 
-:grey_exclamation: Changing the default monitoring frequency does not change the interval at which already monitored items are polled.  
-:grey_exclamation: The minimum polling frequency is _50 milliseconds_ and cannot be undershot.
+> [!CAUTION]
+> Changing the default monitoring frequency does not change the interval at which already monitored items are polled.
+
+> [!CAUTION]
+> The minimum polling frequency is _50 milliseconds_ and cannot be undershot.
 
 In case the normal frequency is good enough expect for some critical items, the `PollingPlcMonitor` accepts special `PlcItemMonitorConfigurations` that define different frequencies for named `IPlcItems`. A single `PlcItemMonitorConfiguration` for an `IPLcItem` simply consists of the `IPlcItem.Identifier` and a custom polling interval that will be applied to the it. The `PlcItemMonitorConfigurations` are implicitly convertible from a **Dictionary<string, uint>**, so it is possible to pass one such dictionary to the constructor of the `PollingPlcMonitor`. This is done so custom configuration can be stored externally (in some kind of settings file) without the storage provider needing to know anything about the special configuration classes.
 
@@ -593,4 +569,4 @@ ___
 
 # Authors
 
-* **Felix Leistner**: _v1.x_ - _v5.x_
+* **Felix Leistner**: _v1.x_ - _v6.x_
