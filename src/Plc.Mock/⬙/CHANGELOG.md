@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ___
 
+## 6.0.0
+
+:calendar: _2024-06-??_
+
+| .NET | .NET Standard | .NET Framework |
+| :-: | :-: | :-: |
+| :heavy_minus_sign: | :heavy_check_mark: 2.0 | :heavy_minus_sign: |
+
+> [!Caution]
+> ### Breaking Changes
+> - The library now exclusively supports **.NET Standard 2.0**.
+
+### References
+
+:large_blue_circle: Phoenix.Data.Plc ~~5.0.0~~ → [**6.0.0**](..\..\Plc\⬙\CHANGELOG.md#6.0.0)
+___
+
 ## 5.0.0
 
 :calendar: _2023-03-02_
@@ -19,7 +36,7 @@ ___
 
 ### References
 
-:large_blue_circle: Phoenix.Data.Plc ~~4.1.1~~ → [**4.2.0**](..\..\Plc\⬙\CHANGELOG.md)
+:large_blue_circle: Phoenix.Data.Plc ~~4.1.1~~ → [**5.0.0**](..\..\Plc\⬙\CHANGELOG.md#5.0.0)
 ___
 
 ## 4.0.1

@@ -1,15 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net7.0;net6.0;netstandard2.0;net48</TargetFrameworks>
+		<TargetFramework>netstandard2.0</TargetFramework>
 		<LangVersion>latest</LangVersion>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>disable</ImplicitUsings>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<RootNamespace>Phoenix.Data.Plc.AgLink</RootNamespace>
 		<AssemblyName>Phoenix.Data.Plc.AgLink.Demo</AssemblyName>
-		<Copyright>2023</Copyright>
-		<Version>5.0.0</Version>
+		<Copyright>2024</Copyright>
+		<Version>6.0.0-beta.1</Version>
 		<Authors>Felix Leistner</Authors>
 		<Company>Little Phoenix</Company>
 		<Description>Provides plc communication via AGLink demo assemblies.</Description>
@@ -44,9 +44,9 @@
 		Otherwise it wont be part of the debs.json which then leads to an TypeInitializationException during runtime of consuming projects.
 		The reason is that AGL4DotNET.4.dll can't be found, even when it is in the root of the output folder of the consuming project.
 		-->
-		<None Include="Resources\AgLink\AGL4DotNET.4.dll" Pack="true" PackagePath="lib\net45" />
+		<!--<None Include="Resources\AgLink\AGL4DotNET.4.dll" Pack="true" PackagePath="lib\net45" />-->
 		<None Include="Resources\AgLink\AGL4DotNET.4.dll" Pack="true" PackagePath="lib\netstandard2.0" />
-		<None Include="Resources\AgLink\AGL4DotNET.4.dll" Pack="true" PackagePath="lib\net5.0" />
+		<!--<None Include="Resources\AgLink\AGL4DotNET.4.dll" Pack="true" PackagePath="lib\net5.0" />-->
 	</ItemGroup>
 
 	<!-- Embedded resoures. -->
