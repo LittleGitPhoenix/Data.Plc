@@ -1,0 +1,18 @@
+<Project>
+
+	<!-- Import other Directory.Build.props: https://learn.microsoft.com/en-us/visualstudio/msbuild/customize-by-directory?view=vs-2022#use-case-multi-level-merging -->
+	<PropertyGroup>
+		<ParentDirectoryBuildPropsPath>$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)..\'))</ParentDirectoryBuildPropsPath>
+	</PropertyGroup>
+	<ImportGroup>
+		<Import Condition="$(ParentDirectoryBuildPropsPath) != ''" Project="$(ParentDirectoryBuildPropsPath)" />
+	</ImportGroup>
+
+	<!-- Properties: https://learn.microsoft.com/en-us/visualstudio/msbuild/common-msbuild-project-properties?view=vs-2022 -->
+	<!-- Replacors: https://learn.microsoft.com/en-us/visualstudio/msbuild/msbuild-reserved-and-well-known-properties?view=vs-2022 -->
+	<PropertyGroup>
+		<!-- This is an executable project, so its output path should reside within the project. -->
+		<BaseOutputPath>bin</BaseOutputPath>
+	</PropertyGroup>
+	
+</Project>

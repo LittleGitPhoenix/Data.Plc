@@ -1,14 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net7.0;net6.0;netstandard2.0;net48</TargetFrameworks>
+		<TargetFramework>netstandard2.0</TargetFramework>
 		<LangVersion>latest</LangVersion>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>disable</ImplicitUsings>
 		<AssemblyName>Phoenix.Data.Plc.AgLink</AssemblyName>
 		<RootNamespace>Phoenix.Data.Plc.AgLink</RootNamespace>
-		<Copyright>2023</Copyright>
-		<Version>5.0.0</Version>
+		<Copyright>2024</Copyright>
+		<Version>6.0.0</Version>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<Authors>Felix Leistner</Authors>
@@ -19,7 +19,7 @@
 		<IncludeSymbols>true</IncludeSymbols>
 		<PackageIcon>nuget.png</PackageIcon>
 		<PackageIconUrl>https://www.little-phoenix.de/nuget/nuget.ico</PackageIconUrl>
-		<PackageReadmeFile>readme.md</PackageReadmeFile>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 	</PropertyGroup>
@@ -44,7 +44,7 @@
 
 	<!-- Move the created NuGet packages into another folder. -->
 	<Target Name="MovePackage" AfterTargets="Pack">
-		<Move SourceFiles="$(BaseOutputPath)$(Configuration)\$(PackageId).$(PackageVersion).symbols.nupkg" DestinationFiles="$(BaseOutputPath)$(Configuration)\..\..\..\..\.nuget\$(PackageId).$(PackageVersion).nupkg" />
+		<Move SourceFiles="$(BaseOutputPath)$(Configuration)\$(PackageId).$(PackageVersion).symbols.nupkg" DestinationFiles="$(MSBuildProjectDirectory)\..\..\.nuget\$(PackageId).$(PackageVersion).nupkg" />
 		<Delete Files="$(BaseOutputPath)$(Configuration)\$(PackageId).$(PackageVersion).nupkg" />
 	</Target>
 
