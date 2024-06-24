@@ -9,7 +9,7 @@
 		<AssemblyName>Phoenix.Data.Plc.Mock</AssemblyName>
 		<RootNamespace>Phoenix.Data.Plc.Mock</RootNamespace>
 		<Copyright>2024</Copyright>
-		<Version>6.0.0-beta.1</Version>
+		<Version>6.0.0</Version>
 		<Authors>Felix Leistner</Authors>
 		<Company>Little Phoenix</Company>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>

@@ -7,7 +7,7 @@ ___
 
 ## 6.0.0
 
-:calendar: _2024-06-??_
+:calendar: _2024-06-23_
 
 | .NET | .NET Standard | .NET Framework |
 | :-: | :-: | :-: |
