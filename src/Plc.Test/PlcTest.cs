@@ -606,16 +606,15 @@ public class PlcTest
 			.Returns(true)
 			.Verifiable()
 			;
-		var isFirstCall = true;
+		var callCounter = 0;
 		plcMock
 			.Setup(p => p.PerformReadWriteAsync(It.IsAny<ICollection<IPlcItem>>(), It.IsAny<Plc.PlcItemUsageType>(), It.IsAny<CancellationToken>()))
 			.Returns
 			(
 				async () =>
 				{
-					if (isFirstCall)
+					if (Interlocked.Increment(ref callCounter) == 1)
 					{
-						isFirstCall = false;
 						// Simulate a hung operation that takes far longer than the configured communication timeout.
 						await Task.Delay(TimeSpan.FromSeconds(2));
 					}
@@ -667,16 +666,15 @@ public class PlcTest
 			.Returns(true)
 			.Verifiable()
 			;
-		var isFirstCall = true;
+		var callCounter = 0;
 		plcMock
 			.Setup(p => p.PerformReadWriteAsync(It.IsAny<ICollection<IPlcItem>>(), It.IsAny<Plc.PlcItemUsageType>(), It.IsAny<CancellationToken>()))
 			.Returns
 			(
 				async () =>
 				{
-					if (isFirstCall)
+					if (Interlocked.Increment(ref callCounter) == 1)
 					{
-						isFirstCall = false;
 						// Simulate a hung operation that takes far longer than the configured communication timeout.
 						await Task.Delay(TimeSpan.FromSeconds(2));
 					}
