@@ -5,9 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ___
 
+## 6.1.0
+
+📅 _2026-07-27_
+
+### Changes
+
+- Added an optional `communicationTimeout` constructor parameter to `Plc`. If specified, read/write operations that take longer than this duration are treated as unresponsive: the connection is marked as interrupted (triggering an automatic reconnect) and a `NotConnectedPlcException` is thrown, causing the affected items to be put on hold and automatically retried once reconnected.
+- Added a new overridable `OnCommunicationTimeout` method that is invoked when the above communication timeout is exceeded, allowing subclasses to immediately abandon the underlying (possibly still busy) connection object.
+___
+
 ## 6.0.0
 
-:calendar: _2024-06-23_
+📅 _2024-06-23_
 
 | .NET | .NET Standard | .NET Framework |
 | :-: | :-: | :-: |
@@ -20,7 +30,7 @@ ___
 
 ## 5.0.0
 
-:calendar: _2023-03-02_
+📅 _2023-03-02_
 
 |                   .NET                    |     .NET Standard      |     .NET Framework     |
 | :---------------------------------------: | :--------------------: | :--------------------: |
@@ -36,12 +46,12 @@ ___
 
 ### References
 
-:large_blue_circle: System.Memory ~~4.5.4~~ → **4.5.5** (.NET Framework and .NET Standard only)
+:large_blue_circle: System.Memory ~~4.5.4~~ → **4.5.5** (.NET Framework and .NET Standard only)  
 ___
 
 ## 4.1.1
 
-:calendar: _2021-06-23_
+📅 _2021-06-23_
 
 ### Fixed
 
@@ -50,7 +60,7 @@ ___
 
 ## 4.1.0
 
-:calendar: _2021-01-30_
+📅 _2021-01-30_
 
 ### Added
 
@@ -65,7 +75,7 @@ ___
 
 ## 4.0.0
 
-:calendar: _2021-01-10_
+📅 _2021-01-10_
 
 ### Changed
 
@@ -88,7 +98,7 @@ ___
 
 ## 3.1.0
 
-:calendar: _2020-12-09_
+📅 _2020-12-09_
 
 ### Changed
 
@@ -97,7 +107,7 @@ ___
 
 ## 3.0.0
 
-:calendar: _2020-11-18_
+📅 _2020-11-18_
 
 ### Changed
 
@@ -106,7 +116,7 @@ ___
 
 ## 2.2.0
 
-:calendar: _2020-11-15_
+📅 _2020-11-15_
 
 ### Added
 
@@ -115,7 +125,7 @@ ___
 
 ## 2.1.0
 
-:calendar: _2020-11-04_
+📅 _2020-11-04_
 
 ### Added
 
@@ -124,7 +134,7 @@ ___
 
 ## 2.0.0
 
-:calendar: _2020-09-13_
+📅 _2020-09-13_
 
 ### Changed
 
@@ -133,7 +143,7 @@ ___
 
 ## 1.6.0
 
-:calendar: _2020-08-28_
+📅 _2020-08-28_
 
 ### Added
 
@@ -143,7 +153,7 @@ ___
 
 ## 1.5.0
 
-:calendar: _2020-08-27_
+📅 _2020-08-27_
 
 ### Changed
 
@@ -152,7 +162,7 @@ ___
 
 ## 1.4.0
 
-:calendar: _2020-04-20_
+📅 _2020-04-20_
 
 ### Changed
 
@@ -166,7 +176,7 @@ ___
 
 ## 1.3.0
 
-:calendar: _2020-04-07_
+📅 _2020-04-07_
 
 ### Added
 
@@ -180,7 +190,7 @@ ___
 
 ## 1.2.1
 
-:calendar: _2020-04-06_
+📅 _2020-04-06_
 
 ### Fixed
 
@@ -189,7 +199,7 @@ ___
 
 ## 1.2.0
 
-:calendar: _2020-04-05_
+📅 _2020-04-05_
 
 ### Added
 
@@ -198,7 +208,7 @@ ___
 
 ## 1.1.0
 
-:calendar: _2020-04-05_
+📅 _2020-04-05_
 
 ### Changed
 
@@ -207,6 +217,6 @@ ___
 
 ## 1.0.0
 
-:calendar: _2020-03-31_
+📅 _2020-03-31_
 
 - Initial release.

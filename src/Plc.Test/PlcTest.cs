@@ -586,6 +586,170 @@ public class PlcTest
 	//}
 
 	/// <summary>
+	/// Checks if a read operation that takes longer than the configured communication timeout is treated as unresponsive: the connection is marked as interrupted,
+	/// <see cref="Plc.OnCommunicationTimeout"/> is invoked, and the affected items are automatically retried once the connection has been reestablished.
+	/// </summary>
+	[Test]
+	public async Task Check_If_Reading_Is_Retried_After_Communication_Timeout()
+	{
+		// Arrange
+		var byteItem = new BytePlcItem(dataBlock: 0, position: 0, initialValue: byte.MaxValue);
+		var communicationTimeout = TimeSpan.FromMilliseconds(200);
+		var plcMock = new Mock<Plc>(1, "MockPlc", (TimeSpan?) communicationTimeout) { CallBase = true };
+		plcMock
+			.Setup(p => p.OpenConnection())
+			.Returns(true)
+			.Verifiable()
+			;
+		plcMock
+			.Setup(p => p.CloseConnection())
+			.Returns(true)
+			.Verifiable()
+			;
+		var isFirstCall = true;
+		plcMock
+			.Setup(p => p.PerformReadWriteAsync(It.IsAny<ICollection<IPlcItem>>(), It.IsAny<Plc.PlcItemUsageType>(), It.IsAny<CancellationToken>()))
+			.Returns
+			(
+				async () =>
+				{
+					if (isFirstCall)
+					{
+						isFirstCall = false;
+						// Simulate a hung operation that takes far longer than the configured communication timeout.
+						await Task.Delay(TimeSpan.FromSeconds(10));
+					}
+				}
+			)
+			.Verifiable()
+			;
+		plcMock
+			.Setup(p => p.OnCommunicationTimeout())
+			.Verifiable()
+			;
+		var plc = plcMock.Object;
+
+		var interruptedCounter = 0;
+		plc.Interrupted += (sender, state) => interruptedCounter++;
+
+		// Connect to the plc.
+		var success = plc.Connect();
+		Assert.True(success);
+
+		// Act: Execute the read function. The first (simulated hung) attempt should time out, triggering an automatic reconnect and retry.
+		var result = await plc.ReadItemAsync(byteItem);
+
+		// Assert
+		Assert.True(interruptedCounter == 1);
+		plcMock.Verify(p => p.OnCommunicationTimeout(), Times.Once);
+		plcMock.Verify(p => p.PerformReadWriteAsync(It.IsAny<ICollection<IPlcItem>>(), It.IsAny<Plc.PlcItemUsageType>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
+		Assert.True(byteItem.Value == result);
+	}
+
+	/// <summary>
+	/// Checks if a write operation that takes longer than the configured communication timeout is treated as unresponsive: the connection is marked as interrupted,
+	/// <see cref="Plc.OnCommunicationTimeout"/> is invoked, and the affected items are automatically retried once the connection has been reestablished.
+	/// </summary>
+	[Test]
+	public async Task Check_If_Writing_Is_Retried_After_Communication_Timeout()
+	{
+		// Arrange
+		var byteItem = new BytePlcItem(dataBlock: 0, position: 0, initialValue: byte.MaxValue);
+		var communicationTimeout = TimeSpan.FromMilliseconds(200);
+		var plcMock = new Mock<Plc>(1, "MockPlc", (TimeSpan?) communicationTimeout) { CallBase = true };
+		plcMock
+			.Setup(p => p.OpenConnection())
+			.Returns(true)
+			.Verifiable()
+			;
+		plcMock
+			.Setup(p => p.CloseConnection())
+			.Returns(true)
+			.Verifiable()
+			;
+		var isFirstCall = true;
+		plcMock
+			.Setup(p => p.PerformReadWriteAsync(It.IsAny<ICollection<IPlcItem>>(), It.IsAny<Plc.PlcItemUsageType>(), It.IsAny<CancellationToken>()))
+			.Returns
+			(
+				async () =>
+				{
+					if (isFirstCall)
+					{
+						isFirstCall = false;
+						// Simulate a hung operation that takes far longer than the configured communication timeout.
+						await Task.Delay(TimeSpan.FromSeconds(10));
+					}
+				}
+			)
+			.Verifiable()
+			;
+		plcMock
+			.Setup(p => p.OnCommunicationTimeout())
+			.Verifiable()
+			;
+		var plc = plcMock.Object;
+
+		var interruptedCounter = 0;
+		plc.Interrupted += (sender, state) => interruptedCounter++;
+
+		// Connect to the plc.
+		var success = plc.Connect();
+		Assert.True(success);
+
+		// Act: Execute the write function. The first (simulated hung) attempt should time out, triggering an automatic reconnect and retry.
+		var writeSuccess = await plc.WriteItemAsync(byteItem);
+
+		// Assert
+		Assert.True(writeSuccess);
+		Assert.True(interruptedCounter == 1);
+		plcMock.Verify(p => p.OnCommunicationTimeout(), Times.Once);
+		plcMock.Verify(p => p.PerformReadWriteAsync(It.IsAny<ICollection<IPlcItem>>(), It.IsAny<Plc.PlcItemUsageType>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
+	}
+
+	/// <summary>
+	/// Checks that no communication timeout guard is applied if none was configured, even if the read operation takes a long time.
+	/// </summary>
+	[Test]
+	public async Task Check_If_No_Communication_Timeout_Is_Applied_By_Default()
+	{
+		// Arrange
+		var byteItem = new BytePlcItem(dataBlock: 0, position: 0, initialValue: byte.MaxValue);
+		var plcMock = new Mock<Plc>("MockPlc") { CallBase = true };
+		plcMock
+			.Setup(p => p.OpenConnection())
+			.Returns(true)
+			.Verifiable()
+			;
+		plcMock
+			.Setup(p => p.PerformReadWriteAsync(It.IsAny<ICollection<IPlcItem>>(), It.IsAny<Plc.PlcItemUsageType>(), It.IsAny<CancellationToken>()))
+			.Returns(async () => await Task.Delay(TimeSpan.FromMilliseconds(500)))
+			.Verifiable()
+			;
+		plcMock
+			.Setup(p => p.OnCommunicationTimeout())
+			.Verifiable()
+			;
+		var plc = plcMock.Object;
+
+		var interruptedCounter = 0;
+		plc.Interrupted += (sender, state) => interruptedCounter++;
+
+		// Connect to the plc.
+		var success = plc.Connect();
+		Assert.True(success);
+
+		// Act
+		var result = await plc.ReadItemAsync(byteItem);
+
+		// Assert
+		Assert.True(interruptedCounter == 0);
+		plcMock.Verify(p => p.OnCommunicationTimeout(), Times.Never);
+		plcMock.Verify(p => p.PerformReadWriteAsync(It.IsAny<ICollection<IPlcItem>>(), It.IsAny<Plc.PlcItemUsageType>(), It.IsAny<CancellationToken>()), Times.Once);
+		Assert.True(byteItem.Value == result);
+	}
+
+	/// <summary>
 	/// Checks if read operations are logged if <see cref="LogManager.LogAllReadAndWriteOperations"/> is enabled.
 	/// </summary>
 	[Test]

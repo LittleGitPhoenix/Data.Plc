@@ -77,7 +77,7 @@ public sealed class AgLinkPlcConnectionData : IAgLinkPlcConnectionData
 		this.Ip = ip;
 		this.Rack = rack;
 		this.Slot = slot;
-		this.ConnectionTimeout = connectionTimeout == default ? TimeSpan.FromMilliseconds(5000) : connectionTimeout;
+		this.ConnectionTimeout = connectionTimeout == TimeSpan.Zero ? TimeSpan.FromMilliseconds(5000) : connectionTimeout;
 	}
 
 	#endregion
@@ -87,7 +87,7 @@ public sealed class AgLinkPlcConnectionData : IAgLinkPlcConnectionData
 	/// <summary>
 	/// Returns a string that represents the current object.
 	/// </summary>
-	public override string ToString() => $"[<{this.GetType().Name}> :: Id: {this.Id} | Name: {this.Name} | Device: {this.DeviceNumber} | IP: {this.Ip} | Rack: {this.Rack} | Slot: {this.Slot} | ConnectionTimeOut: {this.ConnectionTimeout}]";
+	public override string ToString() => $"[<{nameof(AgLinkPlcConnectionData)}> :: Id: {this.Id} | Name: {this.Name} | Device: {this.DeviceNumber} | IP: {this.Ip} | Rack: {this.Rack} | Slot: {this.Slot} | ConnectionTimeOut: {this.ConnectionTimeout}]";
 
 	#endregion
 }
