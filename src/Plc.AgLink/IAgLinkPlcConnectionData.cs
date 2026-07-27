@@ -21,6 +21,10 @@ public interface IAgLinkPlcConnectionData : IPlcInformation
 	/// <summary> The slot of the plc. </summary>
 	byte Slot { get; }
 
-	/// <summary> Timeout for establishing the connection. </summary>
+	/// <summary> Timeout used both for establishing the connection and for AGLink communication functions (i.e. read/write calls). </summary>
+	/// <remarks>
+	/// AGLink does not always reliably enforce this for communication calls if the underlying TCP connection dies silently.
+	/// See <see cref="AgLinkPlc.PerformReadWriteAsync"/> for an additional application-level guard against this.
+	/// </remarks>
 	TimeSpan ConnectionTimeout { get; }
 }

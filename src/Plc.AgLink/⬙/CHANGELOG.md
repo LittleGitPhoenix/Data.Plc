@@ -5,9 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ___
 
+## 6.1.0
+
+📅 _2026-07-27_
+
+### Changes
+
+- `AgLinkPlc` now passes a communication timeout (the configured `ConnectionData.ConnectionTimeout` plus a 5 second margin) to the base `Plc` class, since AGLink's own timeout has been observed in production to not reliably abort hung `ReadMixEx`/`WriteMixEx` calls when the underlying TCP connection dies. If this timeout is exceeded, the connection is treated as interrupted and automatically reestablished.
+- Overrode `OnCommunicationTimeout` to immediately detach event handlers and abandon the underlying `IAGLink4` connection object (without disposing it) when the above timeout fires, since the hung call may never return and could still be operating on that instance.
+- If a read or write operation eventually completes after its underlying connection has already been abandoned due to a communication timeout, the stale result is now detected and discarded instead of being applied. Stale writes are logged as an error (including the affected items) since they may have written outdated data to the plc; stale reads are logged as informational, since discarding them has no side effect on the plc.
+
+### References
+
+:large_blue_circle: Phoenix.Data.Plc ~~6.0.0~~ → [**6.1.0**](..\..\Plc\⬙\CHANGELOG.md#6.1.0)  
+___
+
 ## 6.0.0
 
-:calendar: _2024-06-23_
+📅 _2024-06-23_
 
 | .NET | .NET Standard | .NET Framework |
 | :-: | :-: | :-: |
@@ -19,12 +34,12 @@ ___
 
 ### References
 
-:large_blue_circle: Phoenix.Data.Plc ~~5.0.0~~ → [**6.0.0**](..\..\Plc\⬙\CHANGELOG.md#6.0.0)
+:large_blue_circle: Phoenix.Data.Plc ~~5.0.0~~ → [**6.0.0**](..\..\Plc\⬙\CHANGELOG.md#6.0.0)  
 ___
 
 ## 5.0.0
 
-:calendar: _2023-03-02_
+📅 _2023-03-02_
 
 |                   .NET                    |     .NET Standard      |     .NET Framework     |
 | :---------------------------------------: | :--------------------: | :--------------------: |
@@ -32,12 +47,12 @@ ___
 
 ### References
 
-:large_blue_circle: AGLink ~~5.6.0.0~~ → **6.0.0.0**
+:large_blue_circle: AGLink ~~5.6.0.0~~ → **6.0.0.0**  
 ___
 
 ## 4.0.1
 
-:calendar: _2021-06-23_
+📅 _2021-06-23_
 
 ### Fixed
 
@@ -45,12 +60,12 @@ ___
 
 ### References
 
-:large_blue_circle: Phoenix.Data.Plc ~~4.0.0~~ → [**4.1.1**](..\..\Plc\⬙\CHANGELOG.md)
+:large_blue_circle: Phoenix.Data.Plc ~~4.0.0~~ → [**4.1.1**](..\..\Plc\⬙\CHANGELOG.md)  
 ___
 
 ## 4.0.0
 
-:calendar: _2021-01-10_
+📅 _2021-01-10_
 
 ### Changed
 
@@ -62,12 +77,12 @@ ___
 
 ### References
 
-:large_blue_circle: Phoenix.Data.Plc ~~3.1.0~~ → [**4.0.0**](..\..\Plc\⬙\CHANGELOG.md)
+:large_blue_circle: Phoenix.Data.Plc ~~3.1.0~~ → [**4.0.0**](..\..\Plc\⬙\CHANGELOG.md)  
 ___
 
 ## 3.1.0
 
-:calendar: _2020-12-09_
+📅 _2020-12-09_
 
 ### Changed
 
@@ -76,7 +91,7 @@ ___
 
 ## 3.0.0
 
-:calendar: _2020-11-18_
+📅 _2020-11-18_
 
 ### Changed
 
@@ -85,7 +100,7 @@ ___
 
 ## 2.2.0
 
-:calendar: _2020-11-15_
+📅 _2020-11-15_
 
 ### Added
 
@@ -99,7 +114,7 @@ ___
 
 ## 2.1.1
 
-:calendar: _2020-11-05_
+📅 _2020-11-05_
 
 ### Fixed
 
@@ -108,7 +123,7 @@ ___
 
 ## 2.1.0
 
-:calendar: _2020-11-04_
+📅 _2020-11-04_
 
 ### Added
 
@@ -116,21 +131,21 @@ ___
 
 ### References
 
-:large_blue_circle: AGLink ~~5.5.1~~ → **5.6.0**
+:large_blue_circle: AGLink ~~5.5.1~~ → **5.6.0**  
 ___
 
 ## 2.0.0
 
-:calendar: _2020-09-13_
+📅 _2020-09-13_
 
 ### References
 
-:large_blue_circle: Phoenix.Data.Plc ~~1.6.0~~ → [**2.0.0**](..\..\Plc\⬙\CHANGELOG.md)
+:large_blue_circle: Phoenix.Data.Plc ~~1.6.0~~ → [**2.0.0**](..\..\Plc\⬙\CHANGELOG.md)  
 ___
 
 ## 1.3.0
 
-:calendar: _2020-08-28_
+📅 _2020-08-28_
 
 ### Changed
 
@@ -139,7 +154,7 @@ ___
 
 ## 1.2.0
 
-:calendar: _2020-08-27_
+📅 _2020-08-27_
 
 ### Changed
 
@@ -148,7 +163,7 @@ ___
 
 ## 1.1.0
 
-:calendar: _2020-04-29_
+📅 _2020-04-29_
 
 ### Fixed
 
@@ -157,7 +172,7 @@ ___
 
 ## 1.0.1
 
-:calendar: _2020-04-15_
+📅 _2020-04-15_
 
 ### Fixed
 
@@ -166,6 +181,6 @@ ___
 
 ## 1.0.0
 
-:calendar: _2020-03-31_
+📅 _2020-03-31_
 
 - Initial release.

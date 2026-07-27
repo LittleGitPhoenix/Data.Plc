@@ -344,7 +344,7 @@ public sealed class BitCollection : IEnumerable, IEquatable<BitCollection>, IFor
 	/// Compares this instance to another one.
 	/// </summary>
 	/// <param name="other"> The other instance to compare to. </param>
-	/// <returns> <c>TRUE</c> if this instance equals the <paramref name="other"/> instance, otherwise <c>FALSE</c>. </returns>
+	/// <returns> <see langword="true"/> if this instance equals the <paramref name="other"/> instance, otherwise <see langword="false"/>. </returns>
 	public override bool Equals(object other)
 	{
 		if (other is BitCollection equatable) return this.Equals(equatable);
@@ -355,7 +355,7 @@ public sealed class BitCollection : IEnumerable, IEquatable<BitCollection>, IFor
 	/// Compares this instance to another one.
 	/// </summary>
 	/// <param name="other"> The other instance to compare to. </param>
-	/// <returns> <c>TRUE</c> if this instance equals the <paramref name="other"/> instance, otherwise <c>FALSE</c>. </returns>
+	/// <returns> <see langword="true"/> if this instance equals the <paramref name="other"/> instance, otherwise <see langword="false"/>. </returns>
 	public bool Equals(BitCollection other)
 	{
 		if (other is null) return false;
@@ -366,7 +366,7 @@ public sealed class BitCollection : IEnumerable, IEquatable<BitCollection>, IFor
 	/// Compares the current instance to another <see cref="BitCollection"/>.
 	/// </summary>
 	/// <param name="other"> The other <see cref="BitCollection"/> to compare to. </param>
-	/// <returns> <c>True</c> if both <see cref="BitCollection"/> are sequentially equal, otherwise <c>False</c>. </returns>
+	/// <returns> <see langword="true"/> if both <see cref="BitCollection"/> are sequentially equal, otherwise <see langword="false"/>. </returns>
 	public bool SequenceEqual(BitCollection other)
 	{
 		return this.Bytes.SequenceEqual(other.Bytes);
@@ -377,7 +377,7 @@ public sealed class BitCollection : IEnumerable, IEquatable<BitCollection>, IFor
 	/// </summary>
 	/// <param name="x"> The first <see cref="BitCollection"/> to compare. </param>
 	/// <param name="y"> The second <see cref="BitCollection"/> to compare. </param>
-	/// <returns> <c>TRUE</c> if both instances are equal, otherwise <c>FALSE</c>. </returns>
+	/// <returns> <see langword="true"/> if both instances are equal, otherwise <see langword="false"/>. </returns>
 	public static bool operator ==(BitCollection x, BitCollection y)
 	{
 		if (x is null && y is null) return true;
@@ -390,7 +390,7 @@ public sealed class BitCollection : IEnumerable, IEquatable<BitCollection>, IFor
 	/// </summary>
 	/// <param name="x"> The first <see cref="BitCollection"/> to compare. </param>
 	/// <param name="y"> The second <see cref="BitCollection"/> to compare. </param>
-	/// <returns> <c>TRUE</c> if both instances are NOT equal, otherwise <c>FALSE</c>. </returns>
+	/// <returns> <see langword="true"/> if both instances are NOT equal, otherwise <see langword="false"/>. </returns>
 	public static bool operator !=(BitCollection x, BitCollection y)
 	{
 		return !(x == y);

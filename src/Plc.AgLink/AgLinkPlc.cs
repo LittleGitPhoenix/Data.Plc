@@ -64,7 +64,10 @@ public abstract class AgLinkPlc : Plc
 	/// </summary>
 	/// <param name="connectionData"> <see cref="IAgLinkPlcConnectionData"/> </param>
 	protected AgLinkPlc(IAgLinkPlcConnectionData connectionData)
-		: base(connectionData.Id, connectionData.Name)
+		//! AGLink's own 'Timeout' (set from ConnectionData.ConnectionTimeout during OpenConnection) is documented to apply to communication functions too,
+		//! but has been observed in production to NOT reliably abort 'ReadMixEx'/'WriteMixEx' when the underlying TCP connection dies.
+		//! Therefore, an explicit guard timeout is passed to the base class. A margin is added over the raw AGLink timeout to avoid racing against legitimate AGLink-internal retries.
+		: base(connectionData.Id, connectionData.Name, connectionData.ConnectionTimeout + TimeSpan.FromSeconds(5))
 	{
 		// Save parameters.
 		this.ConnectionData = connectionData;
@@ -105,7 +108,7 @@ public abstract class AgLinkPlc : Plc
 			plc_class: AGL4.PLC_Class.ePLC_1200, //? Which type is correct?
 			ip: connectionData.Ip,
 			port: 0, //! This value seems to be ignored, as any test with different values always succeeded.
-			timeout: (int)Math.Abs(this.ConnectionData.ConnectionTimeout.TotalMilliseconds),
+			timeout: (int) Math.Abs(this.ConnectionData.ConnectionTimeout.TotalMilliseconds),
 			reportType: AsyncReportType.Callbacks,
 			result: out var result
 		);
@@ -143,6 +146,28 @@ public abstract class AgLinkPlc : Plc
 		plc.Dispose();
 
 		return result;
+	}
+
+	/// <inheritdoc />
+	/// <remarks>
+	/// A hung 'ReadMixEx'/'WriteMixEx' call may never return (observed in production to block for over 10 days), so the underlying connection object cannot be safely awaited on or disposed of at this point.
+	/// Instead it is abandoned here (handlers detached, reference dropped) without calling <see cref="IAGLink4.Disconnect"/> or <b>IAGLink4.Dispose</b>, accepting a bounded resource leak of that single instance,
+	/// so that reconnection can proceed immediately via a fresh instance.
+	/// </remarks>
+	protected override void OnCommunicationTimeout()
+	{
+		var plc = this.UnderlyingPlc;
+		if (plc is null) return;
+
+		// Imminently abandon the underlying plc instance and let it be garbage collected (after the orphaned read/write call has completed, if ever).
+		// Nulling this as soon as possible means that other calls to 'PerformReadWriteAsync' will fail fast with a 'NotConnectedPlcException' instead of potentially blocking on the orphaned read/write call.
+		this.UnderlyingPlc = null;
+
+		// Detach the handlers so the stale (possibly still busy) instance can no longer invoke reconnect logic on our behalf.
+		plc.OnConnectionErrorOccured -= this.OnConnectionErrorOccurred;
+		plc.OnConnectAborted -= this.OnConnectAborted;
+
+		//! Deliberately NOT calling 'plc.Disconnect()' or 'plc.Dispose()' here, since the orphaned read/write call may still be running against this instance and might never complete.
 	}
 
 	#endregion
@@ -186,6 +211,14 @@ public abstract class AgLinkPlc : Plc
 		//! The return value may be zero even if some or all of the items failed. To get the real result the 'Result' property of the AGLink item (AGL4.DATA_RW40.Result) must be checked.
 		var readResult = await Task.Run(() => underlyingPlc.ReadMixEx(allAgLinkItems, allAgLinkItems.Length), cancellationToken);
 
+		// If the underlying plc connection object has since been abandoned (e.g. because a previous guard-timeout for this very operation already fired and triggered a reconnect),
+		// then this is a stale result arriving after the fact. Applying it now could overwrite fresher values from a subsequent retry, so it must be discarded instead.
+		if (!ReferenceEquals(underlyingPlc, this.UnderlyingPlc))
+		{
+			base.Logger.Info($"A stale read operation on {this:LOG} completed after its underlying connection had already been abandoned (most likely due to a previous communication timeout). Its result will be discarded.");
+			return;
+		}
+
 		// Verify the total result.
 		//! Ignore the total result and inspect the result of each item individually.
 		var result = AgLinkPlc.ConvertToAgLinkResult(readResult);
@@ -217,6 +250,15 @@ public abstract class AgLinkPlc : Plc
 		// Write to the plc.
 		var writeResult = await Task.Run(() => underlyingPlc.WriteMixEx(allAgLinkItems, allAgLinkItems.Length), cancellationToken);
 
+		// If the underlying plc connection object has since been abandoned (e.g. because a previous guard-timeout for this very operation already fired and triggered a reconnect),
+		// then this is a stale result arriving after the fact. Its outcome is unreliable at this point (a subsequent retry may already have written fresher values), so it must be discarded instead.
+		if (!ReferenceEquals(underlyingPlc, this.UnderlyingPlc))
+		{
+			var itemDescriptions = String.Join(", ", plcItems.Select(plcItem => $"{plcItem:FULL}"));
+			base.Logger.Error($"A stale write operation on {this:LOG} completed after its underlying connection had already been abandoned (most likely due to a previous communication timeout). This means that potentially deprecated data has been written to the plc for the following items: {itemDescriptions}.");
+			return;
+		}
+
 		// Verify the total result.
 		//! Ignore the total result and inspect the result of each item individually.
 		var result = AgLinkPlc.ConvertToAgLinkResult(writeResult);
@@ -237,10 +279,10 @@ public abstract class AgLinkPlc : Plc
 	#region Helper
 
 	/// <summary>
-	/// Verifies that <paramref name="plc.UnderlyingPlc"/> is not <c>Null</c> before reading or writing.
+	/// Verifies that <paramref name="plc.UnderlyingPlc"/> is not <see langword="null"/> before reading or writing.
 	/// </summary>
 	/// <remarks> Normally the base class already handles cases where the plc connection is not yet established, but just in case and to keep the compiler from complaining. </remarks>
-	/// <exception cref="NotConnectedPlcException"> Thrown if <paramref name="plc.UnderlyingPlc"/> is <c>Null</c>. </exception>
+	/// <exception cref="NotConnectedPlcException"> Thrown if <paramref name="plc.UnderlyingPlc"/> is <see langword="null"/>. </exception>
 	private static IAGLink4 VerifyConnectivity(AgLinkPlc plc, ICollection<IPlcItem> plcItems, PlcItemUsageType usageType)
 	{
 		var underlyingPlc = plc.UnderlyingPlc;
@@ -266,8 +308,8 @@ public abstract class AgLinkPlc : Plc
 	private static (ICollection<ReadPlcItemWrapper> Mapping, AGL4.DATA_RW40[] AllAgLinkItems) CreateMappingAndAgLinkItems(ICollection<IPlcItem> plcItems, PlcItemUsageType usageType)
 	{
 		var mapping = plcItems
-				.Select(plcItem => new ReadPlcItemWrapper(plcItem))
-				.ToArray()
+			.Select(plcItem => new ReadPlcItemWrapper(plcItem))
+			.ToArray()
 			;
 
 		// Create all needed AGLink items.
@@ -275,19 +317,19 @@ public abstract class AgLinkPlc : Plc
 		//! Therefore the ReadPlcItemWrapper only contains the start position and the amount of items in the returned AGLink items array.
 		var previousAmount = 0;
 		var allAgLinkItems = mapping
-				.SelectMany
-				(
-					readPlcItemWrapper =>
-					{
-						var agLinkItems = AgLinkPlc.CreateAgLinkItems(readPlcItemWrapper.PlcItem, usageType).ToArray();
+			.SelectMany
+			(
+				readPlcItemWrapper =>
+				{
+					var agLinkItems = AgLinkPlc.CreateAgLinkItems(readPlcItemWrapper.PlcItem, usageType).ToArray();
 
-						readPlcItemWrapper.Start = (previousAmount += agLinkItems.Length) - 1;
-						readPlcItemWrapper.Amount = agLinkItems.Length;
+					readPlcItemWrapper.Start = (previousAmount += agLinkItems.Length) - 1;
+					readPlcItemWrapper.Amount = agLinkItems.Length;
 
-						return agLinkItems;
-					}
-				)
-				.ToArray()
+					return agLinkItems;
+				}
+			)
+			.ToArray()
 			;
 
 		return (mapping, allAgLinkItems);
@@ -376,8 +418,8 @@ public abstract class AgLinkPlc : Plc
 
 			// Check if any of those have failed.
 			var itemResult = agLinkItems
-					.Select(agLinkItem => agLinkItem.Result)
-					.FirstOrDefault(resultCode => resultCode != 0)
+				.Select(agLinkItem => agLinkItem.Result)
+				.FirstOrDefault(resultCode => resultCode != 0)
 				;
 				
 			var result = AgLinkPlc.ConvertToAgLinkResult(itemResult);

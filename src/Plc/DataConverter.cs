@@ -121,7 +121,7 @@ public static class DataConverter
 	/// <param name="value"> The <see cref="short"/> to convert. </param>
 	/// <param name="endianness"> The <see cref="Endianness"/> to use when converting. </param>
 	/// <param name="destination"> The <see cref="Span{T}"/> where the result will be written to. </param>
-	/// <returns> <c>True</c> on success, otherwise <c>False</c>. </returns>
+	/// <returns> <see langword="true"/> on success, otherwise <see langword="false"/>. </returns>
 	public static bool ToBytes(short value, Endianness endianness, Span<byte> destination)
 	{
 		if (endianness == Endianness.LittleEndian)
@@ -153,7 +153,7 @@ public static class DataConverter
 	/// <param name="value"> The <see cref="int"/> to convert. </param>
 	/// <param name="endianness"> The <see cref="Endianness"/> to use when converting. </param>
 	/// <param name="destination"> The <see cref="Span{T}"/> where the result will be written to. </param>
-	/// <returns> <c>True</c> on success, otherwise <c>False</c>. </returns>
+	/// <returns> <see langword="true"/> on success, otherwise <see langword="false"/>. </returns>
 	public static bool ToBytes(int value, Endianness endianness, Span<byte> destination)
 	{
 		if (endianness == Endianness.LittleEndian)
@@ -185,7 +185,7 @@ public static class DataConverter
 	/// <param name="value"> The <see cref="long"/> to convert. </param>
 	/// <param name="endianness"> The <see cref="Endianness"/> to use when converting. </param>
 	/// <param name="destination"> The <see cref="Span{T}"/> where the result will be written to. </param>
-	/// <returns> <c>True</c> on success, otherwise <c>False</c>. </returns>
+	/// <returns> <see langword="true"/> on success, otherwise <see langword="false"/>. </returns>
 	public static bool ToBytes(long value, Endianness endianness, Span<byte> destination)
 	{
 		if (endianness == Endianness.LittleEndian)
@@ -330,7 +330,7 @@ public static class DataConverter
 	/// <param name="value"> The <see cref="ushort"/> to convert. </param>
 	/// <param name="endianness"> The <see cref="Endianness"/> to use when converting. </param>
 	/// <param name="destination"> The <see cref="Span{T}"/> where the result will be written to. </param>
-	/// <returns> <c>True</c> on success, otherwise <c>False</c>. </returns>
+	/// <returns> <see langword="true"/> on success, otherwise <see langword="false"/>. </returns>
 	public static bool ToBytes(ushort value, Endianness endianness, Span<byte> destination)
 	{
 		if (endianness == Endianness.LittleEndian)
@@ -362,7 +362,7 @@ public static class DataConverter
 	/// <param name="value"> The <see cref="uint"/> to convert. </param>
 	/// <param name="endianness"> The <see cref="Endianness"/> to use when converting. </param>
 	/// <param name="destination"> The <see cref="Span{T}"/> where the result will be written to. </param>
-	/// <returns> <c>True</c> on success, otherwise <c>False</c>. </returns>
+	/// <returns> <see langword="true"/> on success, otherwise <see langword="false"/>. </returns>
 	public static bool ToBytes(uint value, Endianness endianness, Span<byte> destination)
 	{
 		if (endianness == Endianness.LittleEndian)
@@ -394,7 +394,7 @@ public static class DataConverter
 	/// <param name="value"> The <see cref="ulong"/> to convert. </param>
 	/// <param name="endianness"> The <see cref="Endianness"/> to use when converting. </param>
 	/// <param name="destination"> The <see cref="Span{T}"/> where the result will be written to. </param>
-	/// <returns> <c>True</c> on success, otherwise <c>False</c>. </returns>
+	/// <returns> <see langword="true"/> on success, otherwise <see langword="false"/>. </returns>
 	public static bool ToBytes(ulong value, Endianness endianness, Span<byte> destination)
 	{
 		if (endianness == Endianness.LittleEndian)

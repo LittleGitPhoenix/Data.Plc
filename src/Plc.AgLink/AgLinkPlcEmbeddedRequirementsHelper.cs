@@ -36,7 +36,7 @@ public abstract class AgLinkPlcEmbeddedRequirementsHelper
 	/// Gets a list of all embedded resources of the passed <paramref name="assembly"/>.
 	/// </summary>
 	/// <param name="assembly"> The assembly from where to load the resource names. If omitted, then <see cref="Assembly.GetCallingAssembly"/> will be used. </param>
-	/// <param name="writeNamesToDebug"> Should all the names be written to the debug output. Default is <c>FALSE</c>. </param>
+	/// <param name="writeNamesToDebug"> Should all the names be written to the debug output. Default is <see langword="false"/>. </param>
 	/// <returns> A collection with all the resource names. </returns>
 	protected static ICollection<string> GetAlResourceNames(Assembly? assembly = null, bool writeNamesToDebug = false)
 	{
@@ -53,7 +53,7 @@ public abstract class AgLinkPlcEmbeddedRequirementsHelper
 	/// </summary>
 	/// <param name="resourceName"> The name of the resource. This must include all folders to the resource file. </param>
 	/// <param name="assembly"> An optional assembly from where to load the resource. If omitted, then <see cref="Assembly.GetCallingAssembly"/> will be used. </param>
-	/// <returns> The resource as <see cref="System.Text.Encoding.UTF8"/> encoded <see cref="string"/> or <c>NULL</c>. </returns>
+	/// <returns> The resource as <see cref="System.Text.Encoding.UTF8"/> encoded <see cref="string"/> or <see langword="null"/>. </returns>
 	/// <example> ResourceHelper.LoadInternalResourceAsString("Resources\\Interop.IWshRuntimeLibrary.dll"); </example>
 	protected static string? LoadInternalResourceAsString(string? resourceName, Assembly? assembly = null)
 	{
@@ -84,7 +84,7 @@ public abstract class AgLinkPlcEmbeddedRequirementsHelper
 	/// </summary>
 	/// <param name="resourceName"> The name of the resource. This must include all folders to the resource file. </param>
 	/// <param name="assembly"> An optional assembly from where to load the resource. If omitted, then <see cref="Assembly.GetCallingAssembly"/> will be used. </param>
-	/// <returns> The resource as <see cref="System.IO.Stream"/> or <c>NULL</c>. </returns>
+	/// <returns> The resource as <see cref="System.IO.Stream"/> or <see langword="null"/>. </returns>
 	/// <example> ResourceHelper.LoadInternalResourceAsStream("Resources\\Interop.IWshRuntimeLibrary.dll"); </example>
 	protected static System.IO.Stream? LoadInternalResourceAsStream(string? resourceName, Assembly? assembly = null)
 	{

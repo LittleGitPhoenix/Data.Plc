@@ -12,7 +12,7 @@ namespace Phoenix.Data.Plc;
 public static class DataHelper
 {
 	/// <summary>
-	/// Checks if the bit at <paramref name="position"/> within the <paramref name="byte"/> is either <c>True</c> or <c>False</c>.
+	/// Checks if the bit at <paramref name="position"/> within the <paramref name="byte"/> is either <see langword="true"/> or <see langword="false"/>.
 	/// </summary>
 	public static bool IsBitSet(byte @byte, byte position)
 	{
@@ -21,7 +21,7 @@ public static class DataHelper
 	}
 
 	/// <summary>
-	/// Checks if the bit positioned at <paramref name="bytePosition"/> and <paramref name="bitPosition"/> within the <paramref name="bytes"/> is either <c>True</c> or <c>False</c>.
+	/// Checks if the bit positioned at <paramref name="bytePosition"/> and <paramref name="bitPosition"/> within the <paramref name="bytes"/> is either <see langword="true"/> or <see langword="false"/>.
 	/// </summary>
 	/// <param name="bytes"> The complete <see cref="Byte"/> array. </param>
 	/// <param name="bytePosition"></param>

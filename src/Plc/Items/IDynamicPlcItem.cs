@@ -17,7 +17,7 @@ public interface IDynamicPlcItem : IPlcItem
 	byte LengthFactor { get; }
 
 	/// <summary> This is a limit that will be applied to the length being read or written. </summary>
-	/// <remarks> Set this to <c>Null</c> to prevent limiting. </remarks>
+	/// <remarks> Set this to <see langword="null"/> to prevent limiting. </remarks>
 	uint? LengthLimit { get; }
 
 	/// <summary> The <see cref="IPlcItem"/> that defines the length of this dynamic item. </summary>

@@ -87,7 +87,7 @@ internal class DataRegion
 	/// </summary>
 	/// <param name="data"> The <see cref="BitCollection"/> to write. </param>
 	/// <param name="start"> The starting position. </param>
-	/// <returns> <c>True</c> on success, otherwise <c>False</c>. </returns>
+	/// <returns> <see langword="true"/> on success, otherwise <see langword="false"/>. </returns>
 	internal bool Write(BitCollection data, uint start)
 	{
 		lock (_lock)

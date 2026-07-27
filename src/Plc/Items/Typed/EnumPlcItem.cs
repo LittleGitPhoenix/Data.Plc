@@ -90,7 +90,7 @@ public class EnumPlcItem<TEnum> : TypedBytesPlcItem<TEnum>, IDeepCloneable<EnumP
 	/// <param name="data"> The data to convert. </param>
 	/// <param name="numerical"> The numerical representation of <paramref name="data"/>. </param>
 	/// <param name="enumeration"> The converted <typeparamref name="TEnum"/>. </param>
-	/// <returns> <c>True</c> on success, otherwise <c>False</c>. </returns>
+	/// <returns> <see langword="true"/> on success, otherwise <see langword="false"/>. </returns>
 	private static bool TryConvertToEnum(byte[] data, out object numerical, out TEnum enumeration)
 	{
 		numerical = default;

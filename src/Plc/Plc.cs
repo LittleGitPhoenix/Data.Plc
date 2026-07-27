@@ -98,6 +98,9 @@ public abstract class Plc : IPlc, IFormattable
 
 	private readonly object _connectionStateChangeLock;
 
+	/// <summary> The maximum duration a single read/write operation may take before it is considered unresponsive and the connection is treated as interrupted. </summary>
+	private readonly TimeSpan _communicationTimeout;
+
 	/// <summary> Contains <see cref="CancellationTokenSource"/> objects for all <see cref="IPlcItem"/>s whose handling has been put on hold. </summary>
 	private readonly ConcurrentQueue<CancellationTokenSource> _waitQueue;
 
@@ -170,12 +173,13 @@ public abstract class Plc : IPlc, IFormattable
 	/// </summary>
 	/// <param name="id"> The id of the plc. This is purely used for identification and log purposes. </param>
 	/// <param name="name"> The name of the plc. This is purely used for identification and log purposes. </param>
-	protected Plc(int id, string name)
+	/// <param name="communicationTimeout"> Optional maximum duration a single read/write operation may take before it is considered unresponsive and the connection is treated as interrupted, triggering an automatic reconnect and retry. Default is <see langword="null"/> meaning no such guard is applied. Negative values (other than <see cref="Timeout.InfiniteTimeSpan"/>) are treated as <see cref="Timeout.InfiniteTimeSpan"/> as well. </param>
+	protected Plc(int id, string name, TimeSpan? communicationTimeout = null)
 	{
 		// Save parameters.
 		this.Id = id;
 		this.Name = name;
-			
+
 		// Initialize fields.
 		this.ConnectionState = PlcConnectionState.Disconnected;
 		_disposeTokenSource = new CancellationTokenSource();
@@ -183,6 +187,7 @@ public abstract class Plc : IPlc, IFormattable
 		_isReconnecting = 0;
 		_connectionStateChangeLock = new object();
 		_waitQueue = new ConcurrentQueue<CancellationTokenSource>();
+		_communicationTimeout = communicationTimeout is null || communicationTimeout.Value < TimeSpan.Zero ? Timeout.InfiniteTimeSpan : communicationTimeout.Value;
 	}
 
 	#endregion
@@ -219,7 +224,7 @@ public abstract class Plc : IPlc, IFormattable
 	/// <summary>
 	/// Establishes a connection to the plc.
 	/// </summary>
-	/// <returns> <c>True</c> on success, otherwise <c>False</c>. </returns>
+	/// <returns> <see langword="true"/> on success, otherwise <see langword="false"/>. </returns>
 	protected internal abstract bool OpenConnection();
 
 	#endregion
@@ -240,7 +245,7 @@ public abstract class Plc : IPlc, IFormattable
 	/// <summary>
 	/// Disconnects the link to the plc.
 	/// </summary>
-	/// <returns> <c>True</c> on success, otherwise <c>False</c>. </returns>
+	/// <returns> <see langword="true"/> on success, otherwise <see langword="false"/>. </returns>
 	protected internal abstract bool CloseConnection();
 
 	#endregion
@@ -291,6 +296,16 @@ public abstract class Plc : IPlc, IFormattable
 
 		//TODO Check if this functions leaves even though the above task still runs. This should be the case because the task is not awaited.
 	}
+
+	/// <summary>
+	/// Invoked when a read or write operation exceeded the configured communication timeout and is presumed to be stuck indefinitely (e.g. a hung native call that may never return).
+	/// </summary>
+	/// <remarks>
+	/// Overriding subclasses should use this to immediately abandon the underlying connection object (detach event handlers, drop the reference) WITHOUT disposing or otherwise synchronously interacting with it,
+	/// since the orphaned operation may still be running against it and could never complete. Create a new connection object on the next <see cref="OpenConnection"/> call instead.
+	/// Disposing the abandoned object is not safe and may have to be skipped entirely (accepting a bounded resource leak) or deferred to whenever the orphaned operation eventually completes (if ever).
+	/// </remarks>
+	protected internal virtual void OnCommunicationTimeout() { }
 
 	#endregion
 
@@ -412,7 +427,7 @@ public abstract class Plc : IPlc, IFormattable
 	/// </summary>
 	/// <param name="plcItems"> The <see cref="IPlcItem"/>s to read or write. </param>
 	/// <param name="usageType"> The <see cref="PlcItemUsageType"/> defining whether a read or a write operation is performed. </param>
-	/// <returns> An awaitable <see cref="Task"/> containing <c>True</c> on success, otherwise <c>False</c>. </returns>
+	/// <returns> An awaitable <see cref="Task"/> containing <see langword="true"/> on success, otherwise <see langword="false"/>. </returns>
 	/// <param name="cancellationToken"> A <see cref="CancellationToken"/> for cancelling the operation. </param>
 	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
 	private async Task<bool> ExecuteReadWriteAsync(ICollection<IPlcItem> plcItems, PlcItemUsageType usageType, CancellationToken cancellationToken)
@@ -445,7 +460,39 @@ public abstract class Plc : IPlc, IFormattable
 						}
 					}
 
-					await Task.Run(() => this.PerformReadWriteAsync(plcItems, usageType, cancellationToken), cancellationToken);
+					var operationTask = Task.Run(() => this.PerformReadWriteAsync(plcItems, usageType, cancellationToken), cancellationToken);
+
+					if (_communicationTimeout == Timeout.InfiniteTimeSpan)
+					{
+						await operationTask.ConfigureAwait(false);
+					}
+					else
+					{
+						var timeoutTask = Task.Delay(_communicationTimeout, cancellationToken);
+						var completedTask = await Task.WhenAny(operationTask, timeoutTask).ConfigureAwait(false);
+
+						if (completedTask == timeoutTask)
+						{
+							// 'Task.Delay' also completes (as canceled) when 'cancellationToken' itself is canceled, which is NOT a communication timeout but a regular cancellation.
+							// Awaiting it here lets that cancellation surface and be handled by the normal 'OperationCanceledException' handling below instead of being misinterpreted as a timeout.
+							await timeoutTask.ConfigureAwait(false);
+
+							// Observe the eventual outcome of the orphaned operation, so that a possible exception doesn't surface as an unobserved task exception.
+							_ = operationTask.ContinueWith
+							(
+								faultedTask => this.Logger.Error($"A previously timed-out {usageType.ToString().ToLower()} operation on {this:LOG} eventually completed with an exception: {faultedTask.Exception?.GetBaseException().Message}. This message is just informational, nothing can be done about this at this time anymore."),
+								TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously
+							);
+
+							// Give the subclass a chance to abandon the underlying connection object right away, since the orphaned operation may keep running against it indefinitely (e.g. a native call that never returns) and therefore can never be safely awaited or disposed of.
+							this.OnCommunicationTimeout();
+
+							var itemDescriptions = Plc.GetPlcItemDescription(plcItems);
+							throw new NotConnectedPlcException($"{(usageType == PlcItemUsageType.Read ? "Reading" : "Writing")} the plc items ({itemDescriptions}) {(usageType == PlcItemUsageType.Read ? "from" : "to")} {this:LOG} timed out after {_communicationTimeout}. The connection appears to be unresponsive and will be reestablished. All items will be put on hold.");
+						}
+
+						await operationTask.ConfigureAwait(false);
+					}
 					break;
 				}
 				// This handles task cancellation.
@@ -631,7 +678,7 @@ public abstract class Plc : IPlc, IFormattable
 	public string ToString(string format, IFormatProvider formatProvider)
 	{
 		if (String.IsNullOrWhiteSpace(format)) format = "N";
-		formatProvider ??= System.Globalization.CultureInfo.CurrentCulture;
+		//formatProvider ??= System.Globalization.CultureInfo.CurrentCulture;
 
 		switch (format.ToUpperInvariant())
 		{
