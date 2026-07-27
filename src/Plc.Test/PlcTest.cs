@@ -750,6 +750,50 @@ public class PlcTest
 	}
 
 	/// <summary>
+	/// Checks that a regular external cancellation of a read operation is not misinterpreted as a communication timeout, even if the operation is still pending when the guard's
+	/// internal <see cref="Task.Delay(TimeSpan, CancellationToken)"/> completes as canceled due to the very same token being canceled.
+	/// </summary>
+	[Test]
+	public async Task Check_If_External_Cancellation_Is_Not_Treated_As_Communication_Timeout()
+	{
+		// Arrange
+		var byteItem = new BytePlcItem(dataBlock: 0, position: 0, initialValue: byte.MaxValue);
+		var communicationTimeout = TimeSpan.FromSeconds(10); // Deliberately much longer than the cancellation below, so only cancellation - and not the guard timeout - can trigger completion.
+		var plcMock = new Mock<Plc>(1, "MockPlc", (TimeSpan?) communicationTimeout) { CallBase = true };
+		plcMock
+			.Setup(p => p.OpenConnection())
+			.Returns(true)
+			.Verifiable()
+			;
+		plcMock
+			.Setup(p => p.PerformReadWriteAsync(It.IsAny<ICollection<IPlcItem>>(), It.IsAny<Plc.PlcItemUsageType>(), It.IsAny<CancellationToken>()))
+			.Returns(async (ICollection<IPlcItem> items, Plc.PlcItemUsageType usageType, CancellationToken token) => await Task.Delay(TimeSpan.FromSeconds(30), token))
+			.Verifiable()
+			;
+		plcMock
+			.Setup(p => p.OnCommunicationTimeout())
+			.Verifiable()
+			;
+		var plc = plcMock.Object;
+
+		var interruptedCounter = 0;
+		plc.Interrupted += (sender, state) => interruptedCounter++;
+
+		// Connect to the plc.
+		var success = plc.Connect();
+		Assert.True(success);
+
+		// Act: Cancel well before both the simulated operation and the configured communication timeout would elapse.
+		using var externalTokenSource = new CancellationTokenSource(TimeSpan.FromMilliseconds(200));
+
+		// Assert: A canceled read simply stops silently (per 'ExecuteReadWriteAsync's cancellation handling) instead of surfacing as a communication timeout.
+		var result = await plc.ReadItemAsync(byteItem, externalTokenSource.Token);
+		Assert.True(interruptedCounter == 0);
+		plcMock.Verify(p => p.OnCommunicationTimeout(), Times.Never);
+		Assert.True(result == byteItem.Value); // Value should remain unchanged since the read never completed.
+	}
+
+	/// <summary>
 	/// Checks if read operations are logged if <see cref="LogManager.LogAllReadAndWriteOperations"/> is enabled.
 	/// </summary>
 	[Test]

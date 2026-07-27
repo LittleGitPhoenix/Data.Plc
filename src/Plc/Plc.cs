@@ -471,8 +471,12 @@ public abstract class Plc : IPlc, IFormattable
 						var timeoutTask = Task.Delay(_communicationTimeout, cancellationToken);
 						var completedTask = await Task.WhenAny(operationTask, timeoutTask).ConfigureAwait(false);
 
-						if (completedTask != operationTask)
+						if (completedTask == timeoutTask)
 						{
+							// 'Task.Delay' also completes (as canceled) when 'cancellationToken' itself is canceled, which is NOT a communication timeout but a regular cancellation.
+							// Awaiting it here lets that cancellation surface and be handled by the normal 'OperationCanceledException' handling below instead of being misinterpreted as a timeout.
+							await timeoutTask.ConfigureAwait(false);
+
 							// Observe the eventual outcome of the orphaned operation, so that a possible exception doesn't surface as an unobserved task exception.
 							_ = operationTask.ContinueWith
 							(
