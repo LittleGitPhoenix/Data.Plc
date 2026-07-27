@@ -87,7 +87,7 @@ public sealed class AgLinkPlcConnectionData : IAgLinkPlcConnectionData
 	/// <summary>
 	/// Returns a string that represents the current object.
 	/// </summary>
-	public override string ToString() => $"[<{nameof(AgLinkPlcConnectionData)}> :: Id: {this.Id} | Name: {this.Name} | Device: {this.DeviceNumber} | IP: {this.Ip} | Rack: {this.Rack} | Slot: {this.Slot} | ConnectionTimeOut: {this.ConnectionTimeout}]";
+	public override string ToString() => $"[<{nameof(AgLinkPlcConnectionData)}> :: Id: {this.Id} | Name: {this.Name} | Device: {this.DeviceNumber} | IP: {this.Ip} | {nameof(this.Rack)}: {this.Rack} | {nameof(this.Slot)}: {this.Slot} | {nameof(this.ConnectionTimeout)}: {this.ConnectionTimeout}]";
 
 	#endregion
 }
