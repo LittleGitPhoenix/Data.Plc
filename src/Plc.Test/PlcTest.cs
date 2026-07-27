@@ -149,7 +149,7 @@ public class PlcTest
 		var readTask = plc.ReadItemAsync(byteItem);
 
 		// Create a new task that automatically ends after some time.
-		var waitTask = Task.Delay(3000);
+		var waitTask = Task.Delay(1000);
 
 		// Wait until one of the tasks finishes.
 		await Task.WhenAny(new[] { readTask, waitTask });
@@ -196,7 +196,7 @@ public class PlcTest
 		// Disconnect before reading and then wait a little bit.
 		plc.Disconnect();
 		var readTask = plc.ReadItemsAsync(new IPlcItem[] {byteItem});
-		await Task.Delay(1000);
+		await Task.Delay(500);
 			
 		// Act
 		plc.Dispose();
@@ -271,7 +271,7 @@ public class PlcTest
 		(
 			async () =>
 			{
-				await Task.Delay(1000);
+				await Task.Delay(500);
 				plc.Dispose();
 			}
 		);
@@ -314,7 +314,7 @@ public class PlcTest
 		var writeTask = plc.WriteItemAsync(byteItem);
 
 		// Create a new task that automatically ends after some time.
-		var waitTask = Task.Delay(3000);
+		var waitTask = Task.Delay(1000);
 
 		// Wait until one of the tasks finishes.
 		await Task.WhenAny(new[] { writeTask, waitTask });
@@ -361,7 +361,7 @@ public class PlcTest
 		// Disconnect before writing and then wait a little bit.
 		plc.Disconnect();
 		var writeTask = plc.WriteItemsAsync(new IPlcItem[] {byteItem});
-		await Task.Delay(1000);
+		await Task.Delay(500);
 			
 		// Act
 		plc.Dispose();
@@ -437,7 +437,7 @@ public class PlcTest
 		(
 			async () =>
 			{
-				await Task.Delay(1000);
+				await Task.Delay(500);
 				plc.Dispose();
 			}
 		);
@@ -617,7 +617,7 @@ public class PlcTest
 					{
 						isFirstCall = false;
 						// Simulate a hung operation that takes far longer than the configured communication timeout.
-						await Task.Delay(TimeSpan.FromSeconds(10));
+						await Task.Delay(TimeSpan.FromSeconds(2));
 					}
 				}
 			)
@@ -678,7 +678,7 @@ public class PlcTest
 					{
 						isFirstCall = false;
 						// Simulate a hung operation that takes far longer than the configured communication timeout.
-						await Task.Delay(TimeSpan.FromSeconds(10));
+						await Task.Delay(TimeSpan.FromSeconds(2));
 					}
 				}
 			)
@@ -723,7 +723,7 @@ public class PlcTest
 			;
 		plcMock
 			.Setup(p => p.PerformReadWriteAsync(It.IsAny<ICollection<IPlcItem>>(), It.IsAny<Plc.PlcItemUsageType>(), It.IsAny<CancellationToken>()))
-			.Returns(async () => await Task.Delay(TimeSpan.FromMilliseconds(500)))
+			.Returns(async () => await Task.Delay(TimeSpan.FromMilliseconds(300)))
 			.Verifiable()
 			;
 		plcMock
@@ -758,7 +758,7 @@ public class PlcTest
 	{
 		// Arrange
 		var byteItem = new BytePlcItem(dataBlock: 0, position: 0, initialValue: byte.MaxValue);
-		var communicationTimeout = TimeSpan.FromSeconds(10); // Deliberately much longer than the cancellation below, so only cancellation - and not the guard timeout - can trigger completion.
+		var communicationTimeout = TimeSpan.FromSeconds(2); // Deliberately much longer than the cancellation below, so only cancellation - and not the guard timeout - can trigger completion.
 		var plcMock = new Mock<Plc>(1, "MockPlc", (TimeSpan?) communicationTimeout) { CallBase = true };
 		plcMock
 			.Setup(p => p.OpenConnection())
@@ -767,7 +767,7 @@ public class PlcTest
 			;
 		plcMock
 			.Setup(p => p.PerformReadWriteAsync(It.IsAny<ICollection<IPlcItem>>(), It.IsAny<Plc.PlcItemUsageType>(), It.IsAny<CancellationToken>()))
-			.Returns(async (ICollection<IPlcItem> items, Plc.PlcItemUsageType usageType, CancellationToken token) => await Task.Delay(TimeSpan.FromSeconds(30), token))
+			.Returns(async (ICollection<IPlcItem> items, Plc.PlcItemUsageType usageType, CancellationToken token) => await Task.Delay(TimeSpan.FromSeconds(5), token))
 			.Verifiable()
 			;
 		plcMock
