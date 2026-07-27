@@ -279,10 +279,10 @@ public abstract class AgLinkPlc : Plc
 	#region Helper
 
 	/// <summary>
-	/// Verifies that <paramref name="plc.UnderlyingPlc"/> is not <c>Null</c> before reading or writing.
+	/// Verifies that <paramref name="plc.UnderlyingPlc"/> is not <see langword="null"/> before reading or writing.
 	/// </summary>
 	/// <remarks> Normally the base class already handles cases where the plc connection is not yet established, but just in case and to keep the compiler from complaining. </remarks>
-	/// <exception cref="NotConnectedPlcException"> Thrown if <paramref name="plc.UnderlyingPlc"/> is <c>Null</c>. </exception>
+	/// <exception cref="NotConnectedPlcException"> Thrown if <paramref name="plc.UnderlyingPlc"/> is <see langword="null"/>. </exception>
 	private static IAGLink4 VerifyConnectivity(AgLinkPlc plc, ICollection<IPlcItem> plcItems, PlcItemUsageType usageType)
 	{
 		var underlyingPlc = plc.UnderlyingPlc;

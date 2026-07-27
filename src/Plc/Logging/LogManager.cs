@@ -28,7 +28,7 @@ public static class LogManager
 	/// <summary>
 	/// Should every read / write operation be logged.
 	/// </summary>
-	/// <remarks> Default is <c>False</c> because this may be a costly operation. </remarks>
+	/// <remarks> Default is <see langword="false"/> because this may be a costly operation. </remarks>
 	public static bool LogAllReadAndWriteOperations { get; set; }
 
 	/// <summary>

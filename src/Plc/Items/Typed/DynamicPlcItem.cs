@@ -181,7 +181,7 @@ public class DynamicPlcItem<TValue> : IDynamicPlcItem, IPlcItem<TValue>
 	/// Compares this instance to another one.
 	/// </summary>
 	/// <param name="other"> The other instance to compare to. </param>
-	/// <returns> <c>TRUE</c> if this instance equals the <paramref name="other"/> instance, otherwise <c>FALSE</c>. </returns>
+	/// <returns> <see langword="true"/> if this instance equals the <paramref name="other"/> instance, otherwise <see langword="false"/>. </returns>
 	public override bool Equals(object other)
 	{
 		if (other is IPlcItem equatable) return this.Equals(equatable);

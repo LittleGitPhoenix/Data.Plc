@@ -53,7 +53,7 @@ public sealed class AgLinkPlcConnectionData : IAgLinkPlcConnectionData
 	/// <param name="rack"> <see cref="Rack"/> </param>
 	/// <param name="slot"> <see cref="Slot"/> </param>
 	/// <param name="connectionTimeout"> Optional timeout for establishing the connection. Default value is 5000 milliseconds. </param>
-	/// <returns> <c>TRUE</c> if successful, otherwise <c>FALSE</c>. </returns>
+	/// <returns> <see langword="true"/> if successful, otherwise <see langword="false"/>. </returns>
 	public AgLinkPlcConnectionData(byte deviceNumber, string ip, byte rack, byte slot, TimeSpan connectionTimeout = default)
 		: this(-1, null, deviceNumber, ip, rack, slot, connectionTimeout) { }
 
@@ -61,13 +61,13 @@ public sealed class AgLinkPlcConnectionData : IAgLinkPlcConnectionData
 	/// Constructor
 	/// </summary>
 	/// <param name="id"> The id of the plc. </param>
-	/// <param name="name"> The name of the plc instance. If this is <c>Null</c> or whitespace then the default value <c>AGLinkPlc@{ip}</c> will be used. </param>
+	/// <param name="name"> The name of the plc instance. If this is <see langword="null"/> or whitespace then the default value <c>AGLinkPlc@{ip}</c> will be used. </param>
 	/// <param name="deviceNumber"> <see cref="DeviceNumber"/> </param>
 	/// <param name="ip"> <see cref="Ip"/> </param>
 	/// <param name="rack"> <see cref="Rack"/> </param>
 	/// <param name="slot"> <see cref="Slot"/> </param>
 	/// <param name="connectionTimeout"> Optional timeout for establishing the connection. Default value is 5000 milliseconds. </param>
-	/// <returns> <c>TRUE</c> if successful, otherwise <c>FALSE</c>. </returns>
+	/// <returns> <see langword="true"/> if successful, otherwise <see langword="false"/>. </returns>
 	public AgLinkPlcConnectionData(int id, string? name, byte deviceNumber, string ip, byte rack, byte slot, TimeSpan connectionTimeout = default)
 	{
 		// Save parameters.

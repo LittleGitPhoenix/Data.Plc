@@ -53,7 +53,7 @@ public static class PlcExtensions
 	/// <param name="plc"> The extended <see cref="IPlcItem"/> instance. </param>
 	/// <param name="plcItem"> The <see cref="IPlcItem"/> to write. </param>
 	/// <param name="cancellationToken"> An optional <see cref="CancellationToken"/> for cancelling the write operation. </param>
-	/// <returns> An awaitable task yielding <c>True</c> on success, otherwise <c>False</c>. </returns>
+	/// <returns> An awaitable task yielding <see langword="true"/> on success, otherwise <see langword="false"/>. </returns>
 	/// <exception cref="WritePlcException"> Thrown if an exception occurred while writing. </exception>
 	public static async Task<bool> WriteItemAsync(this IPlc plc, IPlcItem plcItem, CancellationToken cancellationToken = default)
 		=> await plc.WriteItemsAsync(new[] { plcItem }, cancellationToken);
@@ -64,7 +64,7 @@ public static class PlcExtensions
 	/// <param name="plc"> The extended <see cref="IPlcItem"/> instance. </param>
 	/// <param name="plcItem"> The <see cref="IPlcItem"/> to write. </param>
 	/// <param name="cancellationToken"> An optional <see cref="CancellationToken"/> for cancelling the write operation. </param>
-	/// <returns> An awaitable task yielding <c>True</c> on success, otherwise <c>False</c>. </returns>
+	/// <returns> An awaitable task yielding <see langword="true"/> on success, otherwise <see langword="false"/>. </returns>
 	/// <exception cref="WritePlcException"> Thrown if an exception occurred while writing. </exception>
 	public static async Task<bool> WriteItemWithValidationAsync(this IPlc plc, IPlcItem plcItem, CancellationToken cancellationToken = default)
 		=> await plc.WriteItemsWithValidationAsync(new[] { plcItem }, cancellationToken);
@@ -75,7 +75,7 @@ public static class PlcExtensions
 	/// <param name="plc"> The extended <see cref="IPlcItem"/> instance. </param>
 	/// <param name="plcItems"> The <see cref="IPlcItem"/>s to write. </param>
 	/// <param name="cancellationToken"> An optional <see cref="CancellationToken"/> for cancelling the write operation. </param>
-	/// <returns> An awaitable task yielding <c>True</c> on success, otherwise <c>False</c>. </returns>
+	/// <returns> An awaitable task yielding <see langword="true"/> on success, otherwise <see langword="false"/>. </returns>
 	/// <exception cref="ReadOrWritePlcException"> Thrown if an exception occurred while writing or while validating. </exception>
 	public static async Task<bool> WriteItemsWithValidationAsync(this IPlc plc, ICollection<IPlcItem> plcItems, CancellationToken cancellationToken = default)
 	{
@@ -96,7 +96,7 @@ public static class PlcExtensions
 	/// <param name="continueOnError"> Flag if writing should commence even if one item fails. Default is false. </param>
 	/// <param name="throwOnError"> Flag if an <see cref="WritePlcException"/> should be thrown if one or all items (depends on <paramref name="continueOnError"/>) fail. </param>
 	/// <param name="cancellationToken"> An optional <see cref="CancellationToken"/> for cancelling the write operation. </param>
-	/// <returns> An awaitable task yielding <c>True</c> on success, otherwise <c>False</c>. </returns>
+	/// <returns> An awaitable task yielding <see langword="true"/> on success, otherwise <see langword="false"/>. </returns>
 	/// <exception cref="WritePlcException"> Thrown if an exception occurred while writing and <paramref name="throwOnError"/> is true. </exception>
 	public static async Task<bool> WriteItemsInOrderAsync(this IPlc plc, ICollection<IPlcItem> plcItems, bool continueOnError = false, bool throwOnError = false, CancellationToken cancellationToken = default)
 	{
@@ -156,7 +156,7 @@ public static class PlcExtensions
 	/// <param name="plc"> The extended <see cref="IPlcItem"/> instance. </param>
 	/// <param name="plcItems"> The <see cref="IPlcItem"/>s whose write result should be validated. </param>
 	/// <param name="cancellationToken"> An optional <see cref="CancellationToken"/> for cancelling the write operation. </param>
-	/// <returns> An awaitable <see cref="Task"/> yielding <c>True</c> on success, otherwise <c>False</c>. </returns>
+	/// <returns> An awaitable <see cref="Task"/> yielding <see langword="true"/> on success, otherwise <see langword="false"/>. </returns>
 	/// <exception cref="ReadOrWritePlcException"> Thrown if an exception occurred while writing or while validating. </exception>
 	private static async Task<bool> ValidateWriteResultAsync(this IPlc plc, ICollection<IPlcItem> plcItems, CancellationToken cancellationToken)
 	{

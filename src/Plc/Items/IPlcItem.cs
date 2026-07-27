@@ -84,7 +84,7 @@ public interface IPlcItem<TValue> : IPlcItem
 	/// </summary>
 	/// <param name="newValue"> The new value that should be applied. </param>
 	/// <returns> The new value that will be applied. </returns>
-	/// <remarks> This should be used for reference types that shouldn't allow <c>Null</c> as a valid value. </remarks>
+	/// <remarks> This should be used for reference types that shouldn't allow <see langword="null"/> as a valid value. </remarks>
 	TValue ValidateNewValue(TValue newValue);
 
 	/// <summary>

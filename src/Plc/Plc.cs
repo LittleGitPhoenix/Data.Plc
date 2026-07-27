@@ -173,7 +173,7 @@ public abstract class Plc : IPlc, IFormattable
 	/// </summary>
 	/// <param name="id"> The id of the plc. This is purely used for identification and log purposes. </param>
 	/// <param name="name"> The name of the plc. This is purely used for identification and log purposes. </param>
-	/// <param name="communicationTimeout"> Optional maximum duration a single read/write operation may take before it is considered unresponsive and the connection is treated as interrupted, triggering an automatic reconnect and retry. Default is <c>Null</c> meaning no such guard is applied. Negative values (other than <see cref="Timeout.InfiniteTimeSpan"/>) are treated as <see cref="Timeout.InfiniteTimeSpan"/> as well. </param>
+	/// <param name="communicationTimeout"> Optional maximum duration a single read/write operation may take before it is considered unresponsive and the connection is treated as interrupted, triggering an automatic reconnect and retry. Default is <see langword="null"/> meaning no such guard is applied. Negative values (other than <see cref="Timeout.InfiniteTimeSpan"/>) are treated as <see cref="Timeout.InfiniteTimeSpan"/> as well. </param>
 	protected Plc(int id, string name, TimeSpan? communicationTimeout = null)
 	{
 		// Save parameters.
@@ -224,7 +224,7 @@ public abstract class Plc : IPlc, IFormattable
 	/// <summary>
 	/// Establishes a connection to the plc.
 	/// </summary>
-	/// <returns> <c>True</c> on success, otherwise <c>False</c>. </returns>
+	/// <returns> <see langword="true"/> on success, otherwise <see langword="false"/>. </returns>
 	protected internal abstract bool OpenConnection();
 
 	#endregion
@@ -245,7 +245,7 @@ public abstract class Plc : IPlc, IFormattable
 	/// <summary>
 	/// Disconnects the link to the plc.
 	/// </summary>
-	/// <returns> <c>True</c> on success, otherwise <c>False</c>. </returns>
+	/// <returns> <see langword="true"/> on success, otherwise <see langword="false"/>. </returns>
 	protected internal abstract bool CloseConnection();
 
 	#endregion
@@ -427,7 +427,7 @@ public abstract class Plc : IPlc, IFormattable
 	/// </summary>
 	/// <param name="plcItems"> The <see cref="IPlcItem"/>s to read or write. </param>
 	/// <param name="usageType"> The <see cref="PlcItemUsageType"/> defining whether a read or a write operation is performed. </param>
-	/// <returns> An awaitable <see cref="Task"/> containing <c>True</c> on success, otherwise <c>False</c>. </returns>
+	/// <returns> An awaitable <see cref="Task"/> containing <see langword="true"/> on success, otherwise <see langword="false"/>. </returns>
 	/// <param name="cancellationToken"> A <see cref="CancellationToken"/> for cancelling the operation. </param>
 	[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
 	private async Task<bool> ExecuteReadWriteAsync(ICollection<IPlcItem> plcItems, PlcItemUsageType usageType, CancellationToken cancellationToken)

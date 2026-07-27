@@ -85,7 +85,7 @@ internal sealed class DataRegionManager
 	/// Writes the <paramref name="plcItem"/> to the underlying <see cref="DataRegion"/>s.
 	/// </summary>
 	/// <param name="plcItem"> The <see cref="IPlcItem"/> to write. </param>
-	/// <returns> <c>True</c> on success, otherwise <c>False</c>. </returns>
+	/// <returns> <see langword="true"/> on success, otherwise <see langword="false"/>. </returns>
 	internal bool Write(IPlcItem plcItem)
 	{
 		var dataHolder = this.GetDataRegion(plcItem);

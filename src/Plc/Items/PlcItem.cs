@@ -173,7 +173,7 @@ public class PlcItem : IPlcItem
 	/// Compares this instance to another one.
 	/// </summary>
 	/// <param name="other"> The other instance to compare to. </param>
-	/// <returns> <c>TRUE</c> if this instance equals the <paramref name="other"/> instance, otherwise <c>FALSE</c>. </returns>
+	/// <returns> <see langword="true"/> if this instance equals the <paramref name="other"/> instance, otherwise <see langword="false"/>. </returns>
 	public override bool Equals(object other)
 	{
 		if (other is IPlcItem equatable) return this.Equals(equatable);
@@ -184,7 +184,7 @@ public class PlcItem : IPlcItem
 	/// Compares this instance to another one.
 	/// </summary>
 	/// <param name="other"> The other instance to compare to. </param>
-	/// <returns> <c>TRUE</c> if this instance equals the <paramref name="other"/> instance, otherwise <c>FALSE</c>. </returns>
+	/// <returns> <see langword="true"/> if this instance equals the <paramref name="other"/> instance, otherwise <see langword="false"/>. </returns>
 	public bool Equals(IPlcItem other)
 	{
 		return other?.GetHashCode() == this.GetHashCode();
@@ -195,7 +195,7 @@ public class PlcItem : IPlcItem
 	/// </summary>
 	/// <param name="x"> The first <see cref="PlcItem"/> to compare. </param>
 	/// <param name="y"> The second <see cref="IPlcItem"/> to compare. </param>
-	/// <returns> <c>TRUE</c> if both instances are equal, otherwise <c>FALSE</c>. </returns>
+	/// <returns> <see langword="true"/> if both instances are equal, otherwise <see langword="false"/>. </returns>
 	public static bool operator ==(PlcItem x, IPlcItem y)
 	{
 		return x?.GetHashCode() == y?.GetHashCode();
@@ -206,7 +206,7 @@ public class PlcItem : IPlcItem
 	/// </summary>
 	/// <param name="x"> The first <see cref="PlcItem"/> to compare. </param>
 	/// <param name="y"> The second <see cref="IPlcItem"/> to compare. </param>
-	/// <returns> <c>TRUE</c> if both instances are NOT equal, otherwise <c>FALSE</c>. </returns>
+	/// <returns> <see langword="true"/> if both instances are NOT equal, otherwise <see langword="false"/>. </returns>
 	public static bool operator !=(PlcItem x, IPlcItem y)
 	{
 		return !(x == y);

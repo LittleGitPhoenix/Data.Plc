@@ -75,7 +75,7 @@ public class PlcItemMonitorConfiguration : IEquatable<PlcItemMonitorConfiguratio
 	/// Compares this instance to another one.
 	/// </summary>
 	/// <param name="other"> The other instance to compare to. </param>
-	/// <returns> <c>TRUE</c> if this instance equals the <paramref name="other"/> instance, otherwise <c>FALSE</c>. </returns>
+	/// <returns> <see langword="true"/> if this instance equals the <paramref name="other"/> instance, otherwise <see langword="false"/>. </returns>
 	public override bool Equals(object other)
 	{
 		if (other is PlcItemMonitorConfiguration equatable) return this.Equals(equatable);
@@ -86,7 +86,7 @@ public class PlcItemMonitorConfiguration : IEquatable<PlcItemMonitorConfiguratio
 	/// Compares this instance to another one.
 	/// </summary>
 	/// <param name="other"> The other instance to compare to. </param>
-	/// <returns> <c>TRUE</c> if this instance equals the <paramref name="other"/> instance, otherwise <c>FALSE</c>. </returns>
+	/// <returns> <see langword="true"/> if this instance equals the <paramref name="other"/> instance, otherwise <see langword="false"/>. </returns>
 	public bool Equals(PlcItemMonitorConfiguration other)
 	{
 		return other?.GetHashCode() == this.GetHashCode();
@@ -97,7 +97,7 @@ public class PlcItemMonitorConfiguration : IEquatable<PlcItemMonitorConfiguratio
 	/// </summary>
 	/// <param name="x"> The first <see cref="PlcItemMonitorConfiguration"/> to compare. </param>
 	/// <param name="y"> The second <see cref="PlcItemMonitorConfiguration"/> to compare. </param>
-	/// <returns> <c>TRUE</c> if both instances are equal, otherwise <c>FALSE</c>. </returns>
+	/// <returns> <see langword="true"/> if both instances are equal, otherwise <see langword="false"/>. </returns>
 	public static bool operator ==(PlcItemMonitorConfiguration x, PlcItemMonitorConfiguration y)
 	{
 		return x?.GetHashCode() == y?.GetHashCode();
@@ -108,7 +108,7 @@ public class PlcItemMonitorConfiguration : IEquatable<PlcItemMonitorConfiguratio
 	/// </summary>
 	/// <param name="x"> The first <see cref="PlcItemMonitorConfiguration"/> to compare. </param>
 	/// <param name="y"> The second <see cref="PlcItemMonitorConfiguration"/> to compare. </param>
-	/// <returns> <c>TRUE</c> if both instances are NOT equal, otherwise <c>FALSE</c>. </returns>
+	/// <returns> <see langword="true"/> if both instances are NOT equal, otherwise <see langword="false"/>. </returns>
 	public static bool operator !=(PlcItemMonitorConfiguration x, PlcItemMonitorConfiguration y)
 	{
 		return !(x == y);

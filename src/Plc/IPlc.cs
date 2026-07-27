@@ -51,19 +51,19 @@ public interface IPlc : IDisposable
 	/// <summary>
 	/// Establishes a connection to the plc.
 	/// </summary>
-	/// <returns> <c>True</c> on success, otherwise <c>False</c>. </returns>
+	/// <returns> <see langword="true"/> on success, otherwise <see langword="false"/>. </returns>
 	bool Connect();
 
 	/// <summary>
 	/// Disconnects the link to the plc.
 	/// </summary>
-	/// <returns> <c>True</c> on success, otherwise <c>False</c>. </returns>
+	/// <returns> <see langword="true"/> on success, otherwise <see langword="false"/>. </returns>
 	bool Disconnect();
 
 	/// <summary>
 	/// Re-establishes the link to the plc.
 	/// </summary>
-	/// <returns> <c>True</c> on success, otherwise <c>False</c>. </returns>
+	/// <returns> <see langword="true"/> on success, otherwise <see langword="false"/>. </returns>
 	bool Reconnect();
 
 	#endregion
@@ -90,7 +90,7 @@ public interface IPlc : IDisposable
 	/// </summary>
 	/// <param name="plcItems"> The <see cref="IPlcItem"/>s to write. </param>
 	/// <param name="cancellationToken"> An optional <see cref="CancellationToken"/> for cancelling the write operation. </param>
-	/// <returns> An awaitable task yielding <c>True</c> on success, otherwise <c>False</c>. </returns>
+	/// <returns> An awaitable task yielding <see langword="true"/> on success, otherwise <see langword="false"/>. </returns>
 	/// <exception cref="WritePlcException"> Thrown if an exception occurred while writing. </exception>
 	/// <exception cref="DisposedWritePlcException"> Thrown if the <see cref="IPlc"/> used for writing has already been or is disposed while reading. </exception>
 	/// <remarks> The order in which the items will be written, is not guaranteed. </remarks>
