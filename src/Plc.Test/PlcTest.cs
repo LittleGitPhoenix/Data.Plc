@@ -794,6 +794,50 @@ public class PlcTest
 	}
 
 	/// <summary>
+	/// Checks that a negative <c>communicationTimeout</c> constructor argument (other than <see cref="Timeout.InfiniteTimeSpan"/>) is treated as if no timeout was configured,
+	/// instead of eventually causing an <see cref="ArgumentOutOfRangeException"/> when used internally with <see cref="Task.Delay(TimeSpan, CancellationToken)"/>.
+	/// </summary>
+	[Test]
+	public async Task Check_If_Negative_Communication_Timeout_Is_Treated_As_Infinite()
+	{
+		// Arrange
+		var byteItem = new BytePlcItem(dataBlock: 0, position: 0, initialValue: byte.MaxValue);
+		var negativeCommunicationTimeout = TimeSpan.FromSeconds(-5);
+		var plcMock = new Mock<Plc>(1, "MockPlc", (TimeSpan?) negativeCommunicationTimeout) { CallBase = true };
+		plcMock
+			.Setup(p => p.OpenConnection())
+			.Returns(true)
+			.Verifiable()
+			;
+		plcMock
+			.Setup(p => p.PerformReadWriteAsync(It.IsAny<ICollection<IPlcItem>>(), It.IsAny<Plc.PlcItemUsageType>(), It.IsAny<CancellationToken>()))
+			.Returns(async () => await Task.Delay(TimeSpan.FromMilliseconds(300)))
+			.Verifiable()
+			;
+		plcMock
+			.Setup(p => p.OnCommunicationTimeout())
+			.Verifiable()
+			;
+		var plc = plcMock.Object;
+
+		var interruptedCounter = 0;
+		plc.Interrupted += (sender, state) => interruptedCounter++;
+
+		// Connect to the plc.
+		var success = plc.Connect();
+		Assert.True(success);
+
+		// Act
+		var result = await plc.ReadItemAsync(byteItem);
+
+		// Assert
+		Assert.True(interruptedCounter == 0);
+		plcMock.Verify(p => p.OnCommunicationTimeout(), Times.Never);
+		plcMock.Verify(p => p.PerformReadWriteAsync(It.IsAny<ICollection<IPlcItem>>(), It.IsAny<Plc.PlcItemUsageType>(), It.IsAny<CancellationToken>()), Times.Once);
+		Assert.True(byteItem.Value == result);
+	}
+
+	/// <summary>
 	/// Checks if read operations are logged if <see cref="LogManager.LogAllReadAndWriteOperations"/> is enabled.
 	/// </summary>
 	[Test]

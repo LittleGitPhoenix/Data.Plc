@@ -173,7 +173,7 @@ public abstract class Plc : IPlc, IFormattable
 	/// </summary>
 	/// <param name="id"> The id of the plc. This is purely used for identification and log purposes. </param>
 	/// <param name="name"> The name of the plc. This is purely used for identification and log purposes. </param>
-	/// <param name="communicationTimeout"> Optional maximum duration a single read/write operation may take before it is considered unresponsive and the connection is treated as interrupted, triggering an automatic reconnect and retry. Default is <c>Null</c> meaning no such guard is applied. </param>
+	/// <param name="communicationTimeout"> Optional maximum duration a single read/write operation may take before it is considered unresponsive and the connection is treated as interrupted, triggering an automatic reconnect and retry. Default is <c>Null</c> meaning no such guard is applied. Negative values (other than <see cref="Timeout.InfiniteTimeSpan"/>) are treated as <see cref="Timeout.InfiniteTimeSpan"/> as well. </param>
 	protected Plc(int id, string name, TimeSpan? communicationTimeout = null)
 	{
 		// Save parameters.
@@ -187,7 +187,7 @@ public abstract class Plc : IPlc, IFormattable
 		_isReconnecting = 0;
 		_connectionStateChangeLock = new object();
 		_waitQueue = new ConcurrentQueue<CancellationTokenSource>();
-		_communicationTimeout = communicationTimeout ?? Timeout.InfiniteTimeSpan;
+		_communicationTimeout = communicationTimeout is null || communicationTimeout.Value < TimeSpan.Zero ? Timeout.InfiniteTimeSpan : communicationTimeout.Value;
 	}
 
 	#endregion
