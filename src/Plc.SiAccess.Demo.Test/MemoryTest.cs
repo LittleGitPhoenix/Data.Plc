@@ -7,12 +7,12 @@ namespace Phoenix.Data.Plc.SiAccess.Test;
 [TestFixture]
 public sealed class ImplementationMemoryTest : ImplementationMemoryTest<SiAccessPlc>
 {
-	private static string Host = "MyPlcHost";
+	private const string HostEnvironmentVariableName = "PLC_HOST";
 
 	public ImplementationMemoryTest()
 		: base
 		(
-			new DemoSiAccessPlc(new SiAccessPlcConnectionData(0, Host, 0, 0))
+			new DemoSiAccessPlc(new SiAccessPlcConnectionData(0, GetHost(HostEnvironmentVariableName), 0, 0))
 		)
 	{ }
 
@@ -23,7 +23,7 @@ public sealed class ImplementationMemoryTest : ImplementationMemoryTest<SiAccess
 		PingReply reply = null;
 		try
 		{
-			reply = ping.Send(Host, 1000);
+			reply = ping.Send(GetHost(HostEnvironmentVariableName), 1000);
 		}
 		catch { /* ignore */ }
 		if (reply is null || reply.Status != IPStatus.Success) Assert.Ignore($"Establishing a connection to '{base.Plc}' failed. This implementation test will not be executed, because it needs special hardware which seems to be unavailable.");
@@ -33,9 +33,10 @@ public sealed class ImplementationMemoryTest : ImplementationMemoryTest<SiAccess
 	/// Checks that the <see cref="CancellationTokenSource"/> that is created while reading/writing is properly disposed.
 	/// </summary>
 	[Test]
-	public async Task Check_Memory_Usage()
+	[Explicit]
+	public async Task CheckMemoryUsage()
 	{
-		Assert.Ignore("This test takes relatively long if the connection is capsuled via vpn. Best to execute it only when the test machine and the plc physically connected to the same network.");
+		//Assert.Ignore("This test takes relatively long if the connection is capsuled via vpn. Best to execute it only when the test machine and the plc physically connected to the same network.");
 		await base.CheckMemoryUsage(10000, 500);
 	}
 }

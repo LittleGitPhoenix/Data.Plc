@@ -62,6 +62,10 @@ public abstract class ImplementationTest<TPlc> : IDisposable
 
 	#region Methods
 
+	protected static string GetHost(string hostEnvironmentVariableName)
+		=> System.Environment.GetEnvironmentVariable(hostEnvironmentVariableName)
+			?? throw new System.InvalidOperationException($"The environment variable '{hostEnvironmentVariableName}' that points to the host/ip of the actual plc is not defined.");
+
 	#region Setup
 
 	[SetUp]

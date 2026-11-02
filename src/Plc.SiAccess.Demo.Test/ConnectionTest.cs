@@ -6,13 +6,13 @@ namespace Phoenix.Data.Plc.SiAccess.Test;
 [TestFixture]
 public sealed class ImplementationConnectionTest : ImplementationConnectionTest<SiAccessPlc>
 {
-	private static string Host = "MyPlcHost";
+	private const string HostEnvironmentVariableName = "PLC_HOST";
 
 	public ImplementationConnectionTest()
 		: base
 		(
-			new DemoSiAccessPlc(new SiAccessPlcConnectionData(0, Host, 0, 0)),
-			new DemoSiAccessPlc(new SiAccessPlcConnectionData(0, Host, 0, 0))
+			new DemoSiAccessPlc(new SiAccessPlcConnectionData(0, GetHost(HostEnvironmentVariableName), 0, 0)),
+			new DemoSiAccessPlc(new SiAccessPlcConnectionData(0, GetHost(HostEnvironmentVariableName), 0, 0))
 		) { }
 
 	/// <inheritdoc />
@@ -22,7 +22,7 @@ public sealed class ImplementationConnectionTest : ImplementationConnectionTest<
 		PingReply reply = null;
 		try
 		{
-			reply = ping.Send(Host, 1000);
+			reply = ping.Send(GetHost(HostEnvironmentVariableName), 1000);
 		}
 		catch { /* ignore */ }
 		if (reply is null || reply.Status != IPStatus.Success) Assert.Ignore($"Establishing a connection to '{base.Plc}' failed. This implementation test will not be executed, because it needs special hardware which seems to be unavailable.");
