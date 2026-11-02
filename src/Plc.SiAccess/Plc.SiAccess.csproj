@@ -1,0 +1,52 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>netstandard2.0</TargetFramework>
+		<LangVersion>latest</LangVersion>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<AssemblyName>Phoenix.Data.Plc.siAccess</AssemblyName>
+		<RootNamespace>Phoenix.Data.Plc.siAccess</RootNamespace>
+		<Copyright>2026</Copyright>
+		<Version>7.0.0</Version>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<Authors>Felix Leistner</Authors>
+		<Company>Little Phoenix</Company>
+		<Description>Base assembly for providing plc communication via siAccess.</Description>
+		<PackageId>Phoenix.Data.Plc.SiAccess</PackageId>
+		<Product>Phoenix.Data.Plc.SiAccess</Product>
+		<IncludeSymbols>true</IncludeSymbols>
+		<PackageIcon>nuget.png</PackageIcon>
+		<PackageIconUrl>https://www.little-phoenix.de/nuget/nuget.ico</PackageIconUrl>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+		<PackageTags>plc;siaccess;communication</PackageTags>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="..\..\nuget.png" Pack="true" PackagePath="" Link="⬙\nuget.png" />
+		<None Include="..\..\README.md" Pack="true" PackagePath="" Link="⬙\README.md" />
+		<None Include="..\..\LICENSE.md" Pack="true" PackagePath="" Link="⬙\LICENSE.md" />
+		<None Include="..\..\COPYING" Pack="true" PackagePath="" Link="⬙\COPYING" />
+		<None Include="..\..\COPYING.LESSER" Pack="true" PackagePath="" Link="⬙\COPYING.LESSER" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Plc\Plc.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Reference Include="siAccess_DotNET">
+			<HintPath>⬙\siAccess\siAccess_DotNET.dll</HintPath>
+		</Reference>
+	</ItemGroup>
+
+	<!-- Move the created NuGet packages into another folder. -->
+	<Target Name="MovePackage" AfterTargets="Pack">
+		<Move SourceFiles="$(BaseOutputPath)$(Configuration)\$(PackageId).$(PackageVersion).symbols.nupkg" DestinationFiles="$(MSBuildProjectDirectory)\..\..\.nuget\$(PackageId).$(PackageVersion).nupkg" />
+		<Delete Files="$(BaseOutputPath)$(Configuration)\$(PackageId).$(PackageVersion).nupkg" />
+	</Target>
+
+</Project>

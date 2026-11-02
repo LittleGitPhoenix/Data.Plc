@@ -9,7 +9,7 @@
 		<AssemblyName>Phoenix.Data.Plc</AssemblyName>
 		<RootNamespace>Phoenix.Data.Plc</RootNamespace>
 		<Copyright>2026</Copyright>
-		<Version>6.1.0</Version>
+		<Version>6.2.0</Version>
 		<Authors>Felix Leistner</Authors>
 		<Company>Little Phoenix</Company>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>

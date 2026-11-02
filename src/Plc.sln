@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.6.11806.211 stable
+VisualStudioVersion = 18.6.11806.211
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plc", "Plc\Plc.csproj", "{CE41CAB0-E2BF-4AAF-88BD-02E37440FE3D}"
 EndProject
@@ -40,6 +40,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plc.AgLink.Demo", "Plc.AgLink.Demo\Plc.AgLink.Demo.csproj", "{541C724F-DBD5-4159-AEEA-62DB002B86D0}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plc.AgLink.Test", "Plc.AgLink.Test\Plc.AgLink.Test.csproj", "{DDBD9681-F265-42D1-A4D1-F9DA0E340A52}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plc.SiAccess", "Plc.SiAccess\Plc.SiAccess.csproj", "{A83AA282-2CE7-D76E-02A1-53F48B980BAC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plc.SiAccess.Demo", "Plc.SiAccess.Demo\Plc.SiAccess.Demo.csproj", "{67C92655-2944-47F1-A5AA-3B4EB1549B3E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -95,6 +99,14 @@ Global
 		{DDBD9681-F265-42D1-A4D1-F9DA0E340A52}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DDBD9681-F265-42D1-A4D1-F9DA0E340A52}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DDBD9681-F265-42D1-A4D1-F9DA0E340A52}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A83AA282-2CE7-D76E-02A1-53F48B980BAC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A83AA282-2CE7-D76E-02A1-53F48B980BAC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A83AA282-2CE7-D76E-02A1-53F48B980BAC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A83AA282-2CE7-D76E-02A1-53F48B980BAC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{67C92655-2944-47F1-A5AA-3B4EB1549B3E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{67C92655-2944-47F1-A5AA-3B4EB1549B3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{67C92655-2944-47F1-A5AA-3B4EB1549B3E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{67C92655-2944-47F1-A5AA-3B4EB1549B3E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -116,6 +128,8 @@ Global
 		{4B111EAC-C9CC-4370-B487-F4286F1C22D1} = {C01573D0-8B5E-4002-BB7B-073EEE9DAD7A}
 		{541C724F-DBD5-4159-AEEA-62DB002B86D0} = {FF46340D-8282-42FC-9311-E8CF66952BD4}
 		{DDBD9681-F265-42D1-A4D1-F9DA0E340A52} = {73DC497B-1D8B-47BE-AC6F-88F386D59E50}
+		{A83AA282-2CE7-D76E-02A1-53F48B980BAC} = {FF46340D-8282-42FC-9311-E8CF66952BD4}
+		{67C92655-2944-47F1-A5AA-3B4EB1549B3E} = {FF46340D-8282-42FC-9311-E8CF66952BD4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E6ED8FCB-E264-4CCD-A246-F6A893C0B31E}
