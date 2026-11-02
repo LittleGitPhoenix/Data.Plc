@@ -33,7 +33,7 @@ public abstract class ImplementationTest<TPlc> : IDisposable
 	{
 		// Change the default logger.
 		Phoenix.Data.Plc.Logging.LogManager.LogAllReadAndWriteOperations = true;
-		Phoenix.Data.Plc.Logging.LogManager.LoggerFactory = () => new Phoenix.Data.Plc.Logging.TraceLogger();
+		Phoenix.Data.Plc.Logging.LogManager.LoggerFactory = () => new Phoenix.Data.Plc.Logging.ConsoleLogger();
 	}
 
 	protected ImplementationTest(TPlc plc, TPlc identicalPlc)
@@ -61,7 +61,6 @@ public abstract class ImplementationTest<TPlc> : IDisposable
 	#endregion
 
 	#region Methods
-
 
 	#region Setup
 

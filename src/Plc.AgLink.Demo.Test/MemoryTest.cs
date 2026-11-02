@@ -2,7 +2,7 @@ using System.Net.NetworkInformation;
 using Phoenix.Data.Plc.AgLink;
 using Phoenix.Data.Plc.Implementation.Test;
 
-namespace Phoenix.Data.Plc.Mock.Test;
+namespace Phoenix.Data.Plc.AgLink.Test;
 
 [TestFixture]
 public sealed class ImplementationMemoryTest : ImplementationMemoryTest<AgLinkPlc>

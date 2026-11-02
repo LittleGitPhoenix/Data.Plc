@@ -52,22 +52,22 @@ public class Data
 		this.StartOfModifiableBytes = 4;
 		this.EndOfModifiableBytes = 7;
 
-		this.TargetBytes = new byte[]
-		{
+		this.TargetBytes =
+		[
 			82,
 			79,
 			67,
 			75,
-		};
+		];
 
-		Random rnd = new Random();
-		this.WriteBytes = new byte[]
-		{
-			(byte) rnd.Next(sbyte.MinValue, sbyte.MaxValue), // Random 7bit
-			(byte) rnd.Next(sbyte.MinValue, sbyte.MaxValue), // Random 7bit
-			(byte) rnd.Next(sbyte.MaxValue, byte.MaxValue),  // Random last 8bit
-			(byte) rnd.Next(sbyte.MaxValue, byte.MaxValue),  // Random last 8bit
-		};
+		var random = new Random();
+		this.WriteBytes =
+		[
+			(byte) random.Next(sbyte.MinValue, sbyte.MaxValue), // Random 7bit
+			(byte) random.Next(sbyte.MinValue, sbyte.MaxValue), // Random 7bit
+			(byte) random.Next(sbyte.MaxValue, byte.MaxValue),  // Random last 8bit
+			(byte) random.Next(sbyte.MaxValue, byte.MaxValue),  // Random last 8bit
+		];
 	}
 
 	#endregion

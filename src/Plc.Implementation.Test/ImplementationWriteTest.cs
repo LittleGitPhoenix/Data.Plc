@@ -54,10 +54,10 @@ public abstract class ImplementationWriteTest<TPlc> : ImplementationTest<TPlc>
 	[Test]
 	public void WriteBits()
 	{
-		var allFalse = new BitCollection(false, new[] {false, false, false, false, false, false});
-		var allTrue = new BitCollection(false, new[] {true, true, true, true, true, true});
-		var partialTrue = new BitCollection(false, new[] {true, true, true, true });
-		var mixed = new BitCollection(false, new[] { false, false, true, true, true, true, false, false });
+		var allFalse = new BitCollection(false, [false, false, false, false, false, false]);
+		var allTrue = new BitCollection(false, [true, true, true, true, true, true]);
+		var partialTrue = new BitCollection(false, [true, true, true, true]);
+		var mixed = new BitCollection(false, [false, false, true, true, true, true, false, false]);
 
 		var fullItem = new BitsPlcItem(dataBlock: this.Data.Datablock, position: this.Data.StartOfModifiableBytes, BitPosition.X0, bitAmount: 8);
 		var writeItem = new BitsPlcItem(dataBlock: this.Data.Datablock, position: this.Data.StartOfModifiableBytes, BitPosition.X1, initialValue: allTrue);
