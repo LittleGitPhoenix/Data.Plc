@@ -15,6 +15,7 @@ jobs:
     uses: LittleGitPhoenix/Automation.Workflows/.github/workflows/release-library.yml@v1
     with:
       environment: ubuntu-latest
+      config-path: .github/ci-config.CI.json
     secrets:
       NUGET_USER: ${{ secrets.NUGET_USER }}
       NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}

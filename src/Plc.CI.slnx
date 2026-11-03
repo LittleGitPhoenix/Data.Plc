@@ -1,0 +1,29 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/Access/">
+    <Project Path="Plc/Plc.csproj" />
+  </Folder>
+  <Folder Name="/Access/Implementation/">
+    <Project Path="Plc.Mock/Plc.Mock.csproj" />
+  </Folder>
+  <Folder Name="/Monitor/">
+    <Project Path="Plc.Monitor/Plc.Monitor.csproj" />
+  </Folder>
+  <Folder Name="/Monitor/Implementation/">
+    <Project Path="Plc.Monitor.Polling/Plc.Monitor.Polling.csproj" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="Tests/Plc.Test/Plc.Test.csproj" />
+  </Folder>
+  <Folder Name="/Tests/Access Implementation/">
+    <Project Path="Tests/Plc.Implementation.Test/Plc.Implementation.Test.csproj" />
+    <Project Path="Tests/Plc.Mock.Test/Plc.Mock.Test.csproj" />
+  </Folder>
+  <Folder Name="/Tests/Monitor Implementation/">
+    <Project Path="Tests/Plc.Monitor.Polling.Test/Plc.Monitor.Polling.Test.csproj" />
+  </Folder>
+</Solution>

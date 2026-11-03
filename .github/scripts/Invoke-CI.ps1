@@ -2,6 +2,7 @@
 param(
     [ValidateSet('Validate', 'Release', 'All')]
     [string] $Mode,
+    [string] $ConfigPath,
     [switch] $ShowTags = $true
 )
 
@@ -16,6 +17,7 @@ if (-not $toolsPath -or -not (Test-Path $toolsPath)) {
 $repoRoot = [System.IO.Path]::GetFullPath("$PSScriptRoot/../..")
 $params = @{ WorkspaceRoot = $repoRoot; ShowTags = $ShowTags }
 if ($Mode) { $params['Mode'] = $Mode }
+if ($ConfigPath) { $params['ConfigPath'] = [System.IO.Path]::GetFullPath($ConfigPath, $repoRoot) }
 
 & (Join-Path $toolsPath 'scripts/Invoke-CI.ps1') @params
 exit $LASTEXITCODE

@@ -8,3 +8,5 @@ on:
 jobs:
   validate:
     uses: LittleGitPhoenix/Automation.Workflows/.github/workflows/validate.yml@v1
+    with:
+      config-path: .github/ci-config.CI.json
