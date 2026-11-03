@@ -7,7 +7,7 @@ ___
 
 ## 7.0.0
 
-📅 _2026-11-??_
+📅 _2026-11-03_
 
 > [!NOTE]
 > The version starts with **7.0.0** to keep in line with the siAccess major release.

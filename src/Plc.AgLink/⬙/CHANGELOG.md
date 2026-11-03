@@ -7,7 +7,7 @@ ___
 
 ## 6.2.0
 
-📅 _2026-11-??_
+📅 _2026-11-03_
 
 > [!CAUTION]
 > This library is deprecated and will no longer receive updates. Use **Phoenix.Data.Plc.SiAccess** library instead.
