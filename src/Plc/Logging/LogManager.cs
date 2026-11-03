@@ -36,10 +36,9 @@ public static class LogManager
 	/// </summary>
 	public static Func<ILogger> LoggerFactory
 	{
-		get => _loggerFactory ?? LogManager.NullLoggerFactory;
-		set => _loggerFactory = value;
+		get => field ?? LogManager.NullLoggerFactory;
+		set;
 	}
-	private static Func<ILogger> _loggerFactory;
 
 	#endregion
 
