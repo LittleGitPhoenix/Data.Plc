@@ -177,17 +177,17 @@ public class PlcTest
 		var byteItem = new BytePlcItem(dataBlock: 0, position: 0, initialValue: byte.MaxValue);
 		var plcMock = new Mock<Plc>("MockPlc") { CallBase = true };
 		plcMock
-			.Setup(p => p.OpenConnection())
+			.Setup(mock => mock.OpenConnection())
 			.Returns(true)
 			.Verifiable()
 			;
 		plcMock
-			.Setup(p => p.CloseConnection())
+			.Setup(mock => mock.CloseConnection())
 			.Returns(true)
 			.Verifiable()
 			;
 		plcMock
-			.Setup(p => p.PerformReadWriteAsync(It.IsAny<ICollection<IPlcItem>>(), It.IsAny<Plc.PlcItemUsageType>(), CancellationToken.None))
+			.Setup(mock => mock.PerformReadWriteAsync(It.IsAny<ICollection<IPlcItem>>(), It.IsAny<Plc.PlcItemUsageType>(), CancellationToken.None))
 			.Returns(Task.CompletedTask)
 			.Verifiable()
 			;
@@ -202,8 +202,17 @@ public class PlcTest
 		plc.Dispose();
 
 		// Assert
-		Assert.ThrowsAsync<DisposedReadPlcException>(() => readTask);
-		Assert.That(readTask.Status, Is.EqualTo(TaskStatus.Faulted));
+		Exception exception = null;
+		try
+		{
+			await readTask;
+		}
+		catch (Exception ex)
+		{
+			exception = ex;
+		}
+
+		Assert.That(exception, Is.TypeOf<DisposedReadPlcException>());
 	}
 
 	/// <summary>
@@ -342,17 +351,17 @@ public class PlcTest
 		var byteItem = new BytePlcItem(dataBlock: 0, position: 0, initialValue: byte.MaxValue);
 		var plcMock = new Mock<Plc>("MockPlc") { CallBase = true };
 		plcMock
-			.Setup(p => p.OpenConnection())
+			.Setup(mock => mock.OpenConnection())
 			.Returns(true)
 			.Verifiable()
 			;
 		plcMock
-			.Setup(p => p.CloseConnection())
+			.Setup(mock => mock.CloseConnection())
 			.Returns(true)
 			.Verifiable()
 			;
 		plcMock
-			.Setup(p => p.PerformReadWriteAsync(It.IsAny<ICollection<IPlcItem>>(), It.IsAny<Plc.PlcItemUsageType>(), CancellationToken.None))
+			.Setup(mock => mock.PerformReadWriteAsync(It.IsAny<ICollection<IPlcItem>>(), It.IsAny<Plc.PlcItemUsageType>(), CancellationToken.None))
 			.Returns(Task.CompletedTask)
 			.Verifiable()
 			;
@@ -367,8 +376,17 @@ public class PlcTest
 		plc.Dispose();
 
 		// Assert
-		Assert.ThrowsAsync<DisposedWritePlcException>(() => writeTask);
-		Assert.That(writeTask.Status, Is.EqualTo(TaskStatus.Faulted));
+		Exception exception = null;
+		try
+		{
+			await writeTask;
+		}
+		catch (Exception ex)
+		{
+			exception = ex;
+		}
+
+		Assert.That(exception, Is.TypeOf<DisposedWritePlcException>());
 	}
 
 	/// <summary>
