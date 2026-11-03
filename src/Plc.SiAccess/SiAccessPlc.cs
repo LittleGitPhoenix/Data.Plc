@@ -54,9 +54,11 @@ public abstract class SiAccessPlc : Plc
 	{
 		// Setup null-error mapping.
 		ErrorMapping = new ();
-			
+
 		// Setup other siAccess properties.
+#pragma warning disable CS0618 // Type or member is obsolete → And what is the proposed fix for this? Is it no longer necessary to specify this at all?
 		AGL.ReturnJobNr(false);
+#pragma warning restore CS0618 // Type or member is obsolete
 	}
 
 	/// <summary>

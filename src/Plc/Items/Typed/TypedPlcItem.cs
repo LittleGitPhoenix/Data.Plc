@@ -97,7 +97,7 @@ public abstract class TypedPlcItem<TValue> : PlcItem, IPlcItem<TValue>
 		// React to the value changed event from the underlying item.
 		base.ValueChanged += (sender, args) =>
 		{
-			if (!(sender is BitCollection bitCollection)) throw new ArgumentException($"The event sender should be of type '{nameof(BitCollection)}' but actually is '{sender.GetType()}'.");
+			if (sender is not BitCollection bitCollection) throw new ArgumentException($"The event sender should be of type '{nameof(BitCollection)}' but actually is '{sender.GetType()}'.");
 
 			var oldValue = _value;
 			_value = this.ConvertFromData(bitCollection);
