@@ -19,11 +19,11 @@ public class ConsoleLogger : ILogger
 
 	/// <inheritdoc />
 	public void Error(Exception exception)
-		=> this.Log(nameof(Error), exception.ToString());
+		=> this.Log(nameof(Error), "{0}", exception);
 
 	/// <inheritdoc />
 	public void Error(Exception exception, string message, params object[] replacors)
-		=> this.Log(nameof(Error), $"{message} ⇒ {exception}", replacors);
+		=> this.Log(nameof(Error), "{0} ⇒ {1}", String.Format(message, replacors), exception);
 
 	/// <inheritdoc />
 	public void Error(string message, params object[] replacors)

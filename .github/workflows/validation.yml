@@ -5,6 +5,10 @@ on:
   pull_request:
     branches: [ "main", "master" ]
 
+permissions:
+  contents: read
+  checks: write
+
 jobs:
   validate:
     uses: LittleGitPhoenix/Automation.Workflows/.github/workflows/validate.yml@v1

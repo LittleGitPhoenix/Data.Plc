@@ -104,7 +104,7 @@ public abstract class SiAccessRequirementsHelper
 
 			if (UnmanagedSiAccessAssemblyFile?.Exists ?? false)
 			{
-				var command = $"timeout 5 /nobreak >nul | del /F /Q \"{UnmanagedSiAccessAssemblyFile.FullName}\" >nul";
+				var command = $"timeout 5 /nobreak >nul & del /F /Q \"{UnmanagedSiAccessAssemblyFile.FullName}\" >nul";
 				var process = new System.Diagnostics.Process()
 				{
 					StartInfo = new System.Diagnostics.ProcessStartInfo
