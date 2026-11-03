@@ -9,7 +9,7 @@
 		<RootNamespace>Phoenix.Data.Plc.SiAccess</RootNamespace>
 		<AssemblyName>Phoenix.Data.Plc.SiAccess.Demo</AssemblyName>
 		<Copyright>2026</Copyright>
-		<Version>6.1.0</Version>
+		<Version>7.0.0-RC.1</Version>
 		<Authors>Felix Leistner</Authors>
 		<Company>Little Phoenix</Company>
 		<Description>Provides plc communication via siAccess demo assemblies.</Description>

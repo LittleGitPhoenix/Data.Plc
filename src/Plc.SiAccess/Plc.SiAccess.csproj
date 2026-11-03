@@ -8,7 +8,7 @@
 		<AssemblyName>Phoenix.Data.Plc.siAccess</AssemblyName>
 		<RootNamespace>Phoenix.Data.Plc.siAccess</RootNamespace>
 		<Copyright>2026</Copyright>
-		<Version>7.0.0</Version>
+		<Version>7.0.0-RC.1</Version>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<Authors>Felix Leistner</Authors>
