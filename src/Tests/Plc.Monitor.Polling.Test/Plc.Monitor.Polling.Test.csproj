@@ -32,7 +32,7 @@
 		<PackageReference Include="Moq" Version="4.21.0" />
 		<PackageReference Include="NUnit" Version="5.0.0" />
 		<PackageReference Include="NUnit3TestAdapter" Version="6.3.1" />
-		<PackageReference Include="NunitXml.TestLogger" Version="8.1.0" />
+		<PackageReference Include="NunitXml.TestLogger" Version="8.0.0" />
 		
 		<!-- Specific packages -->
 		<!-- Add any specific packages for this test project here -->

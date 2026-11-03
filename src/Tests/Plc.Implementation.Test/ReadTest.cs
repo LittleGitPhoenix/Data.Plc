@@ -164,16 +164,16 @@ public abstract class ReadTest<TPlc> : PlcTest<TPlc>
 		var bytesItem = itemBuilder
 				.ConstructBytesPlcItem()
 				.ForData()
-				.AtDatablock(Data.Datablock)
-				.AtPosition(Data.StartOfModifiableBytes)
+				.AtDatablock(this.Data.Datablock)
+				.AtPosition(this.Data.StartOfModifiableBytes)
 				.WithInitialValue(new[] {(byte) targetData.Length}.Concat(targetData).ToArray())
 				.Build()
 			;
 
 		var dynamicTextItem = itemBuilder
 				.ConstructUtf8PlcItem()
-				.AtDatablock(Data.Datablock)
-				.AtPosition(Data.StartOfModifiableBytes)
+				.AtDatablock(this.Data.Datablock)
+				.AtPosition(this.Data.StartOfModifiableBytes)
 				.WithDynamicItem<BytePlcItem>()
 				.BuildDynamic()
 			;
@@ -201,18 +201,17 @@ public abstract class ReadTest<TPlc> : PlcTest<TPlc>
 	{
 		// Arrange
 		var validItem = new BytesPlcItem(dataBlock: this.Data.Datablock, position: 0, byteAmount: (ushort)this.Data.TargetBytes.Length);
-		var invalidItem = new BytesPlcItem(dataBlock: ushort.MaxValue, position: 1, byteAmount: 100); //! Hopefully that datablock doesn't exists in the test system...
+		var invalidItem = new BytesPlcItem(dataBlock: ushort.MaxValue, position: 1, byteAmount: 100); //! Hopefully that datablock doesn't exist in the test system...
 
 		base.ExecuteTest
 		(
-			(plc) =>
+			async (plc) =>
 			{
 				// Act + Assert
-				var ex = Assert.ThrowsAsync<ReadPlcException>(() => plc.ReadItemsAsync([validItem, invalidItem]));
+				var ex = await Assert.ThrowsAsync<ReadPlcException>(() => plc.ReadItemsAsync([validItem, invalidItem]));
+				Assert.That(ex, Is.Not.Null);
 				Assert.That(ex.ValidItems.FirstOrDefault(), Is.EqualTo(validItem));
 				Assert.That(ex.FailedItems.FirstOrDefault().FailedItem, Is.EqualTo(invalidItem));
-
-				return System.Threading.Tasks.Task.CompletedTask;
 			}
 		);
 	}
