@@ -156,7 +156,7 @@ public class AgLinkErrorMapping
 				{
 					code = Convert.ToInt32(data[0], 16);
 				}
-				catch (Exception ex)
+				catch
 				{
 					continue;
 				}

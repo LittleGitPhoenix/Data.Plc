@@ -195,6 +195,7 @@ public class ItemTest
 			;
 		Assert.AreEqual((uint) 8, ((IPlcItem) lwordItem).Value.ByteLength);
 
+#pragma warning disable SYSLIB0001 // Type or member is obsolete → UTF-7 is only used within this test class.
 		TextPlcItem textItem = itemBuilder
 				.ConstructTextPlcItem("Text")
 				.WithEncoding(Encoding.UTF7)
@@ -204,6 +205,7 @@ public class ItemTest
 				.Build()
 			;
 		Assert.AreEqual((uint) Encoding.UTF7.GetBytes("Some String").Length, ((IPlcItem) textItem).Value.ByteLength);
+#pragma warning restore SYSLIB0001 // Type or member is obsolete
 
 		Utf8PlcItem utf8Item = itemBuilder
 				.ConstructUtf8PlcItem("UTF-8")

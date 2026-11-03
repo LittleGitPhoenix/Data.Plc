@@ -72,7 +72,7 @@ public abstract class AgLinkPlcEmbeddedRequirementsHelper
 			var content = reader.ReadToEnd();
 			return content;
 		}
-		catch (Exception ex)
+		catch
 		{
 			if (System.Diagnostics.Debugger.IsAttached) System.Diagnostics.Debugger.Break();
 			return null;
@@ -98,7 +98,7 @@ public abstract class AgLinkPlcEmbeddedRequirementsHelper
 			var stream = assembly.GetManifestResourceStream(resourceName);
 			return stream;
 		}
-		catch (Exception ex)
+		catch
 		{
 			if (System.Diagnostics.Debugger.IsAttached) System.Diagnostics.Debugger.Break();
 			return null;
