@@ -30,7 +30,13 @@ public abstract class TypedBytesPlcItem<TValue> : TypedPlcItem<TValue>
 	/// <summary>
 	/// Constructor
 	/// </summary>
+	/// <param name="type"> <see cref="IPlcItem.Type"/> </param>
+	/// <param name="dataBlock"> <see cref="IPlcItem.DataBlock"/> </param>
+	/// <param name="position"> <see cref="IPlcItem.Position"/> </param>
 	/// <param name="byteAmount"> The amount of <see cref="Byte"/>s of this item. </param>
+	/// <param name="isFlexible"> Is the values <see cref="BitCollection"/> fixed or will it change size according to its data. </param>
+	/// <param name="initialValue"> The initial value of this item. </param>
+	/// <param name="identifier"> <see cref="IPlcItem.Identifier"/> </param>
 	protected TypedBytesPlcItem
 	(
 		PlcItemType type,

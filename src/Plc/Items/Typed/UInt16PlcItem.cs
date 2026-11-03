@@ -37,7 +37,10 @@ public sealed class UInt16PlcItem : TypedBytesPlcItem<UInt16>, INumericPlcItem, 
 	#region (De)Constructors
 
 	/// <inheritdoc />
+	/// <param name="dataBlock"> <see cref="IPlcItem.DataBlock"/> </param>
 	/// <param name="position"> The position where the <see cref="UInt16"/> within the <see cref="IPlcItem.DataBlock"/> begins. </param>
+	/// <param name="initialValue"> The initial value of this item. </param>
+	/// <param name="identifier"> <see cref="IPlcItem.Identifier"/> </param>
 	public UInt16PlcItem(ushort dataBlock, ushort position, ushort initialValue = ushort.MinValue, string identifier = default)
 		: base
 		(
