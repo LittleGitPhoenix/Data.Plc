@@ -8,7 +8,7 @@
 		<AssemblyName>Phoenix.Data.Plc.AgLink</AssemblyName>
 		<RootNamespace>Phoenix.Data.Plc.AgLink</RootNamespace>
 		<Copyright>2026</Copyright>
-		<Version>6.1.0</Version>
+		<Version>6.2.0</Version>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<Authors>Felix Leistner</Authors>
@@ -22,6 +22,8 @@
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+		<PackageTags>plc;aglink;communication;deprecated;obsolete</PackageTags>
+		<PackageReleaseNotes>This package is deprecated because AgLink is no longer distributed. Use the Phoenix.Data.Plc.SiAccess package instead.</PackageReleaseNotes>
 	</PropertyGroup>
 
 	<ItemGroup>

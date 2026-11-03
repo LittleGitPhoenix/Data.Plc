@@ -34,8 +34,11 @@ public class TextPlcItem : TypedBytesPlcItem<string>, IDeepCloneable<TextPlcItem
 	#region (De)Constructors
 
 	/// <inheritdoc />
+	/// <param name="dataBlock"> <see cref="IPlcItem.DataBlock"/> </param>
+	/// <param name="position"> <see cref="IPlcItem.Position"/> </param>
 	/// <param name="length"> The length of the ASCII-<see cref="String"/> within the <see cref="IPlcItem.DataBlock"/>. </param>
 	/// <param name="encoding"> The <see cref="Encoding"/> used for text conversion. </param>
+	/// <param name="identifier"> <see cref="IPlcItem.Identifier"/> </param>
 	public TextPlcItem(ushort dataBlock, ushort position, ushort length, Encoding encoding, string identifier = default)
 		: this
 		(
@@ -48,7 +51,11 @@ public class TextPlcItem : TypedBytesPlcItem<string>, IDeepCloneable<TextPlcItem
 		) { }
 
 	/// <inheritdoc />
+	/// <param name="dataBlock"> <see cref="IPlcItem.DataBlock"/> </param>
+	/// <param name="position"> <see cref="IPlcItem.Position"/> </param>
+	/// <param name="initialValue"> The initial value of this item. </param>
 	/// <param name="encoding"> The <see cref="Encoding"/> used for text conversion. </param>
+	/// <param name="identifier"> <see cref="IPlcItem.Identifier"/> </param>
 	public TextPlcItem(ushort dataBlock, ushort position, string initialValue, Encoding encoding, string identifier = default)
 		: this
 		(
@@ -65,8 +72,12 @@ public class TextPlcItem : TypedBytesPlcItem<string>, IDeepCloneable<TextPlcItem
 	}
 		
 	/// <inheritdoc />
+	/// <param name="dataBlock"> <see cref="IPlcItem.DataBlock"/> </param>
+	/// <param name="position"> <see cref="IPlcItem.Position"/> </param>
+	/// <param name="initialValue"> The initial value of this item. </param>
 	/// <param name="encoding"> The <see cref="Encoding"/> used for text conversion. </param>
 	/// <param name="canChangeSize"> Should the size of this <see cref="IPlcItem"/>s underlying <see cref="BitCollection"/> be changed together with a new string value. </param>
+	/// <param name="identifier"> <see cref="IPlcItem.Identifier"/> </param>
 	internal TextPlcItem(ushort dataBlock, ushort position, string initialValue, Encoding encoding, bool canChangeSize, string identifier = default)
 		: base
 		(

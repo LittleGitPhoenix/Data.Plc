@@ -1,8 +1,21 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+All notable changes to **Plc** will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+___
+
+## 6.2.0
+
+📅 _2026-11-03_
+
+### Add
+
+- A new **`ConsoleLogger`** class was added that implements `ILogger` and logs messages via `System.Console`.
+
+### References
+
+🔵 System.Memory ~~4.5.5~~ → **4.6.3** (.NET Framework and .NET Standard only)  
 ___
 
 ## 6.1.0
@@ -46,7 +59,7 @@ ___
 
 ### References
 
-:large_blue_circle: System.Memory ~~4.5.4~~ → **4.5.5** (.NET Framework and .NET Standard only)  
+🔵 System.Memory ~~4.5.4~~ → **4.5.5** (.NET Framework and .NET Standard only)  
 ___
 
 ## 4.1.1

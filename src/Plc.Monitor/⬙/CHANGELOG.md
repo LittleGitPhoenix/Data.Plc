@@ -5,13 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ___
 
+## 6.2.0
+
+📅 _2026-11-03_
+
+### References
+
+🔵 Phoenix.Data.Plc ~~6.1.0~~ → [**6.2.0**](..\..\Plc\⬙\CHANGELOG.md#6.2.0)  
+___
+
 ## 6.1.0
 
 📅 _2026-07-27_
 
 ### References
 
-:large_blue_circle: Phoenix.Data.Plc ~~6.0.0~~ → [**6.1.0**](..\..\Plc\⬙\CHANGELOG.md#6.1.0)  
+🔵 Phoenix.Data.Plc ~~6.0.0~~ → [**6.1.0**](..\..\Plc\⬙\CHANGELOG.md#6.1.0)  
 ___
 
 
@@ -29,7 +38,7 @@ ___
 
 ### References
 
-:large_blue_circle: Phoenix.Data.Plc ~~5.0.0~~ → [**6.0.0**](..\..\Plc\⬙\CHANGELOG.md#6.0.0)  
+🔵 Phoenix.Data.Plc ~~5.0.0~~ → [**6.0.0**](..\..\Plc\⬙\CHANGELOG.md#6.0.0)  
 ___
 
 ## 5.0.0
@@ -49,7 +58,7 @@ This is just a version bump. No breaking changes where implemented into this pro
 
 ### References
 
-:large_blue_circle: Phoenix.Data.Plc ~~3.1.0~~ → [**4.0.0**](..\..\Plc\⬙\CHANGELOG.md)  
+🔵 Phoenix.Data.Plc ~~3.1.0~~ → [**4.0.0**](..\..\Plc\⬙\CHANGELOG.md)  
 ___
 
 ## 3.1.0
@@ -85,7 +94,7 @@ ___
 
 ### References
 
-:large_blue_circle: Phoenix.Data.Plc ~~1.6.0~~ → [**2.0.0**](..\..\Plc\⬙\CHANGELOG.md)  
+🔵 Phoenix.Data.Plc ~~1.6.0~~ → [**2.0.0**](..\..\Plc\⬙\CHANGELOG.md)  
 ___
 
 ## 1.0.0

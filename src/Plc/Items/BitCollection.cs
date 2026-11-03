@@ -2,7 +2,6 @@
 //! This file is subject to the terms and conditions defined in file 'LICENSE.md', which is part of this source code package.
 #endregion
 
-using System;
 using System.Collections;
 using System.Collections.Concurrent;
 
@@ -232,7 +231,7 @@ public sealed class BitCollection : IEnumerable, IEquatable<BitCollection>, IFor
 				//	;
 				var capacity = (int) (newLength - oldLength);
 				var changes = new BitChanges(capacity);
-				for (uint index = oldLength; index < oldLength + capacity; index++)
+				for (var index = oldLength; index < oldLength + capacity; index++)
 				{
 					changes.Add(index, (null, false));
 				}
@@ -250,7 +249,7 @@ public sealed class BitCollection : IEnumerable, IEquatable<BitCollection>, IFor
 				//	;
 				var capacity = (int) (oldLength - newLength);
 				var changes = new BitChanges(capacity);
-				for (uint index = newLength; index < newLength + capacity; index++)
+				for (var index = newLength; index < newLength + capacity; index++)
 				{
 					changes.Add(index, (oldBits[index], null));
 				}
@@ -272,7 +271,7 @@ public sealed class BitCollection : IEnumerable, IEquatable<BitCollection>, IFor
 		//! Creating a new boolean array and set all values to true if needed is faster than the linq query.
 		////var booleans = value ? this.Bits.Select(bit => true).ToArray() : new bool[this.Bits.Length];
 		var booleans = new bool[this.Bits.Length];
-		if (value) for (int i = 0; i < booleans.Length; i++) booleans[i] = true;
+		if (value) for (var i = 0; i < booleans.Length; i++) booleans[i] = true;
 
 		this.TransferValuesFrom(booleans);
 	}
@@ -476,12 +475,12 @@ public sealed class BitCollection : IEnumerable, IEquatable<BitCollection>, IFor
 
 			case "F":
 			case "FULL":
-				return $"[<{this.GetType().Name}> :: Dynamic: {this.AutomaticallyAdaptSize} | {String.Join(",", this.Bytes)}]";
+				return $"[<{nameof(BitCollection)}> :: Dynamic: {this.AutomaticallyAdaptSize} | {String.Join(",", this.Bytes)}]";
 
 			case "N":
 			case "NORMAL":
 			default:
-				return $"[<{this.GetType().Name}> :: {String.Join(",", this.Bytes)}]";
+				return $"[<{nameof(BitCollection)}> :: {String.Join(",", this.Bytes)}]";
 
 			case "BYTE":
 				return String.Join(",", this.Bytes);

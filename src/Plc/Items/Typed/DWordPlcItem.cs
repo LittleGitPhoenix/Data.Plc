@@ -29,7 +29,10 @@ public sealed class DWordPlcItem : TypedBytesPlcItem<UInt32>, INumericPlcItem, I
 	#region (De)Constructors
 
 	/// <inheritdoc />
+	/// <param name="dataBlock"> <see cref="IPlcItem.DataBlock"/> </param>
 	/// <param name="position"> The position where the <c>S7-DWord</c> within the <see cref="IPlcItem.DataBlock"/> begins. </param>
+	/// <param name="initialValue"> The initial value of this item. </param>
+	/// <param name="identifier"> <see cref="IPlcItem.Identifier"/> </param>
 	public DWordPlcItem(ushort dataBlock, ushort position, uint initialValue = uint.MinValue, string identifier = default)
 		: base
 		(

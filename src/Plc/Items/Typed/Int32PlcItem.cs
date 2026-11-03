@@ -29,7 +29,10 @@ public sealed class Int32PlcItem : TypedBytesPlcItem<Int32>, IDeepCloneable<Int3
 	#region (De)Constructors
 
 	/// <inheritdoc />
+	/// <param name="dataBlock"> <see cref="IPlcItem.DataBlock"/> </param>
 	/// <param name="position"> The position where the <see cref="Int32"/> within the <see cref="IPlcItem.DataBlock"/> begins. </param>
+	/// <param name="initialValue"> The initial value of this item. </param>
+	/// <param name="identifier"> <see cref="IPlcItem.Identifier"/> </param>
 	public Int32PlcItem(ushort dataBlock, ushort position, int initialValue = default, string identifier = default)
 		: base
 		(

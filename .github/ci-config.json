@@ -1,0 +1,19 @@
+{
+  "solutionPath": "src/Plc.slnx",
+  "coverageScope": "[Phoenix.Data.Plc*]*",
+  "coverageExclude": "[*.Test]*",
+  "nugetDir": ".nuget",
+  "releaseTargets": [
+    {
+      "type": "library",
+      "projects": [
+        "src/Plc/Plc.csproj",
+        "src/Plc.AgLink/Plc.AgLink.csproj",
+        "src/Plc.Mock/Plc.Mock.csproj",
+        "src/Plc.Monitor/Plc.Monitor.csproj",
+        "src/Plc.Monitor.Polling/Plc.Monitor.Polling.csproj",
+        "src/Plc.SiAccess/Plc.SiAccess.csproj"
+      ]
+    }
+  ]
+}

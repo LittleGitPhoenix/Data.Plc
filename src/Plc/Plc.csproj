@@ -9,7 +9,7 @@
 		<AssemblyName>Phoenix.Data.Plc</AssemblyName>
 		<RootNamespace>Phoenix.Data.Plc</RootNamespace>
 		<Copyright>2026</Copyright>
-		<Version>6.1.0</Version>
+		<Version>6.2.0</Version>
 		<Authors>Felix Leistner</Authors>
 		<Company>Little Phoenix</Company>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -34,7 +34,7 @@
 
 	<!--<ItemGroup Condition="$(TargetFramework.StartsWith('net4')) Or $(TargetFramework.StartsWith('netstandard1')) Or $(TargetFramework.Equals('netstandard2.0'))">-->
 	<ItemGroup>
-		<PackageReference Include="System.Memory" Version="4.5.5" />
+		<PackageReference Include="System.Memory" Version="4.6.3" />
 	</ItemGroup>
 
 	<!-- Move the created NuGet packages into another folder. -->
