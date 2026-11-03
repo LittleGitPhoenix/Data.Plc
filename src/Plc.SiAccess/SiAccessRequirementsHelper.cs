@@ -62,7 +62,7 @@ public abstract class SiAccessRequirementsHelper
 	/// </summary>
 	/// <param name="assemblyFileName"> The name of the unmanaged assembly file. </param>
 	/// <param name="assemblyContent"> The content as a <see cref="Stream"/>. </param>
-	/// <remarks> This method sets a callback so that the unmanaged assembly file will be automatically deleted upon process exit. </remarks>
+	/// <remarks> This method sets a callback that deletes the unmanaged assembly file automatically once the process exits. </remarks>
 	public static void CopyUnmanagedAssemblies(string assemblyFileName, Stream? assemblyContent)
 	{
 		var workingDirectory = WorkingDirectory;
