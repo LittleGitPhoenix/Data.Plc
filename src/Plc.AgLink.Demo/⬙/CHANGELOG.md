@@ -14,14 +14,14 @@ ___
 
 ### References
 
-:large_blue_circle: Plc.AgLink ~~6.1.0~~ → [**6.2.0**](..\..\Plc.AgLink\⬙\CHANGELOG.md#6.2.0)  
+🔵 Plc.AgLink ~~6.1.0~~ → [**6.2.0**](..\..\Plc.AgLink\⬙\CHANGELOG.md#6.2.0)  
 ___
 
 ## 6.1.0
 
 ### References
 
-:large_blue_circle: Phoenix.Data.Plc.AgLink ~~6.0.0~~ → [**6.1.0**](..\..\Plc.AgLink\⬙\CHANGELOG.md#6.1.0)  
+🔵 Phoenix.Data.Plc.AgLink ~~6.0.0~~ → [**6.1.0**](..\..\Plc.AgLink\⬙\CHANGELOG.md#6.1.0)  
 ___
 
 ## 6.0.0
@@ -38,7 +38,7 @@ ___
 
 ### References
 
-:large_blue_circle: Phoenix.Data.Plc.AgLink ~~5.0.0~~ → [**6.0.0**](..\..\Plc.AgLink\⬙\CHANGELOG.md#6.0.0)  
+🔵 Phoenix.Data.Plc.AgLink ~~5.0.0~~ → [**6.0.0**](..\..\Plc.AgLink\⬙\CHANGELOG.md#6.0.0)  
 ___
 
 ## 5.0.0
@@ -61,8 +61,8 @@ ___
 
 ### References
 
-:large_blue_circle: AGLink ~~5.6.0.0~~ → **6.0.0.0**  
-:large_blue_circle: Phoenix.Data.Plc.AgLink ~~4.0.1~~ → [**5.0.0**](..\..\Plc.AgLink\⬙\CHANGELOG.md#5.0.0)  
+🔵 AGLink ~~5.6.0.0~~ → **6.0.0.0**  
+🔵 Phoenix.Data.Plc.AgLink ~~4.0.1~~ → [**5.0.0**](..\..\Plc.AgLink\⬙\CHANGELOG.md#5.0.0)  
 
 ___
 
@@ -116,7 +116,7 @@ ___
 
 ### References
 
-:large_blue_circle: AGLink ~~5.5.1~~ → **5.6.0**  
+🔵 AGLink ~~5.5.1~~ → **5.6.0**  
 ___
 
 ## 2.0.0
@@ -125,7 +125,7 @@ ___
 
 ### References
 
-:large_blue_circle: Phoenix.Data.Plc ~~1.6.0~~ → [**2.0.0**](..\..\Plc\⬙\CHANGELOG.md)  
+🔵 Phoenix.Data.Plc ~~1.6.0~~ → [**2.0.0**](..\..\Plc\⬙\CHANGELOG.md)  
 ___
 
 ## 1.0.0

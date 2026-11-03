@@ -11,7 +11,7 @@ ___
 
 ### References
 
-:large_blue_circle: Phoenix.Data.Plc ~~6.0.0~~ → [**6.1.0**](..\..\Plc\⬙\CHANGELOG.md#6.1.0)  
+🔵 Phoenix.Data.Plc ~~6.0.0~~ → [**6.1.0**](..\..\Plc\⬙\CHANGELOG.md#6.1.0)  
 ___
 
 ## 6.0.0
@@ -28,7 +28,7 @@ ___
 
 ### References
 
-:large_blue_circle: Phoenix.Data.Plc ~~5.0.0~~ → [**6.0.0**](..\..\Plc\⬙\CHANGELOG.md#6.0.0)  
+🔵 Phoenix.Data.Plc ~~5.0.0~~ → [**6.0.0**](..\..\Plc\⬙\CHANGELOG.md#6.0.0)  
 ___
 
 ## 5.0.0
@@ -45,7 +45,7 @@ ___
 
 ### References
 
-:large_blue_circle: Phoenix.Data.Plc ~~4.1.1~~ → [**5.0.0**](..\..\Plc\⬙\CHANGELOG.md#5.0.0)  
+🔵 Phoenix.Data.Plc ~~4.1.1~~ → [**5.0.0**](..\..\Plc\⬙\CHANGELOG.md#5.0.0)  
 ___
 
 ## 4.0.1
@@ -58,7 +58,7 @@ ___
 
 ### References
 
-:large_blue_circle: Phoenix.Data.Plc ~~4.0.0~~ → [**4.1.1**](..\..\Plc\⬙\CHANGELOG.md)  
+🔵 Phoenix.Data.Plc ~~4.0.0~~ → [**4.1.1**](..\..\Plc\⬙\CHANGELOG.md)  
 ___
 
 ## 4.0.0
@@ -73,7 +73,7 @@ This is just a version bump. No breaking changes where implemented into this pro
 
 ### References
 
-:large_blue_circle: Phoenix.Data.Plc ~~3.1.0~~ → [**4.0.0**](..\..\Plc\⬙\CHANGELOG.md)  
+🔵 Phoenix.Data.Plc ~~3.1.0~~ → [**4.0.0**](..\..\Plc\⬙\CHANGELOG.md)  
 ___
 
 ## 3.1.0
@@ -109,7 +109,7 @@ ___
 
 ### References
 
-:large_blue_circle: Phoenix.Data.Plc ~~1.6.0~~ → [**2.0.0**](..\..\Plc\⬙\CHANGELOG.md)  
+🔵 Phoenix.Data.Plc ~~1.6.0~~ → [**2.0.0**](..\..\Plc\⬙\CHANGELOG.md)  
 ___
 
 ## 1.1.0

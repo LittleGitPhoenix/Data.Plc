@@ -15,7 +15,7 @@ ___
 
 ### References
 
-:large_blue_circle: System.Memory ~~4.5.5~~ → **4.6.3** (.NET Framework and .NET Standard only)  
+🔵 System.Memory ~~4.5.5~~ → **4.6.3** (.NET Framework and .NET Standard only)  
 ___
 
 ## 6.1.0
@@ -59,7 +59,7 @@ ___
 
 ### References
 
-:large_blue_circle: System.Memory ~~4.5.4~~ → **4.5.5** (.NET Framework and .NET Standard only)  
+🔵 System.Memory ~~4.5.4~~ → **4.5.5** (.NET Framework and .NET Standard only)  
 ___
 
 ## 4.1.1

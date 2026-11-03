@@ -16,4 +16,4 @@ Initial release.
 
 ### References
 
-:white_circle: Plc.SiAccess [**7.0.0**](..\..\Plc.SiAccess\⬙\CHANGELOG.md#7.0.0)  
+⚪ Plc.SiAccess [**7.0.0**](..\..\Plc.SiAccess\⬙\CHANGELOG.md#7.0.0)  

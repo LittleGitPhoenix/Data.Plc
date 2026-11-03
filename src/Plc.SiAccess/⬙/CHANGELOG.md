@@ -16,5 +16,5 @@ Initial release.
 
 ### References
 
-:white_circle: Phoenix.Data.Plc [**6.2.0**](..\..\Plc\⬙\CHANGELOG.md#6.2.0)  
-:white_circle: siAccess **7.20.0.0**  
+⚪ Phoenix.Data.Plc [**6.2.0**](..\..\Plc\⬙\CHANGELOG.md#6.2.0)  
+⚪ siAccess **7.20.0.0**  
