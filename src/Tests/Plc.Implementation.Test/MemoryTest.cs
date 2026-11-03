@@ -51,17 +51,15 @@ public abstract class MemoryTest<TPlc> : PlcTest<TPlc>
 			if (iteration % 100 == 0) await Task.Delay(250, CancellationToken.None);
 		}
 
-		GC.Collect();
-		GC.WaitForPendingFinalizers();
-
-		var initialMemoryUsage = 0d;
-		var finalMemoryUsage = 0d;
+		var initialManagedMemoryUsage = GC.GetTotalMemory(forceFullCollection: true) / (double) (1024 * 1024);
+		var initialPrivateMemoryUsage = 0d;
 
 		using (var process = Process.GetCurrentProcess())
 		{
-			initialMemoryUsage = process.PrivateMemorySize64 / (double) (1024 * 1024);
-			Console.WriteLine($"Initial memory usage: {initialMemoryUsage} MByte");
+			initialPrivateMemoryUsage = process.PrivateMemorySize64 / (double) (1024 * 1024);
 		}
+		Console.WriteLine($"Initial live managed memory: {initialManagedMemoryUsage} MByte");
+		Console.WriteLine($"Initial process private memory: {initialPrivateMemoryUsage} MByte");
 
 		// Act
 		for (var iteration = 1; iteration <= iterations; iteration++)
@@ -70,18 +68,21 @@ public abstract class MemoryTest<TPlc> : PlcTest<TPlc>
 			if (iteration % 500 == 0) await Task.Delay(250, CancellationToken.None);
 		}
 
-		GC.Collect();
-		GC.WaitForPendingFinalizers();
+		var finalManagedMemoryUsage = GC.GetTotalMemory(forceFullCollection: true) / (double) (1024 * 1024);
+		var finalPrivateMemoryUsage = 0d;
 
 		using (var process = Process.GetCurrentProcess())
 		{
-			finalMemoryUsage = process.PrivateMemorySize64 / (double) (1024 * 1024);
-			Console.WriteLine($"Final memory usage: {finalMemoryUsage} MByte");
+			finalPrivateMemoryUsage = process.PrivateMemorySize64 / (double) (1024 * 1024);
 		}
+		Console.WriteLine($"Final live managed memory: {finalManagedMemoryUsage} MByte");
+		Console.WriteLine($"Final process private memory: {finalPrivateMemoryUsage} MByte");
 
 		// Assert
-		var difference = finalMemoryUsage - initialMemoryUsage;
-		Console.WriteLine($"Memory increased by: {difference} MByte");
+		var managedMemoryDifference = finalManagedMemoryUsage - initialManagedMemoryUsage;
+		var privateMemoryDifference = finalPrivateMemoryUsage - initialPrivateMemoryUsage;
+		Console.WriteLine($"Live managed memory increased by: {managedMemoryDifference} MByte");
+		Console.WriteLine($"Process private memory increased by: {privateMemoryDifference} MByte");
 
 //#if NETFRAMEWORK
 //			if (difference <= 15)
@@ -93,7 +94,7 @@ public abstract class MemoryTest<TPlc> : PlcTest<TPlc>
 //				Assert.Inconclusive("When running in .NET Framework 4.5 environment, the memory usage seems not predictable. Tests with 100.000 iterations repetitively showed, that the memory consumption spikes from 180 MByte after warmup to 620 MByte in a linear fashion but then immediately slows down. The final value is then around 635 MByte. Manual memory snapshots showed no significant increase in allocated objects however.");
 //			}
 //#else
-		Assert.That(difference, Is.Not.GreaterThan(15)); //! Both 100.000 and 1.000.000 iterations proofed to not allocate more than 13 MByte.
+		Assert.That(managedMemoryDifference, Is.Not.GreaterThan(15)); //! Both 100.000 and 1.000.000 iterations proofed to not allocate more than 13 MByte.
 //#endif
 
 		Phoenix.Data.Plc.Logging.LogManager.LogAllReadAndWriteOperations = previosuState;
