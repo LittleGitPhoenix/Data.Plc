@@ -4,7 +4,7 @@ using Phoenix.Data.Plc.Items.Typed;
 
 namespace Phoenix.Data.Plc.Implementation.Test;
 
-public abstract class ImplementationWriteTest<TPlc> : ImplementationTest<TPlc>
+public abstract class WriteTest<TPlc> : PlcTest<TPlc>
 	where TPlc : IPlc
 {
 	#region Delegates / Events
@@ -21,9 +21,9 @@ public abstract class ImplementationWriteTest<TPlc> : ImplementationTest<TPlc>
 
 	#region (De)Constructors
 
-	protected ImplementationWriteTest(TPlc plc) : base(_ => plc) { }
+	protected WriteTest(TPlc plc) : base(_ => plc) { }
 
-	protected ImplementationWriteTest(Func<Data.Plc.Test.Data, TPlc> plcFactory) : base(plcFactory) { }
+	protected WriteTest(Func<Data.Plc.Test.Data, TPlc> plcFactory) : base(plcFactory) { }
 
 	#endregion
 
@@ -166,16 +166,16 @@ public abstract class ImplementationWriteTest<TPlc> : ImplementationTest<TPlc>
 		var bytesItem = itemBuilder
 				.ConstructBytesPlcItem()
 				.ForData()
-				.AtDatablock(Data.Datablock)
-				.AtPosition(Data.StartOfModifiableBytes)
-				.ForByteAmount((uint) Data.WriteBytes.Length)
+				.AtDatablock(this.Data.Datablock)
+				.AtPosition(this.Data.StartOfModifiableBytes)
+				.ForByteAmount((uint) this.Data.WriteBytes.Length)
 				.Build()
 			;
 
 		var dynamicTextItem = itemBuilder
 				.ConstructUtf8PlcItem()
-				.AtDatablock(Data.Datablock)
-				.AtPosition(Data.StartOfModifiableBytes)
+				.AtDatablock(this.Data.Datablock)
+				.AtPosition(this.Data.StartOfModifiableBytes)
 				.WithDynamicItemFromInitialValue(target)
 				.BuildDynamic()
 			;

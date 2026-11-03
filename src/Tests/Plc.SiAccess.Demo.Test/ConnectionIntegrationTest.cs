@@ -4,11 +4,11 @@ using Phoenix.Data.Plc.Implementation.Test;
 namespace Phoenix.Data.Plc.SiAccess.Test;
 
 [TestFixture]
-public sealed class ImplementationConnectionTest : ImplementationConnectionTest<SiAccessPlc>
+public sealed class ConnectionIntegrationTest : ConnectionTest<SiAccessPlc>
 {
 	private const string HostEnvironmentVariableName = "PLC_HOST";
 
-	public ImplementationConnectionTest()
+	public ConnectionIntegrationTest()
 		: base
 		(
 			new DemoSiAccessPlc(new SiAccessPlcConnectionData(0, GetHost(HostEnvironmentVariableName), 0, 0)),

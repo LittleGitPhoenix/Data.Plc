@@ -3,9 +3,9 @@
 namespace Phoenix.Data.Plc.Mock.Test;
 
 [TestFixture]
-public sealed class ImplementationConnectionTest : ImplementationConnectionTest<MockPlc>
+public sealed class ConnectionTest : ConnectionTest<MockPlc>
 {
-	public ImplementationConnectionTest()
+	public ConnectionTest()
 		: base
 		(
 			data => new MockPlc

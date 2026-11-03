@@ -5,7 +5,7 @@ using Phoenix.Data.Plc.Items.Typed;
 
 namespace Phoenix.Data.Plc.Implementation.Test;
 
-public abstract class ImplementationReadTest<TPlc> : ImplementationTest<TPlc>
+public abstract class ReadTest<TPlc> : PlcTest<TPlc>
 	where TPlc : IPlc
 {
 	#region Delegates / Events
@@ -22,9 +22,9 @@ public abstract class ImplementationReadTest<TPlc> : ImplementationTest<TPlc>
 
 	#region (De)Constructors
 
-	protected ImplementationReadTest(TPlc plc) : base(_ => plc) { }
+	protected ReadTest(TPlc plc) : base(_ => plc) { }
 
-	protected ImplementationReadTest(Func<Data.Plc.Test.Data, TPlc> plcFactory) : base(plcFactory) { }
+	protected ReadTest(Func<Data.Plc.Test.Data, TPlc> plcFactory) : base(plcFactory) { }
 
 	#endregion
 
@@ -76,7 +76,7 @@ public abstract class ImplementationReadTest<TPlc> : ImplementationTest<TPlc>
 
 				// Get the target value.
 				var booleans = DataConverter.ToBooleans(this.Data.TargetBytes);
-				var relevantBooleans = booleans.Skip(bitsItem.Position * 8 + ((byte)bitsItem.BitPosition)).Take((int)bitsItem.Value.Length).ToArray();
+				var relevantBooleans = booleans.Skip((bitsItem.Position * 8) + ((byte)bitsItem.BitPosition)).Take((int)bitsItem.Value.Length).ToArray();
 				var target = new BitCollection(false, relevantBooleans);
 
 				Assert.True(result == target);
@@ -208,7 +208,7 @@ public abstract class ImplementationReadTest<TPlc> : ImplementationTest<TPlc>
 			(plc) =>
 			{
 				// Act + Assert
-				var ex = Assert.ThrowsAsync<ReadPlcException>(() => plc.ReadItemsAsync(new[] {validItem, invalidItem}));
+				var ex = Assert.ThrowsAsync<ReadPlcException>(() => plc.ReadItemsAsync([validItem, invalidItem]));
 				Assert.That(ex.ValidItems.FirstOrDefault(), Is.EqualTo(validItem));
 				Assert.That(ex.FailedItems.FirstOrDefault().FailedItem, Is.EqualTo(invalidItem));
 

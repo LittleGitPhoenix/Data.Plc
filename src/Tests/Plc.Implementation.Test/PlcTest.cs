@@ -1,6 +1,6 @@
 ﻿namespace Phoenix.Data.Plc.Implementation.Test;
 
-public abstract class ImplementationTest<TPlc> : IDisposable
+public abstract class PlcTest<TPlc> : IDisposable
 	where TPlc : IPlc
 {
 	#region Delegates / Events
@@ -29,14 +29,14 @@ public abstract class ImplementationTest<TPlc> : IDisposable
 
 	#region (De)Constructors
 
-	static ImplementationTest()
+	static PlcTest()
 	{
 		// Change the default logger.
 		Phoenix.Data.Plc.Logging.LogManager.LogAllReadAndWriteOperations = true;
 		Phoenix.Data.Plc.Logging.LogManager.LoggerFactory = () => new Phoenix.Data.Plc.Logging.ConsoleLogger();
 	}
 
-	protected ImplementationTest(TPlc plc, TPlc identicalPlc)
+	protected PlcTest(TPlc plc, TPlc identicalPlc)
 	{
 		// Save parameters.
 		this.Plc = plc;
@@ -47,7 +47,7 @@ public abstract class ImplementationTest<TPlc> : IDisposable
 		this.Data = new Data.Plc.Test.Data();
 	}
 
-	protected ImplementationTest(Func<Data.Plc.Test.Data, TPlc> plcFactory)
+	protected PlcTest(Func<Data.Plc.Test.Data, TPlc> plcFactory)
 	{
 		// Save parameters.
 

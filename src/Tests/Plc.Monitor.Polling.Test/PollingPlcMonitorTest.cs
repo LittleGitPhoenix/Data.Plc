@@ -18,7 +18,7 @@ public class PollingPlcMonitorTest
 	public async Task MonitorChanges()
 	{
 		var changes = 100;
-		var target = (changes * (changes + 1)) / 2; // Gauﬂsche Summenformel
+		var target = changes * (changes + 1) / 2; // Gaussian sum formula
 		var monitoredChanges = 0;
 		var collectedValue = 0;
 

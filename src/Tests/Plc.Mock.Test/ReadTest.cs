@@ -3,9 +3,9 @@ using Phoenix.Data.Plc.Implementation.Test;
 namespace Phoenix.Data.Plc.Mock.Test;
 
 [TestFixture]
-public sealed class ImplementationReadTest : ImplementationReadTest<MockPlc>
+public sealed class ReadTest : ReadTest<MockPlc>
 {
-	public ImplementationReadTest()
+	public ReadTest()
 		: base
 		(
 			data => new MockPlc

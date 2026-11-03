@@ -3,9 +3,9 @@ using Phoenix.Data.Plc.Implementation.Test;
 namespace Phoenix.Data.Plc.Mock.Test;
 
 [TestFixture]
-public sealed class ImplementationWriteTest : ImplementationWriteTest<MockPlc>
+public sealed class WriteTest : WriteTest<MockPlc>
 {
-	public ImplementationWriteTest()
+	public WriteTest()
 		: base
 		(
 			data => new MockPlc

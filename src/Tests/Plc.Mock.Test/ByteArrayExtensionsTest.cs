@@ -12,7 +12,7 @@ class ByteArrayExtensionsTest
 		var targetData = new byte[4] { 0, 0, 22, 1 };
 
 		// Act
-		var actualData = new byte[4].ApplyValue(2, BitPosition.X0, new bool[9] { false, true, true, false, true, false, false, false, true });
+		var actualData = new byte[4].ApplyValue(2, BitPosition.X0, [false, true, true, false, true, false, false, false, true]);
 
 		// Assert
 		Assert.AreEqual(targetData, actualData);
@@ -21,7 +21,7 @@ class ByteArrayExtensionsTest
 	[Test]
 	public void Check_Applying_Bool_Array_Throws()
 	{
-		Assert.Throws<ArgumentOutOfRangeException>(() => new byte[1].ApplyValue(2, BitPosition.X0, new bool[0] { }));
+		Assert.Throws<ArgumentOutOfRangeException>(() => new byte[1].ApplyValue(2, BitPosition.X0, []));
 	}
 
 	[Test]
@@ -50,7 +50,7 @@ class ByteArrayExtensionsTest
 		var targetData = new byte[4] { 0, 0, 22, 1 };
 
 		// Act
-		var actualData = new byte[4].ApplyValue(2, new byte[2] { 22, 1 });
+		var actualData = new byte[4].ApplyValue(2, [22, 1]);
 
 		// Assert
 		Assert.AreEqual(targetData, actualData);
@@ -59,7 +59,7 @@ class ByteArrayExtensionsTest
 	[Test]
 	public void Check_Applying_Bytes_Throws()
 	{
-		Assert.Throws<ArgumentOutOfRangeException>(() => new byte[1].ApplyValue(2, new byte[0] { }));
+		Assert.Throws<ArgumentOutOfRangeException>(() => new byte[1].ApplyValue(2, Array.Empty<byte>()));
 	}
 
 	[Test]
@@ -145,7 +145,7 @@ class ByteArrayExtensionsTest
 	public void Check_Applying_String()
 	{
 		// Arrange
-		var targetData = new byte[8] { 0, 0, 84, 101, 115, 116, 0, 0 };
+		var targetData = "\0\0Test\0\0"u8.ToArray();
 
 		// Act
 		var actualData = new byte[8].ApplyValue(2, "Test", System.Text.Encoding.ASCII);

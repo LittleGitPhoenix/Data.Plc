@@ -1,6 +1,6 @@
 ﻿namespace Phoenix.Data.Plc.Implementation.Test;
 
-public abstract class ImplementationConnectionTest<TPlc> : ImplementationTest<TPlc>
+public abstract class ConnectionTest<TPlc> : PlcTest<TPlc>
 	where TPlc : IPlc
 {
 	#region Delegates / Events
@@ -17,9 +17,9 @@ public abstract class ImplementationConnectionTest<TPlc> : ImplementationTest<TP
 
 	#region (De)Constructors
 		
-	protected ImplementationConnectionTest(Func<Data.Plc.Test.Data, TPlc> plcFactory) : base(plcFactory) { }
+	protected ConnectionTest(Func<Data.Plc.Test.Data, TPlc> plcFactory) : base(plcFactory) { }
 
-	protected ImplementationConnectionTest(TPlc plc, TPlc identicalPlc) : base(plc, identicalPlc) { }
+	protected ConnectionTest(TPlc plc, TPlc identicalPlc) : base(plc, identicalPlc) { }
 		
 	#endregion
 

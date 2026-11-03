@@ -3,9 +3,9 @@ using Phoenix.Data.Plc.Implementation.Test;
 namespace Phoenix.Data.Plc.Mock.Test;
 
 [TestFixture]
-public sealed class ImplementationMemoryTest : ImplementationMemoryTest<MockPlc>
+public sealed class MemoryTest : MemoryTest<MockPlc>
 {
-	public ImplementationMemoryTest()
+	public MemoryTest()
 		: base
 		(
 			data => new MockPlc()

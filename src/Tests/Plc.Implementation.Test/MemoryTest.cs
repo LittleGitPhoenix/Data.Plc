@@ -3,7 +3,7 @@ using Phoenix.Data.Plc.Items.Typed;
 
 namespace Phoenix.Data.Plc.Implementation.Test;
 
-public abstract class ImplementationMemoryTest<TPlc> : ImplementationTest<TPlc>
+public abstract class MemoryTest<TPlc> : PlcTest<TPlc>
 	where TPlc : IPlc
 {
 	#region Delegates / Events
@@ -20,9 +20,9 @@ public abstract class ImplementationMemoryTest<TPlc> : ImplementationTest<TPlc>
 
 	#region (De)Constructors
 
-	protected ImplementationMemoryTest(TPlc plc) : base(_ => plc) { }
+	protected MemoryTest(TPlc plc) : base(_ => plc) { }
 
-	protected ImplementationMemoryTest(Func<Data.Plc.Test.Data, TPlc> plcFactory) : base(plcFactory) { }
+	protected MemoryTest(Func<Data.Plc.Test.Data, TPlc> plcFactory) : base(plcFactory) { }
 
 	#endregion
 
@@ -55,7 +55,7 @@ public abstract class ImplementationMemoryTest<TPlc> : ImplementationTest<TPlc>
 
 		using (var process = Process.GetCurrentProcess())
 		{
-			initialMemoryUsage = process.PrivateMemorySize64 / (double)(1024 * 1024);
+			initialMemoryUsage = process.PrivateMemorySize64 / (double) (1024 * 1024);
 			Console.WriteLine($"Initial memory usage: {initialMemoryUsage} MByte");
 		}
 
@@ -71,7 +71,7 @@ public abstract class ImplementationMemoryTest<TPlc> : ImplementationTest<TPlc>
 
 		using (var process = Process.GetCurrentProcess())
 		{
-			finalMemoryUsage = process.PrivateMemorySize64 / (double)(1024 * 1024);
+			finalMemoryUsage = process.PrivateMemorySize64 / (double) (1024 * 1024);
 			Console.WriteLine($"Final memory usage: {finalMemoryUsage} MByte");
 		}
 

@@ -1,17 +1,17 @@
 using System.Net.NetworkInformation;
 using Phoenix.Data.Plc.Implementation.Test;
 
-namespace Phoenix.Data.Plc.SiAccess.Test;
+namespace Phoenix.Data.Plc.AgLink.Test;
 
 [TestFixture]
-public sealed class ImplementationReadTest : ImplementationReadTest<SiAccessPlc>
+public sealed class ReadIntegrationTest : ReadTest<AgLinkPlc>
 {
 	private const string HostEnvironmentVariableName = "PLC_HOST";
 
-	public ImplementationReadTest()
+	public ReadIntegrationTest()
 		: base
 		(
-			new DemoSiAccessPlc(new SiAccessPlcConnectionData(0, GetHost(HostEnvironmentVariableName), 0, 0))
+			new DemoAgLinkPlc(new AgLinkPlcConnectionData(0, GetHost(HostEnvironmentVariableName), 0, 0))
 		) { }
 
 	/// <inheritdoc />
