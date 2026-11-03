@@ -5,8 +5,8 @@
 		<LangVersion>latest</LangVersion>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
-		<AssemblyName>Phoenix.Data.Plc.siAccess</AssemblyName>
-		<RootNamespace>Phoenix.Data.Plc.siAccess</RootNamespace>
+		<AssemblyName>Phoenix.Data.Plc.SiAccess</AssemblyName>
+		<RootNamespace>Phoenix.Data.Plc.SiAccess</RootNamespace>
 		<Copyright>2026</Copyright>
 		<Version>7.0.0-RC.1</Version>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
