@@ -6,7 +6,7 @@
 		<Nullable>disable</Nullable>
 		<ImplicitUsings>disable</ImplicitUsings>
 		<IsPackable>false</IsPackable>
-		<AssemblyName>Phoenix.Data.Plc.SiAccess.Test</AssemblyName>
+		<AssemblyName>Phoenix.Data.Plc.SiAccess.Demo.Test</AssemblyName>
 		<RootNamespace>Phoenix.Data.Plc.SiAccess.Test</RootNamespace>
 		<Authors>Felix Leistner</Authors>
 		<Company>Little Phoenix</Company>

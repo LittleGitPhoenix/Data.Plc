@@ -1,0 +1,10 @@
+name: Validation
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  validate:
+    uses: LittleGitPhoenix/Automation.Workflows/.github/workflows/validate.yml@v1
