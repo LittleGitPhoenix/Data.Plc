@@ -35,6 +35,10 @@ public abstract class MemoryTest<TPlc> : PlcTest<TPlc>
 	/// </summary>
 	protected async Task CheckMemoryUsage(int iterations, int warmupIterations)
 	{
+		// Prevent log overflow by temporarily disabling logging of all read and write operations.
+		var previosuState = LogManager.LogAllReadAndWriteOperations;
+		LogManager.LogAllReadAndWriteOperations = false;
+
 		// Arrange
 		var byteItem = new BytePlcItem(dataBlock: 1, position: 0, initialValue: byte.MaxValue);
 		var plc = this.Plc;
@@ -91,6 +95,8 @@ public abstract class MemoryTest<TPlc> : PlcTest<TPlc>
 //#else
 		Assert.That(difference, Is.Not.GreaterThan(15)); //! Both 100.000 and 1.000.000 iterations proofed to not allocate more than 13 MByte.
 //#endif
+
+		LogManager.LogAllReadAndWriteOperations = previosuState;
 	}
 
 	#endregion
