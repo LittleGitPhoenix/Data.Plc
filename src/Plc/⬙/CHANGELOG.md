@@ -5,6 +5,18 @@ All notable changes to **Plc** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ___
 
+## 6.2.1
+
+📅 _2026-??-??_
+
+### Fixed
+
+- Reading and writing dynamic items (`IDynamicPlcItem`) together with other items now reports failures correctly. Both operations work in two phases (read: length, then flexible part; write: flexible part, then length). Previously a failure aborted the operation and the `ReadPlcException` / `WritePlcException` only contained the items of the phase that failed. It also referred to the internal parts of dynamic items (`LengthPlcItem` / `FlexiblePlcItem`) instead of the dynamic item that was passed. Because of that `ReadOrWritePlcException.ValidItems` was incomplete (e.g. items that had been read successfully in the first phase were missing after a failure in the second phase), which made consumers like the polling monitor discard valid values.
+  - Failures of both phases are now collected and thrown as a single exception, whose `ValidItems` and `FailedItems` only contain the items that were passed to `ReadItemsAsync` / `WriteItemsAsync` (or their single item counterparts).
+  - A failure in the first phase of one dynamic item no longer prevents the second phase for the other dynamic items.
+  - The length of a dynamic item whose flexible part could not be written is no longer written, so that the plc does not end up with a length that doesn't match its data.
+___
+
 ## 6.2.0
 
 📅 _2026-11-03_
