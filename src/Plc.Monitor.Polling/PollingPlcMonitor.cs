@@ -84,12 +84,12 @@ public class PollingPlcMonitor : IPlcMonitor
 	{
 		// Save parameters.
 		_plc = plc;
-		_plcItemMonitorConfigurations = plcItemMonitorConfigurations ?? new PlcItemMonitorConfigurations();
+		_plcItemMonitorConfigurations = plcItemMonitorConfigurations ?? [];
 		_defaultPollingFrequency = defaultPollingFrequency;
 
 		// Initialize fields.
 		_lock = new object();
-		_plcItemHandlers = new Dictionary<TimeSpan, PlcItemMonitorHandler>();
+		_plcItemHandlers = [];
 	}
 
 	#endregion
