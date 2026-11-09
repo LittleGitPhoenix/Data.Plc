@@ -37,7 +37,7 @@ public class PlcItemMonitorConfigurations : System.Collections.ObjectModel.Keyed
 		{
 			lock (Lock)
 			{
-				return _defaultPollingFrequency;
+				return field;
 			}
 		}
 		set
@@ -45,11 +45,10 @@ public class PlcItemMonitorConfigurations : System.Collections.ObjectModel.Keyed
 			lock (Lock)
 			{
 				value = PlcItemMonitorConfigurations.ValidatePollingFrequency(value);
-				_defaultPollingFrequency = value;
+				field = value;
 			}
 		}
 	}
-	private static TimeSpan _defaultPollingFrequency;
 
 	#endregion
 
