@@ -904,4 +904,215 @@ public class PlcTest
 		// Assert
 		Mock.Get(logger).Verify(l => l.Trace(It.IsAny<string>(), It.IsAny<object[]>()), Times.Exactly(items.Count));
 	}
+
+	#region Reading of dynamic items
+
+	/// <summary>
+	/// Creates a connected <see cref="Plc"/> whose read and write operations fail for all passed items that are listed in <paramref name="failingPlcItems"/>. All other items are read successfully.
+	/// </summary>
+	/// <param name="failingPlcItems"> The items that cannot be read. </param>
+	/// <param name="readPlcItems"> Receives a record of all items of every call to <see cref="Plc.PerformReadWriteAsync"/>. </param>
+	private static Plc CreatePlcWithFailingItems(ICollection<IPlcItem> failingPlcItems, out List<IPlcItem[]> readPlcItems)
+	{
+		var calls = new List<IPlcItem[]>();
+		readPlcItems = calls;
+		var plcMock = new Mock<Plc>("MockPlc") { CallBase = true };
+		plcMock.Setup(p => p.OpenConnection()).Returns(true);
+		plcMock.Setup(p => p.CloseConnection()).Returns(true);
+		plcMock
+			.Setup(p => p.PerformReadWriteAsync(It.IsAny<ICollection<IPlcItem>>(), It.IsAny<Plc.PlcItemUsageType>(), It.IsAny<CancellationToken>()))
+			.Returns<ICollection<IPlcItem>, Plc.PlcItemUsageType, CancellationToken>
+			(
+				(plcItems, usageType, _) =>
+				{
+					var items = plcItems.ToArray();
+					lock (calls) calls.Add(items);
+					var failedItems = items.Where(item => failingPlcItems.Any(failing => Object.ReferenceEquals(failing, item))).ToArray();
+					if (failedItems.Any())
+					{
+						var validItems = items.Except(failedItems, new ReferenceComparer()).ToArray();
+						var failures = failedItems.Select(item => (item, "Failed on purpose.")).ToArray();
+						if (usageType == Plc.PlcItemUsageType.Write) throw new WritePlcException(validItems, failures, "Some of the items couldn't be written.");
+						throw new ReadPlcException(validItems, failures, "Some of the items couldn't be read.");
+					}
+					return Task.CompletedTask;
+				}
+			);
+		var plc = plcMock.Object;
+		Assert.That(plc.Connect(), Is.True);
+		return plc;
+	}
+
+	private static DynamicBytesPlcItem CreateDynamicItem(ushort position, string identifier)
+		=> new DynamicBytesPlcItem(new BytePlcItem(dataBlock: 0, position: position), new byte[] { 1, 2 }, identifier);
+
+	private sealed class ReferenceComparer : IEqualityComparer<IPlcItem>
+	{
+		public bool Equals(IPlcItem x, IPlcItem y) => Object.ReferenceEquals(x, y);
+		public int GetHashCode(IPlcItem obj) => System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(obj);
+	}
+
+	/// <summary>
+	/// Checks that a failure while reading the flexible part of a dynamic item is reported for the dynamic item itself and that all other items are reported as valid.
+	/// </summary>
+	[Test]
+	public async Task Read_FailingFlexiblePartOfDynamicItem_ReportsAllItemsOfTheCaller()
+	{
+		// Arrange
+		var fixedItem = new BytePlcItem(dataBlock: 0, position: 0, identifier: "Fixed");
+		var failingDynamicItem = CreateDynamicItem(10, "FailingDynamic");
+		var healthyDynamicItem = CreateDynamicItem(20, "HealthyDynamic");
+		var plc = CreatePlcWithFailingItems(new IPlcItem[] { failingDynamicItem.FlexiblePlcItem }, out _);
+
+		// Act
+		var exception = await Assert.ThrowsAsync<ReadPlcException>(() => plc.ReadItemsAsync(new List<IPlcItem> { fixedItem, failingDynamicItem, healthyDynamicItem }));
+
+		// Assert
+		Assert.That(exception.FailedItems.Select(failed => failed.FailedItem), Is.EquivalentTo(new IPlcItem[] { failingDynamicItem }).Using(new ReferenceComparer()));
+		Assert.That(exception.ValidItems, Is.EquivalentTo(new IPlcItem[] { fixedItem, healthyDynamicItem }).Using(new ReferenceComparer()));
+	}
+
+	/// <summary>
+	/// Checks that a failure while reading the length of a dynamic item neither prevents reading the flexible part of the other dynamic items nor is reported for them.
+	/// </summary>
+	[Test]
+	public async Task Read_FailingLengthOfDynamicItem_StillReadsOtherDynamicItems()
+	{
+		// Arrange
+		var fixedItem = new BytePlcItem(dataBlock: 0, position: 0, identifier: "Fixed");
+		var failingDynamicItem = CreateDynamicItem(10, "FailingDynamic");
+		var healthyDynamicItem = CreateDynamicItem(20, "HealthyDynamic");
+		var plc = CreatePlcWithFailingItems(new IPlcItem[] { failingDynamicItem.LengthPlcItem }, out var calls);
+
+		// Act
+		var exception = await Assert.ThrowsAsync<ReadPlcException>(() => plc.ReadItemsAsync(new List<IPlcItem> { fixedItem, failingDynamicItem, healthyDynamicItem }));
+
+		// Assert
+		Assert.That(exception.FailedItems.Select(failed => failed.FailedItem), Is.EquivalentTo(new IPlcItem[] { failingDynamicItem }).Using(new ReferenceComparer()));
+		Assert.That(exception.ValidItems, Is.EquivalentTo(new IPlcItem[] { fixedItem, healthyDynamicItem }).Using(new ReferenceComparer()));
+		Assert.That(calls, Has.Count.EqualTo(2), "The flexible parts must be read although the first phase failed.");
+		Assert.That(calls[1], Is.EquivalentTo(new IPlcItem[] { healthyDynamicItem.FlexiblePlcItem }).Using(new ReferenceComparer()), "Only the flexible part of the dynamic item whose length was read must be read.");
+	}
+
+	/// <summary>
+	/// Checks that failures of both phases are reported together.
+	/// </summary>
+	[Test]
+	public async Task Read_FailuresInBothPhases_AreReportedTogether()
+	{
+		// Arrange
+		var failingFixedItem = new BytePlcItem(dataBlock: 0, position: 0, identifier: "FailingFixed");
+		var failingLengthItem = CreateDynamicItem(10, "FailingLength");
+		var failingFlexibleItem = CreateDynamicItem(20, "FailingFlexible");
+		var healthyDynamicItem = CreateDynamicItem(30, "HealthyDynamic");
+		var plc = CreatePlcWithFailingItems(new IPlcItem[] { failingFixedItem, failingLengthItem.LengthPlcItem, failingFlexibleItem.FlexiblePlcItem }, out _);
+
+		// Act
+		var exception = await Assert.ThrowsAsync<ReadPlcException>(() => plc.ReadItemsAsync(new List<IPlcItem> { failingFixedItem, failingLengthItem, failingFlexibleItem, healthyDynamicItem }));
+
+		// Assert
+		Assert.That(exception.FailedItems.Select(failed => failed.FailedItem), Is.EquivalentTo(new IPlcItem[] { failingFixedItem, failingLengthItem, failingFlexibleItem }).Using(new ReferenceComparer()));
+		Assert.That(exception.ValidItems, Is.EquivalentTo(new IPlcItem[] { healthyDynamicItem }).Using(new ReferenceComparer()));
+	}
+
+	#endregion
+
+	#region Writing of dynamic items
+
+	/// <summary>
+	/// Checks that a failure while writing the flexible part of a dynamic item is reported for the dynamic item itself, that all other items are reported as valid and that the length of the failed item is not written.
+	/// </summary>
+	[Test]
+	public async Task Write_FailingFlexiblePartOfDynamicItem_ReportsAllItemsOfTheCaller()
+	{
+		// Arrange
+		var fixedItem = new BytePlcItem(dataBlock: 0, position: 0, identifier: "Fixed");
+		var failingDynamicItem = CreateDynamicItem(10, "FailingDynamic");
+		var healthyDynamicItem = CreateDynamicItem(20, "HealthyDynamic");
+		var plc = CreatePlcWithFailingItems(new IPlcItem[] { failingDynamicItem.FlexiblePlcItem }, out var calls);
+
+		// Act
+		var exception = await Assert.ThrowsAsync<WritePlcException>(() => plc.WriteItemsAsync(new List<IPlcItem> { fixedItem, failingDynamicItem, healthyDynamicItem }));
+
+		// Assert
+		Assert.That(exception.FailedItems.Select(failed => failed.FailedItem), Is.EquivalentTo(new IPlcItem[] { failingDynamicItem }).Using(new ReferenceComparer()));
+		Assert.That(exception.ValidItems, Is.EquivalentTo(new IPlcItem[] { fixedItem, healthyDynamicItem }).Using(new ReferenceComparer()));
+		Assert.That(calls, Has.Count.EqualTo(2), "The length parts must be written although the first phase failed.");
+		Assert.That(calls[1], Is.EquivalentTo(new IPlcItem[] { healthyDynamicItem.LengthPlcItem }).Using(new ReferenceComparer()), "The length of an item whose data could not be written must not be written, because it would not match the data in the plc.");
+	}
+
+	/// <summary>
+	/// Checks that a failure while writing the length of a dynamic item is reported for the dynamic item itself.
+	/// </summary>
+	[Test]
+	public async Task Write_FailingLengthOfDynamicItem_ReportsAllItemsOfTheCaller()
+	{
+		// Arrange
+		var fixedItem = new BytePlcItem(dataBlock: 0, position: 0, identifier: "Fixed");
+		var failingDynamicItem = CreateDynamicItem(10, "FailingDynamic");
+		var healthyDynamicItem = CreateDynamicItem(20, "HealthyDynamic");
+		var plc = CreatePlcWithFailingItems(new IPlcItem[] { failingDynamicItem.LengthPlcItem }, out _);
+
+		// Act
+		var exception = await Assert.ThrowsAsync<WritePlcException>(() => plc.WriteItemsAsync(new List<IPlcItem> { fixedItem, failingDynamicItem, healthyDynamicItem }));
+
+		// Assert
+		Assert.That(exception.FailedItems.Select(failed => failed.FailedItem), Is.EquivalentTo(new IPlcItem[] { failingDynamicItem }).Using(new ReferenceComparer()));
+		Assert.That(exception.ValidItems, Is.EquivalentTo(new IPlcItem[] { fixedItem, healthyDynamicItem }).Using(new ReferenceComparer()));
+	}
+
+	/// <summary>
+	/// Checks that failures of both phases are reported together.
+	/// </summary>
+	[Test]
+	public async Task Write_FailuresInBothPhases_AreReportedTogether()
+	{
+		// Arrange
+		var failingFixedItem = new BytePlcItem(dataBlock: 0, position: 0, identifier: "FailingFixed");
+		var failingFlexibleItem = CreateDynamicItem(10, "FailingFlexible");
+		var failingLengthItem = CreateDynamicItem(20, "FailingLength");
+		var healthyDynamicItem = CreateDynamicItem(30, "HealthyDynamic");
+		var plc = CreatePlcWithFailingItems(new IPlcItem[] { failingFixedItem, failingFlexibleItem.FlexiblePlcItem, failingLengthItem.LengthPlcItem }, out _);
+
+		// Act
+		var exception = await Assert.ThrowsAsync<WritePlcException>(() => plc.WriteItemsAsync(new List<IPlcItem> { failingFixedItem, failingFlexibleItem, failingLengthItem, healthyDynamicItem }));
+
+		// Assert
+		Assert.That(exception.FailedItems.Select(failed => failed.FailedItem), Is.EquivalentTo(new IPlcItem[] { failingFixedItem, failingFlexibleItem, failingLengthItem }).Using(new ReferenceComparer()));
+		Assert.That(exception.ValidItems, Is.EquivalentTo(new IPlcItem[] { healthyDynamicItem }).Using(new ReferenceComparer()));
+	}
+
+	#endregion
+
+	#region Collection of the caller
+
+	/// <summary>
+	/// Checks that reading or writing items (with and without failures) does not change the collection that was passed by the caller.
+	/// </summary>
+	[Test]
+	public async Task ReadAndWrite_DoNotChangeTheCollectionOfTheCaller([Values] bool read, [Values] bool fail)
+	{
+		// Arrange
+		var fixedItem = new BytePlcItem(dataBlock: 0, position: 0, identifier: "Fixed");
+		var dynamicItem = CreateDynamicItem(10, "Dynamic");
+		var failingItems = fail ? new IPlcItem[] { dynamicItem.FlexiblePlcItem, dynamicItem.LengthPlcItem } : Array.Empty<IPlcItem>();
+		var plc = CreatePlcWithFailingItems(failingItems, out _);
+		var plcItems = new List<IPlcItem> { fixedItem, dynamicItem };
+
+		// Act
+		try
+		{
+			if (read) await plc.ReadItemsAsync(plcItems);
+			else await plc.WriteItemsAsync(plcItems);
+		}
+		catch (ReadOrWritePlcException) when (fail)
+		{
+			/* expected */
+		}
+
+		// Assert
+		Assert.That(plcItems, Is.EqualTo(new IPlcItem[] { fixedItem, dynamicItem }).Using(new ReferenceComparer()), "The collection of the caller was changed.");
+	}
+
+	#endregion
 }

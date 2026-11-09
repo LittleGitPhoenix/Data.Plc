@@ -2,7 +2,6 @@
 //! This file is subject to the terms and conditions defined in file 'LICENSE.md', which is part of this source code package.
 #endregion
 
-using System;
 using System.Collections.Concurrent;
 using Phoenix.Data.Plc.Items;
 using Phoenix.Data.Plc.Logging;
@@ -316,7 +315,7 @@ public abstract class Plc : IPlc, IFormattable
 	/// <inheritdoc />
 	public async Task ReadItemsAsync(ICollection<IPlcItem> plcItems, CancellationToken cancellationToken = default)
 	{
-		await this.ReadItemsAsync(plcItems.IsReadOnly ? new List<IPlcItem>(plcItems) : (IList<IPlcItem>) plcItems, cancellationToken);
+		await this.ReadItemsAsync(plcItems.IsReadOnly ? [.. plcItems] : (IList<IPlcItem>) plcItems, cancellationToken);
 
 		// Since this may be a costly operation, check if logging is even enabled.
 		if (LogManager.LogAllReadAndWriteOperations)
@@ -334,8 +333,14 @@ public abstract class Plc : IPlc, IFormattable
 	[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
 	internal virtual async Task ReadItemsAsync(IList<IPlcItem> plcItems, CancellationToken cancellationToken = default)
 	{
+		// Remember the items as they were passed, because the exceptions must be reported in terms of those and not of the internally used parts of dynamic items.
+		var originalPlcItems = plcItems.ToList();
+
+		//! Work on a copy, so that the collection of the caller is not changed by replacing the dynamic items with their parts.
+		plcItems = [.. originalPlcItems];
+
 		// Get and iterate all dynamic items.
-		var flexiblePlcItems = new List<IPlcItem>();
+		var flexiblePlcItems = new List<(IDynamicPlcItem DynamicPlcItem, IPlcItem FlexiblePlcItem)>();
 		var dynamicPlcItems = plcItems.OfType<IDynamicPlcItem>().ToList();
 		dynamicPlcItems.ForEach
 		(
@@ -347,15 +352,66 @@ public abstract class Plc : IPlc, IFormattable
 				plcItems.Insert(position, dynamicPlcItem.LengthPlcItem);
 
 				// Save the flexible part of the dynamic item separately, so that they can be read after the numerical item has been updated.
-				flexiblePlcItems.Add(dynamicPlcItem.FlexiblePlcItem);
+				flexiblePlcItems.Add((dynamicPlcItem, dynamicPlcItem.FlexiblePlcItem));
 			}
 		);
 
-		if (cancellationToken.IsCancellationRequested) return;
-		await this.ExecuteReadWriteAsync(plcItems, PlcItemUsageType.Read, cancellationToken);
+		//! A failure of the first phase must not prevent the second phase for those dynamic items whose length has been read. Both failures are collected and reported together.
+		ReadPlcException lengthException = null;
+		ReadPlcException flexibleException = null;
 
 		if (cancellationToken.IsCancellationRequested) return;
-		await this.ExecuteReadWriteAsync(flexiblePlcItems, PlcItemUsageType.Read, cancellationToken);
+		try
+		{
+			await this.ExecuteReadWriteAsync(plcItems, PlcItemUsageType.Read, cancellationToken);
+		}
+		catch (ReadPlcException exception) when (exception is not DisposedReadPlcException)
+		{
+			lengthException = exception;
+		}
+
+		if (!cancellationToken.IsCancellationRequested)
+		{
+			// Only read the flexible part of those dynamic items, whose length part was read successfully.
+			var failedLengthPlcItems = new HashSet<IPlcItem>(lengthException?.FailedItems.Select(failed => failed.FailedItem) ?? [], PlcItemReferenceComparer.Instance);
+			var readableFlexiblePlcItems = flexiblePlcItems
+				.Where(pair => !failedLengthPlcItems.Contains(pair.DynamicPlcItem.LengthPlcItem))
+				.Select(pair => pair.FlexiblePlcItem)
+				.ToList()
+				;
+			try
+			{
+				await this.ExecuteReadWriteAsync(readableFlexiblePlcItems, PlcItemUsageType.Read, cancellationToken);
+			}
+			catch (ReadPlcException exception) when (exception is not DisposedReadPlcException)
+			{
+				flexibleException = exception;
+			}
+		}
+
+		if (lengthException is null && flexibleException is null) return;
+
+		// Map the failed parts of dynamic items back to the dynamic items itself.
+		var dynamicItemsByPart = new Dictionary<IPlcItem, IPlcItem>(PlcItemReferenceComparer.Instance);
+		foreach (var (dynamicPlcItem, flexiblePlcItem) in flexiblePlcItems)
+		{
+			dynamicItemsByPart[dynamicPlcItem.LengthPlcItem] = dynamicPlcItem;
+			dynamicItemsByPart[flexiblePlcItem] = dynamicPlcItem;
+		}
+
+		var failedItems = new List<(IPlcItem FailedItem, string ErrorMessage)>();
+		var failedPlcItems = new HashSet<IPlcItem>(PlcItemReferenceComparer.Instance);
+		foreach (var (failedItem, errorMessage) in (lengthException?.FailedItems ?? []).Concat(flexibleException?.FailedItems ?? []))
+		{
+			var originalItem = dynamicItemsByPart.TryGetValue(failedItem, out var dynamicItem) ? dynamicItem : failedItem;
+			if (failedPlcItems.Add(originalItem)) failedItems.Add((originalItem, errorMessage));
+		}
+
+		// Everything that has not failed in any of the phases was read successfully.
+		var validItems = originalPlcItems.Where(plcItem => !failedPlcItems.Contains(plcItem)).ToList();
+
+		var messages = new[] { lengthException?.Message, flexibleException?.Message }.Where(message => message is not null).Distinct().ToArray();
+		throw new ReadPlcException(validItems, failedItems, String.Join(Environment.NewLine, messages));
 	}
 
 	#endregion
@@ -365,7 +421,7 @@ public abstract class Plc : IPlc, IFormattable
 	/// <inheritdoc />
 	public async Task<bool> WriteItemsAsync(ICollection<IPlcItem> plcItems, CancellationToken cancellationToken = default)
 	{
-		var success = await this.WriteItemsAsync(plcItems.IsReadOnly ? new List<IPlcItem>(plcItems) : (IList<IPlcItem>) plcItems, cancellationToken);
+		var success = await this.WriteItemsAsync(plcItems.IsReadOnly ? [.. plcItems] : (IList<IPlcItem>) plcItems, cancellationToken);
 
 		// Since this may be a costly operation, check if logging is even enabled.
 		if (LogManager.LogAllReadAndWriteOperations)
@@ -392,8 +448,14 @@ public abstract class Plc : IPlc, IFormattable
 	[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
 	internal virtual async Task<bool> WriteItemsAsync(IList<IPlcItem> plcItems, CancellationToken cancellationToken = default)
 	{
+		// Remember the items as they were passed, because the exceptions must be reported in terms of those and not of the internally used parts of dynamic items.
+		var originalPlcItems = plcItems.ToList();
+
+		//! Work on a copy, so that the collection of the caller is not changed by replacing the dynamic items with their parts.
+		plcItems = [.. originalPlcItems];
+
 		// Get and iterate all dynamic items.
-		var lengthPlcItems = new List<IPlcItem>();
+		var lengthPlcItems = new List<(IDynamicPlcItem DynamicPlcItem, IPlcItem LengthPlcItem)>();
 		var dynamicPlcItems = plcItems.OfType<IDynamicPlcItem>().ToList();
 		dynamicPlcItems.ForEach
 		(
@@ -405,17 +467,66 @@ public abstract class Plc : IPlc, IFormattable
 				plcItems.Insert(position, dynamicPlcItem.FlexiblePlcItem);
 
 				// Save the numeric part of the dynamic item separately, so that they can be written afterwards.
-				lengthPlcItems.Add(dynamicPlcItem.LengthPlcItem);
+				lengthPlcItems.Add((dynamicPlcItem, dynamicPlcItem.LengthPlcItem));
 			}
 		);
 
-		if (cancellationToken.IsCancellationRequested) return false;
-		var success = await this.ExecuteReadWriteAsync(plcItems, PlcItemUsageType.Write, cancellationToken);
+		//! A failure of the first phase must not prevent the second phase for those dynamic items whose flexible part has been written. Both failures are collected and reported together.
+		WritePlcException flexibleException = null;
+		WritePlcException lengthException = null;
 
 		if (cancellationToken.IsCancellationRequested) return false;
-		success &= await this.ExecuteReadWriteAsync(lengthPlcItems, PlcItemUsageType.Write, cancellationToken);
+		var success = true;
+		try
+		{
+			success = await this.ExecuteReadWriteAsync(plcItems, PlcItemUsageType.Write, cancellationToken);
+		}
+		catch (WritePlcException exception) when (exception is not DisposedWritePlcException)
+		{
+			flexibleException = exception;
+		}
 
-		return success;
+		if (cancellationToken.IsCancellationRequested) return false;
+
+		// Only write the length of those dynamic items, whose flexible part was written successfully. Otherwise the plc would hold a length that doesn't match its data.
+		var failedFlexiblePlcItems = new HashSet<IPlcItem>(flexibleException?.FailedItems.Select(failed => failed.FailedItem) ?? [], PlcItemReferenceComparer.Instance);
+		var writableLengthPlcItems = lengthPlcItems
+			.Where(pair => !failedFlexiblePlcItems.Contains(pair.DynamicPlcItem.FlexiblePlcItem))
+			.Select(pair => pair.LengthPlcItem)
+			.ToList()
+			;
+		try
+		{
+			success &= await this.ExecuteReadWriteAsync(writableLengthPlcItems, PlcItemUsageType.Write, cancellationToken);
+		}
+		catch (WritePlcException exception) when (exception is not DisposedWritePlcException)
+		{
+			lengthException = exception;
+		}
+
+		if (flexibleException is null && lengthException is null) return success;
+
+		// Map the failed parts of dynamic items back to the dynamic items itself.
+		var dynamicItemsByPart = new Dictionary<IPlcItem, IPlcItem>(PlcItemReferenceComparer.Instance);
+		foreach (var (dynamicPlcItem, lengthPlcItem) in lengthPlcItems)
+		{
+			dynamicItemsByPart[dynamicPlcItem.FlexiblePlcItem] = dynamicPlcItem;
+			dynamicItemsByPart[lengthPlcItem] = dynamicPlcItem;
+		}
+
+		var failedItems = new List<(IPlcItem FailedItem, string ErrorMessage)>();
+		var failedPlcItems = new HashSet<IPlcItem>(PlcItemReferenceComparer.Instance);
+		foreach (var (failedItem, errorMessage) in (flexibleException?.FailedItems ?? []).Concat(lengthException?.FailedItems ?? []))
+		{
+			var originalItem = dynamicItemsByPart.TryGetValue(failedItem, out var dynamicItem) ? dynamicItem : failedItem;
+			if (failedPlcItems.Add(originalItem)) failedItems.Add((originalItem, errorMessage));
+		}
+
+		// Everything that has not failed in any of the phases was written successfully.
+		var validItems = originalPlcItems.Where(plcItem => !failedPlcItems.Contains(plcItem)).ToList();
+
+		var messages = new[] { flexibleException?.Message, lengthException?.Message }.Where(message => message is not null).Distinct().ToArray();
+		throw new WritePlcException(validItems, failedItems, String.Join(Environment.NewLine, messages));
 	}
 
 	#endregion
@@ -699,5 +810,23 @@ public abstract class Plc : IPlc, IFormattable
 
 	#endregion
 
+	#endregion
+
+	#region Nested Classes
+
+	/// <summary>
+	/// Compares <see cref="IPlcItem"/>s by reference, because the items themselves implement IEquatable and therefore may be equal, but not the same.
+	/// </summary>
+	private sealed class PlcItemReferenceComparer : IEqualityComparer<IPlcItem>
+	{
+		public static readonly PlcItemReferenceComparer Instance = new();
+
+		/// <inheritdoc />
+		public bool Equals(IPlcItem x, IPlcItem y) => Object.ReferenceEquals(x, y);
+
+		/// <inheritdoc />
+		public int GetHashCode(IPlcItem obj) => System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(obj);
+	}
+	
 	#endregion
 }

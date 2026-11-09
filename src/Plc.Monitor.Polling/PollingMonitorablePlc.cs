@@ -45,6 +45,28 @@ public sealed class PollingMonitorablePlc : IMonitorablePlc
 		_plcMonitor = new PollingPlcMonitor(plc, plcItemMonitorConfigurations);
 	}
 
+	/// <summary>
+	/// Constructor
+	/// </summary>
+	/// <param name="plc"> The plc object that is used to forward all calls to the <see cref="IPlc"/> interface to. </param>
+	/// <param name="defaultPollingFrequency"> The default polling frequency of the monitor that is used for all <see cref="IPlcItem"/>s that are not listed in the <see cref="PlcItemMonitorConfigurations"/>. </param>
+	public PollingMonitorablePlc(IPlc plc, TimeSpan defaultPollingFrequency) : this(plc, null, defaultPollingFrequency) { }
+
+	/// <summary>
+	/// Constructor
+	/// </summary>
+	/// <param name="plc"> The plc object that is used to forward all calls to the <see cref="IPlc"/> interface to. </param>
+	/// <param name="plcItemMonitorConfigurations"> <see cref="PlcItemMonitorConfigurations"/> for specifying special polling frequencies for some <see cref="IPlcItem"/>s. </param>
+	/// <param name="defaultPollingFrequency"> The default polling frequency of the monitor that is used for all <see cref="IPlcItem"/>s that are not listed in the <paramref name="plcItemMonitorConfigurations"/>. </param>
+	public PollingMonitorablePlc(IPlc plc, PlcItemMonitorConfigurations plcItemMonitorConfigurations, TimeSpan defaultPollingFrequency)
+	{
+		// Save parameters.
+		_decoratedPlc = plc;
+
+		// Initialize fields.
+		_plcMonitor = new PollingPlcMonitor(plc, plcItemMonitorConfigurations, defaultPollingFrequency);
+	}
+
 	#endregion
 		
 	#region Forwarding - IPlc
@@ -130,7 +152,11 @@ public sealed class PollingMonitorablePlc : IMonitorablePlc
 
 	/// <inheritdoc />
 	public void Dispose()
-		=> _decoratedPlc.Dispose();
+	{
+		//! The monitor must be disposed first, otherwise its handlers would keep polling the already disposed plc.
+		_plcMonitor.Dispose();
+		_decoratedPlc.Dispose();
+	}
 
 	#endregion
 

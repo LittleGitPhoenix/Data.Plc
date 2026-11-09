@@ -334,7 +334,7 @@ ___
 
 # PlcMonitor
 
-Sometimes it may be necessary to monitor data within a plc and react if this data changes. This can be done with one of the specific [`IPlcMonitor` Implementations](#Implementations). The `IPlcMonitor` can be used on its own, or wrapped together with an `IPlc` as an `IMonitorablePlc`. Later should be used, if monitoring data is done regularly. This way the two dependencies `IPlc` and `IPlcMonitor` can be replaced by just a single `IMonitorablePlc`.
+Sometimes it may be necessary to monitor data within a plc and react if this data changes. This can be done with one of the specific [`IPlcMonitor` Implementations](#Implementations). The `IPlcMonitor` can be used on its own, or wrapped together with an `IPlc` as an `IMonitorablePlc`. The latter should be used, if monitoring data is done regularly. This way the two dependencies `IPlc` and `IPlcMonitor` can be replaced by just a single `IMonitorablePlc`.
 
 
 
@@ -350,38 +350,131 @@ Sometimes it may be necessary to monitor data within a plc and react if this dat
 
 This monitor internally uses an `IPlc` and regularly polls monitored `IPlcItems` and checks if their data has changed. It provides the `PollingMonitorablePlc` wrapper class that combines both the plc and the monitor instance.
 
+#### Usage
+
+``` csharp
+IMonitorablePlc monitoredPlc = plc.MakeMonitorable();
+
+// Create the item that must be monitored and react to changes of its value.
+var item = new BytePlcItem(dataBlock: 1, position: 0);
+item.ValueChanged += (sender, args) => Console.WriteLine($"New value: {args.NewValue}");
+
+// Start monitoring. Items are only polled while the monitor is running.
+monitoredPlc.MonitorItem(item);
+monitoredPlc.Start();
+
+// ... later
+monitoredPlc.UnMonitorItem(item);
+monitoredPlc.Stop();
+```
+
+#### Reading
+
+Internally the `PollingPlcMonitor` creates one `PlcItemMonitorHandler` for each polling frequency. All `IPlcItems` that share that frequency are handled by the same handler, regardless of how many items there are. Each handler runs its own polling loop and per polling cycle:
+
+1. Reads all **unique** items with a single `IPlc.ReadItemsAsync` call. Unique means that `IPlcItems` that are equal to one another (same address and length) share one internal placeholder item that is read only once.
+2. Transfers the read value from each placeholder to all monitored instances that it represents. Only those raise `ValueChanged`, if their value actually changed.
+
+The number of requests sent to the plc therefore depends on the number of different polling frequencies and not on the number of monitored items.
+
+``` mermaid
+%%{init: {"theme": "base", "themeVariables": {"background": "#252526", "primaryColor": "#252526", "primaryTextColor": "#F1F2F3", "textColor": "#F1F2F3", "primaryBorderColor": "#757575", "lineColor": "#757575", "clusterBkg": "#2D2D30", "clusterBorder": "#484943", "edgeLabelBackground": "#252526"}}}%%
+flowchart RL
+	PLC[("PLC")]
+
+	subgraph Monitor["PollingPlcMonitor"]
+		subgraph HandlerDefault["PlcItemMonitorHandler (300 ms)"]
+			PlaceholderA["Placeholder<br/>DB1.DBB0"]
+			PlaceholderB["Placeholder<br/>DB1.DBB1"]
+		end
+		subgraph HandlerFast["PlcItemMonitorHandler (50 ms)"]
+			PlaceholderC["Placeholder<br/>DB1.DBB2"]
+		end
+	end
+
+	Item1["item1<br/>DB1.DBB0"]
+	Item2["item2<br/>DB1.DBB0"]
+	Item3["item3<br/>DB1.DBB1"]
+	Item4["FastItem<br/>DB1.DBB2"]
+
+	PLC <-- "Reads both placeholders<br/>every 300 ms" --> HandlerDefault
+	PLC <-- "Reads single placeholder<br/>every 50 ms" --> HandlerFast
+
+	PlaceholderA <-.-> Item1
+	PlaceholderA <-.-> Item2
+	PlaceholderB <-.-> Item3
+	PlaceholderC <-.-> Item4
+
+	classDef plc fill:#252526,stroke:#F92672,stroke-width:2px,color:#F1F2F3
+	classDef placeholder fill:#252526,stroke:#A6E22E,stroke-width:2px,color:#F1F2F3
+	classDef item fill:#252526,stroke:#66D9EF,stroke-width:2px,color:#F1F2F3
+	class PLC plc
+	class PlaceholderA,PlaceholderB,PlaceholderC placeholder
+	class Item1,Item2,Item3,Item4 item
+
+	style Monitor fill:#2D2D30,stroke:#757575,color:#E6DBA6
+	style HandlerDefault fill:#3B3A32,stroke:#FD971F,stroke-width:2px,color:#E6DBA6
+	style HandlerFast fill:#3B3A32,stroke:#FD971F,stroke-width:2px,color:#E6DBA6
+
+	linkStyle 0,1 stroke:#FD971F,stroke-width:2px
+	linkStyle 2,3,4,5 stroke:#66D9EF,stroke-width:2px
+```
+
+Blue dotted arrows are the link between a placeholder and the monitored instances it represents. The read value is transferred (`TransferValuesFrom`) from the placeholder to every monitored instance. Orange arrows are the communication with the plc: one `ReadItemsAsync` call (request and response) per handler and polling cycle.
+
+In the example above `item1` and `item2` are different instances with the same address. They share a single placeholder and therefore only one of them is actually read from the plc.
+
+If a read fails or a subscriber of `IPlcItem.ValueChanged` throws an exception, the exception is logged (see [Logging](#Logging)) and polling continues with the next cycle. If only some items of a combined read fail, the successfully read ones are still updated. Exceptions of a single subscriber do not affect other items.
+
+#### Start and Stop
+
+The monitor only polls while it is running. Items that are monitored before `Start` was called or after `Stop` was called are not polled until the monitor is started. `Stop` keeps all monitored items, so a subsequent `Start` resumes polling all of them.
+
+`UnMonitorItem` stops monitoring a single instance. Once the last item of a polling frequency has been removed, the corresponding handler is stopped and removed, so nothing is read from the plc for it anymore.
+
+The polling frequency is only used by `MonitorItem` to choose the handler that receives the item. `UnMonitorItem` does **not** calculate it again (it could have changed in the meantime, e.g. by setting the static `PlcItemMonitorConfigurations.DefaultPollingFrequency`), but removes the instance from **all** handlers. Removal is done via reference equality, not via `IPlcItem` equality. Therefore only the passed instance is removed and never another instance that is merely equal to it (same address and length, but possibly a different identifier and thus a different polling frequency). The other instances keep being monitored.
+
+> [!NOTE]
+> Normally a single instance is only ever contained in one handler. The exception is monitoring the very same instance twice with a changed default polling frequency in between (for example by changing the static `PlcItemMonitorConfigurations.DefaultPollingFrequency`). The instance is then polled by two handlers, but a single `UnMonitorItem` call removes it from both.
+
 #### Polling Frequency
 
-The frequency at witch `IPlcItems` are polled has a default value of _300 milliseconds_. This is defined by `PlcItemMonitorConfigurations.DefaultPollingFrequency`. Although this interval should be sufficient enough for most cases, it can be changed to a different value.
+The frequency at which `IPlcItems` are polled has a default value of _300 milliseconds_. This is defined by `PlcItemMonitorConfigurations.DefaultPollingFrequency`. Although this interval should be sufficient enough for most cases, it can be changed to a different value.
+
+To use a different default frequency for a single monitor instead of changing the static value for all of them, pass the default polling frequency as `TimeSpan` to the constructor of the `PollingPlcMonitor` or `PollingMonitorablePlc` or to the `MakeMonitorable` extension. The static `PlcItemMonitorConfigurations.DefaultPollingFrequency` is only used as fallback if no such value has been specified. The order of precedence is therefore: **configuration for the item** → **default frequency of the monitor** → **static default frequency**.
 
 > [!CAUTION]
 > Changing the default monitoring frequency does not change the interval at which already monitored items are polled.
 
 > [!CAUTION]
-> The minimum polling frequency is _50 milliseconds_ and cannot be undershot.
+> The minimum polling frequency is _50 milliseconds_ and cannot be undershot. Smaller values (configured, default of a monitor or static default) are raised to that minimum.
 
-In case the normal frequency is good enough expect for some critical items, the `PollingPlcMonitor` accepts special `PlcItemMonitorConfigurations` that define different frequencies for named `IPlcItems`. A single `PlcItemMonitorConfiguration` for an `IPlcItem` simply consists of the `IPlcItem.Identifier` and a custom polling interval that will be applied to it. The `PlcItemMonitorConfigurations` are implicitly convertible from a `Dictionary<string, uint>`, so it is possible to pass one such dictionary to the constructor of the `PollingPlcMonitor`. This is done so custom configuration can be stored externally (in some kind of settings file) without the storage provider needing to know anything about the special configuration classes.
+In case the normal frequency is good enough except for some critical items, the `PollingPlcMonitor` accepts special `PlcItemMonitorConfigurations` that define different frequencies for named `IPlcItems`. A single `PlcItemMonitorConfiguration` for an `IPlcItem` simply consists of the `IPlcItem.Identifier` and a custom polling interval that will be applied to it. The `PlcItemMonitorConfigurations` are implicitly convertible from a `Dictionary<string, uint>`, so it is possible to pass one such dictionary to the constructor of the `PollingPlcMonitor`. This is done so custom configuration can be stored externally (in some kind of settings file) without the storage provider needing to know anything about the special configuration classes.
 
 #### Initialization
 
-**Create a new _PollingPlcMonitor_ instance.**
+**Create a new `PollingPlcMonitor` instance.**
+
 ``` csharp
 IPlc plc = new IPlc();
 IPlcMonitor plcMonitor = new PollingPlcMonitor(plc);
 ```
 
-**Create a new _PollingMonitorablePlc_ instance.**
+**Create a new `PollingMonitorablePlc` instance.**
+
 ``` csharp
 IPlc plc = new IPlc();
 IMonitorablePlc monitoredPlc = new PollingMonitorablePlc(plc);
 ```
 
-**Create a new _PollingMonitorablePlc_ instance via fluent syntax.**
+**Create a new `PollingMonitorablePlc` instance via fluent syntax.**
+
 ``` csharp
 IMonitorablePlc monitoredPlc = new IPlc().MakeMonitorable();
 ```
 
-**Create a new _PollingMonitorablePlc_ instance via fluent syntax and custom polling frequency configuration.**
+**Create a new `PollingMonitorablePlc` instance via fluent syntax and custom polling frequency configuration.**
+
 ``` csharp
 IMonitorablePlc monitoredPlc = new MockPlc().MakeMonitorable
 	(
@@ -391,6 +484,20 @@ IMonitorablePlc monitoredPlc = new MockPlc().MakeMonitorable
 			{"LightspeedItem", 50},          
 			{"SlowItem", 1000},
 		}
+	);
+```
+
+**Create a new `PollingMonitorablePlc` instance with its own default polling frequency.**
+``` csharp
+IMonitorablePlc monitoredPlc = new IPlc().MakeMonitorable(TimeSpan.FromMilliseconds(100));
+```
+
+**Combine the monitor's default polling frequency with a custom polling frequency configuration for some items.**
+``` csharp
+IMonitorablePlc monitoredPlc = new MockPlc().MakeMonitorable
+	(
+		new Dictionary<string, uint> { {"SlowItem", 1000} },
+		TimeSpan.FromMilliseconds(100)
 	);
 ```
 ___

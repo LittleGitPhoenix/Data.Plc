@@ -45,4 +45,21 @@
 		<ProjectReference Include="..\..\Plc\Plc.csproj" />
 	</ItemGroup>
 
+	<!--
+	# ╔═══════════════════════════════════════════╗
+	# ║ Optional siAccess demo (licensed) support ║
+	# ╚═══════════════════════════════════════════╝
+	The siAccess assemblies are not part of the public repository. Therefore the demo project is only referenced if they are present.
+	Otherwise (e.g. on the online CI runner) the reference is omitted and code depending on it is excluded via the SIACCESS_DEMO constant.
+	-->
+	<PropertyGroup>
+		<HasSiAccessDemo Condition="Exists('$(MSBuildThisFileDirectory)..\..\Plc.SiAccess.Demo\⬙\siAccess\siAccess_DotNET.dll')">true</HasSiAccessDemo>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(HasSiAccessDemo)' == 'true'">
+		<DefineConstants>$(DefineConstants);SIACCESS_DEMO</DefineConstants>
+	</PropertyGroup>
+	<ItemGroup Condition="'$(HasSiAccessDemo)' == 'true'">
+		<ProjectReference Include="..\..\Plc.SiAccess.Demo\Plc.SiAccess.Demo.csproj" />
+	</ItemGroup>
+
 </Project>

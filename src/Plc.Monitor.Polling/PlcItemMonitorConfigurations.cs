@@ -20,16 +20,16 @@ public class PlcItemMonitorConfigurations : System.Collections.ObjectModel.Keyed
 	#region Fields
 
 	/// <summary> Lock for synchronizing access to <see cref="DefaultPollingFrequency"/> </summary>
-	private static readonly object Lock;
+	private static readonly object Lock = new();
 
 	/// <summary> The minimum polling frequency in milliseconds that can be used. </summary>
-	internal static readonly TimeSpan MinimumPollingFrequency;
+	internal static readonly TimeSpan MinimumPollingFrequency = TimeSpan.FromMilliseconds(50);
 
 	#endregion
 
 	#region Properties
 
-	/// <summary> The default polling frequency that is returned by <see cref="GetPollingFrequencyForPlcItem"/> if the <see cref="IPlcItem"/> is not listed. </summary>
+	/// <summary> The default polling frequency that is returned by <see cref="GetPollingFrequencyForPlcItem(IPlcItem)"/> if the <see cref="IPlcItem"/> is not listed. </summary>
 	/// <remarks> Cannot be less than <see cref="MinimumPollingFrequency"/>. </remarks>
 	public static TimeSpan DefaultPollingFrequency
 	{
@@ -37,33 +37,22 @@ public class PlcItemMonitorConfigurations : System.Collections.ObjectModel.Keyed
 		{
 			lock (Lock)
 			{
-				return _defaultPollingFrequency;
+				return field;
 			}
 		}
 		set
 		{
 			lock (Lock)
 			{
-				value = PlcItemMonitorConfigurations.ValidatePollingFrequency(value);
-				_defaultPollingFrequency = value;
+				value = ValidatePollingFrequency(value);
+				field = value;
 			}
 		}
-	}
-	private static TimeSpan _defaultPollingFrequency;
+	} = TimeSpan.FromMilliseconds(300);
 
 	#endregion
 
 	#region (De)Constructors
-
-	/// <summary>
-	/// Constructor
-	/// </summary>
-	static PlcItemMonitorConfigurations()
-	{
-		Lock = new object();
-		MinimumPollingFrequency = TimeSpan.FromMilliseconds(50);
-		DefaultPollingFrequency = TimeSpan.FromMilliseconds(300);
-	}
 
 	/// <summary>
 	/// Constructor
@@ -91,12 +80,21 @@ public class PlcItemMonitorConfigurations : System.Collections.ObjectModel.Keyed
 	/// <param name="plcItem"> The <see cref="IPlcItem"/> whose polling frequency to get. </param>
 	/// <returns> The polling frequency. </returns>
 	public TimeSpan GetPollingFrequencyForPlcItem(IPlcItem plcItem)
+		=> this.GetPollingFrequencyForPlcItem(plcItem, DefaultPollingFrequency);
+
+	/// <summary>
+	/// Gets the polling frequency for the <paramref name="plcItem"/>.
+	/// </summary>
+	/// <param name="plcItem"> The <see cref="IPlcItem"/> whose polling frequency to get. </param>
+	/// <param name="defaultPollingFrequency"> The polling frequency that is returned if the <paramref name="plcItem"/> is not listed. Cannot be less than <see cref="MinimumPollingFrequency"/>. </param>
+	/// <returns> The polling frequency. </returns>
+	public TimeSpan GetPollingFrequencyForPlcItem(IPlcItem plcItem, TimeSpan defaultPollingFrequency)
 	{
 		// Use the defined value for the item if available.
-		if (plcItem.Identifier != null && base.Contains(plcItem.Identifier)) return PlcItemMonitorConfigurations.ValidatePollingFrequency(TimeSpan.FromMilliseconds(base[plcItem.Identifier].PollingFrequency));
+		if (plcItem.Identifier is not null && base.Contains(plcItem.Identifier)) return ValidatePollingFrequency(TimeSpan.FromMilliseconds(base[plcItem.Identifier].PollingFrequency));
 
-		// Otherwise the default polling frequency is used.
-		return PlcItemMonitorConfigurations.DefaultPollingFrequency;
+		// Otherwise the passed default polling frequency is used.
+		return ValidatePollingFrequency(defaultPollingFrequency);
 	}
 
 	/// <summary>
