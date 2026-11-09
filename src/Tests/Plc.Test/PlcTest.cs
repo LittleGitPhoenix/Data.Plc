@@ -1083,4 +1083,36 @@ public class PlcTest
 	}
 
 	#endregion
+
+	#region Collection of the caller
+
+	/// <summary>
+	/// Checks that reading or writing items (with and without failures) does not change the collection that was passed by the caller.
+	/// </summary>
+	[Test]
+	public async Task ReadAndWrite_DoNotChangeTheCollectionOfTheCaller([Values] bool read, [Values] bool fail)
+	{
+		// Arrange
+		var fixedItem = new BytePlcItem(dataBlock: 0, position: 0, identifier: "Fixed");
+		var dynamicItem = CreateDynamicItem(10, "Dynamic");
+		var failingItems = fail ? new IPlcItem[] { dynamicItem.FlexiblePlcItem, dynamicItem.LengthPlcItem } : Array.Empty<IPlcItem>();
+		var plc = CreatePlcWithFailingItems(failingItems, out _);
+		var plcItems = new List<IPlcItem> { fixedItem, dynamicItem };
+
+		// Act
+		try
+		{
+			if (read) await plc.ReadItemsAsync(plcItems);
+			else await plc.WriteItemsAsync(plcItems);
+		}
+		catch (ReadOrWritePlcException) when (fail)
+		{
+			/* expected */
+		}
+
+		// Assert
+		Assert.That(plcItems, Is.EqualTo(new IPlcItem[] { fixedItem, dynamicItem }).Using(new ReferenceComparer()), "The collection of the caller was changed.");
+	}
+
+	#endregion
 }

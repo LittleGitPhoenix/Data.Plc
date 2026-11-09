@@ -15,6 +15,7 @@ ___
 
 ### Fixed
 
+- `ReadItemsAsync` and `WriteItemsAsync` no longer change the collection that is passed by the caller. Previously dynamic items in a mutable collection (e.g. a `List<IPlcItem>`) were replaced by their internal parts (`LengthPlcItem` / `FlexiblePlcItem`) while reading or writing.
 - Reading and writing dynamic items (`IDynamicPlcItem`) together with other items now reports failures correctly. Both operations work in two phases (read: length, then flexible part; write: flexible part, then length). Previously a failure aborted the operation and the `ReadPlcException` / `WritePlcException` only contained the items of the phase that failed. It also referred to the internal parts of dynamic items (`LengthPlcItem` / `FlexiblePlcItem`) instead of the dynamic item that was passed. Because of that `ReadOrWritePlcException.ValidItems` was incomplete (e.g. items that had been read successfully in the first phase were missing after a failure in the second phase), which made consumers like the polling monitor discard valid values.
   - Failures of both phases are now collected and thrown as a single exception, whose `ValidItems` and `FailedItems` only contain the items that were passed to `ReadItemsAsync` / `WriteItemsAsync` (or their single item counterparts).
   - A failure in the first phase of one dynamic item no longer prevents the second phase for the other dynamic items.

@@ -336,6 +336,9 @@ public abstract class Plc : IPlc, IFormattable
 		// Remember the items as they were passed, because the exceptions must be reported in terms of those and not of the internally used parts of dynamic items.
 		var originalPlcItems = plcItems.ToList();
 
+		//! Work on a copy, so that the collection of the caller is not changed by replacing the dynamic items with their parts.
+		plcItems = [.. originalPlcItems];
+
 		// Get and iterate all dynamic items.
 		var flexiblePlcItems = new List<(IDynamicPlcItem DynamicPlcItem, IPlcItem FlexiblePlcItem)>();
 		var dynamicPlcItems = plcItems.OfType<IDynamicPlcItem>().ToList();
@@ -447,6 +450,9 @@ public abstract class Plc : IPlc, IFormattable
 	{
 		// Remember the items as they were passed, because the exceptions must be reported in terms of those and not of the internally used parts of dynamic items.
 		var originalPlcItems = plcItems.ToList();
+
+		//! Work on a copy, so that the collection of the caller is not changed by replacing the dynamic items with their parts.
+		plcItems = [.. originalPlcItems];
 
 		// Get and iterate all dynamic items.
 		var lengthPlcItems = new List<(IDynamicPlcItem DynamicPlcItem, IPlcItem LengthPlcItem)>();
