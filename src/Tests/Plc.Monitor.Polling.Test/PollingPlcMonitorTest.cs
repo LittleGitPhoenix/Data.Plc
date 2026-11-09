@@ -218,7 +218,8 @@ public class PollingPlcMonitorTest
 		public IReadOnlyList<(DateTime Time, IPlcItem[] Items)> Calls => _calls.ToArray();
 
 		/// <param name="beforeRead"> Optional callback that is invoked with the one-based call number before the data is read. It may throw. </param>
-		public ReadRecorder(Action<int> beforeRead = null)
+		/// <param name="selectFailingItems"> Optional callback that selects the items of a call that fail to be read. All other items are read successfully and are reported as valid items of the thrown <see cref="ReadPlcException"/>. </param>
+		public ReadRecorder(Action<int> beforeRead = null, Func<IPlcItem[], IPlcItem[]> selectFailingItems = null)
 		{
 			this.MockPlc.Connect();
 			var plcMock = new Mock<IPlc>();
@@ -226,12 +227,15 @@ public class PollingPlcMonitorTest
 				.Setup(mock => mock.ReadItemsAsync(It.IsAny<ICollection<IPlcItem>>(), It.IsAny<CancellationToken>()))
 				.Returns<ICollection<IPlcItem>, CancellationToken>
 				(
-					(plcItems, cancellationToken) =>
+					async (plcItems, cancellationToken) =>
 					{
 						var callNumber = Interlocked.Increment(ref _readCount);
 						_calls.Enqueue((DateTime.UtcNow, plcItems.ToArray()));
 						beforeRead?.Invoke(callNumber);
-						return this.MockPlc.ReadItemsAsync(plcItems, cancellationToken);
+						var failedItems = selectFailingItems?.Invoke(plcItems.ToArray()) ?? Array.Empty<IPlcItem>();
+						var validItems = plcItems.Where(plcItem => !failedItems.Any(failedItem => Object.ReferenceEquals(failedItem, plcItem))).ToList();
+						await this.MockPlc.ReadItemsAsync(validItems, cancellationToken);
+						if (failedItems.Any()) throw new ReadPlcException(validItems, failedItems.Select(failedItem => (failedItem, "Failed on purpose.")).ToList());
 					}
 				);
 			this.Plc = plcMock.Object;
@@ -542,6 +546,161 @@ public class PollingPlcMonitorTest
 
 		// Assert
 		Assert.That(recorder.ReadCount, Is.EqualTo(readsAfterGracePeriod));
+	}
+
+	#endregion
+
+	#region Batching
+
+	/// <summary>
+	/// Checks that all distinct items sharing the same polling frequency are read within a single call per polling cycle and that all monitored instances receive their values.
+	/// </summary>
+	[Test]
+	[Category("Batching")]
+	public async Task DistinctItems_WithSameFrequency_AreReadInOneCall()
+	{
+		// Arrange
+		var interval = 100;
+		var window = 1000;
+		var items = new List<IPlcItem>();
+		var identifiers = new Dictionary<string, uint>();
+		for (var offset = 0; offset < 4; offset++)
+		{
+			items.Add(this.CreateByteItem(offset, $"Byte{offset}"));
+			items.Add(new BitPlcItem(Data.Datablock, (ushort) (Data.StartOfModifiableBytes + offset), BitPosition.X0, identifier: $"Bit{offset}_0"));
+			items.Add(new BitPlcItem(Data.Datablock, (ushort) (Data.StartOfModifiableBytes + offset), BitPosition.X1, identifier: $"Bit{offset}_1"));
+		}
+		foreach (var item in items) identifiers.Add(item.Identifier, (uint) interval);
+		var counters = items.ToDictionary(item => item, item => new ChangeCounter());
+		foreach (var item in items) item.ValueChanged += counters[item].OnChanged;
+		var recorder = new ReadRecorder();
+		using var monitor = new PollingPlcMonitor(recorder.Plc, identifiers);
+		foreach (var item in items) monitor.MonitorItem(item);
+
+		// Act
+		await recorder.WriteAsync(Data, byte.MaxValue, byteOffset: 0);
+		monitor.Start();
+		await Task.Delay(window);
+		monitor.Stop();
+
+		// Assert
+		var calls = recorder.Calls;
+		Assert.That(calls, Is.Not.Empty);
+		Assert.That(calls.Select(call => call.Items.Length), Has.All.EqualTo(items.Count));
+		Assert.That(recorder.ReadCount, Is.InRange(window / interval / 2, window / interval + 5), "The number of reads must correspond to the interval and not to interval x item count.");
+		Assert.That(counters[items[0]].Count, Is.EqualTo(1), "The byte item did not receive its change.");
+		Assert.That(counters[items[1]].Count, Is.EqualTo(1), "The first bit item did not receive its change.");
+		Assert.That(counters[items[2]].Count, Is.EqualTo(1), "The second bit item did not receive its change.");
+		Assert.That(counters[items[3]].Count, Is.EqualTo(0), "An item of an unchanged byte was notified.");
+	}
+
+	/// <summary>
+	/// Checks that items with different polling frequencies are read in one call per frequency group and cycle.
+	/// </summary>
+	[Test]
+	[Category("Batching")]
+	public async Task DistinctItems_WithDifferentFrequencies_AreReadInOneCallPerFrequency()
+	{
+		// Arrange
+		var window = 1200;
+		var fastInterval = 100;
+		var slowInterval = 400;
+		var recorder = new ReadRecorder();
+		using var monitor = new PollingPlcMonitor
+		(
+			recorder.Plc,
+			new Dictionary<string, uint> { { "Fast0", (uint) fastInterval }, { "Fast1", (uint) fastInterval }, { "Slow0", (uint) slowInterval }, { "Slow1", (uint) slowInterval } }
+		);
+		monitor.MonitorItem(this.CreateByteItem(0, "Fast0"));
+		monitor.MonitorItem(this.CreateByteItem(1, "Fast1"));
+		monitor.MonitorItem(this.CreateByteItem(2, "Slow0"));
+		monitor.MonitorItem(this.CreateByteItem(3, "Slow1"));
+
+		// Act
+		monitor.Start();
+		await Task.Delay(window);
+		monitor.Stop();
+
+		// Assert
+		var calls = recorder.Calls;
+		var fastCalls = calls.Count(call => call.Items.Any(item => item.Position == Data.StartOfModifiableBytes));
+		var slowCalls = calls.Count(call => call.Items.Any(item => item.Position == Data.StartOfModifiableBytes + 2));
+		Assert.That(calls.Select(call => call.Items.Length), Has.All.EqualTo(2), "Every call must contain exactly the two items of one frequency group.");
+		Assert.That(fastCalls + slowCalls, Is.EqualTo(calls.Count));
+		Assert.That(fastCalls, Is.InRange(window / fastInterval / 2, window / fastInterval + 5));
+		Assert.That(slowCalls, Is.InRange(1, window / slowInterval + 2));
+	}
+
+	/// <summary>
+	/// Checks that a failing subscriber of one item neither affects other items of the same frequency group nor the shared polling.
+	/// </summary>
+	[Test]
+	[Category("Batching")]
+	public async Task Polling_SubscriberException_DoesNotAffectOtherItems()
+	{
+		// Arrange
+		var recorder = new ReadRecorder();
+		using var monitor = new PollingPlcMonitor(recorder.Plc, new Dictionary<string, uint> { { "Failing", 50 }, { "Healthy", 50 } });
+		var failingCounter = new ChangeCounter();
+		var healthyCounter = new ChangeCounter();
+		var failingItem = this.CreateByteItem(byteOffset: 0, identifier: "Failing");
+		var healthyItem = this.CreateByteItem(byteOffset: 1, identifier: "Healthy");
+		failingItem.ValueChanged += (sender, args) =>
+		{
+			failingCounter.OnChanged(sender, args);
+			throw new InvalidOperationException("Subscriber failure.");
+		};
+		healthyItem.ValueChanged += healthyCounter.OnChanged;
+		monitor.MonitorItem(failingItem);
+		monitor.MonitorItem(healthyItem);
+		monitor.Start();
+
+		// Act
+		await recorder.WriteAsync(Data, 1, byteOffset: 0);
+		var failingDetected = await WaitUntilAsync(() => failingCounter.Count == 1);
+		var healthyChanges = 5;
+		for (byte i = 1; i <= healthyChanges; i++)
+		{
+			await recorder.WriteAsync(Data, i, byteOffset: 1);
+			await WaitUntilAsync(() => healthyCounter.Count == i);
+		}
+
+		// Assert
+		Assert.That(failingDetected, Is.True, "The change of the failing item was not detected.");
+		Assert.That(healthyCounter.Count, Is.EqualTo(healthyChanges));
+	}
+
+	/// <summary>
+	/// Checks that items that have been read successfully are still updated if another item of the same read call failed.
+	/// </summary>
+	[Test]
+	[Category("Batching")]
+	public async Task Polling_WithPartiallyFailingRead_UpdatesValidItems()
+	{
+		// Arrange
+		var failingPosition = Data.StartOfModifiableBytes;
+		var recorder = new ReadRecorder(selectFailingItems: plcItems => plcItems.Where(item => item.Position == failingPosition).ToArray());
+		using var monitor = new PollingPlcMonitor(recorder.Plc, new Dictionary<string, uint> { { "Failing", 50 }, { "Healthy", 50 } });
+		var failingCounter = new ChangeCounter();
+		var healthyCounter = new ChangeCounter();
+		var failingItem = this.CreateByteItem(byteOffset: 0, identifier: "Failing");
+		var healthyItem = this.CreateByteItem(byteOffset: 1, identifier: "Healthy");
+		failingItem.ValueChanged += failingCounter.OnChanged;
+		healthyItem.ValueChanged += healthyCounter.OnChanged;
+		monitor.MonitorItem(failingItem);
+		monitor.MonitorItem(healthyItem);
+		await recorder.WriteAsync(Data, 1, byteOffset: 0);
+		await recorder.WriteAsync(Data, 1, byteOffset: 1);
+
+		// Act
+		monitor.Start();
+		var healthyDetected = await WaitUntilAsync(() => healthyCounter.Count == 1);
+		await Task.Delay(300);
+
+		// Assert
+		Assert.That(healthyDetected, Is.True, "The healthy item was not updated although it has been read successfully.");
+		Assert.That(failingCounter.Count, Is.EqualTo(0), "The failing item must not be updated.");
+		Assert.That(recorder.ReadCount, Is.GreaterThan(1));
 	}
 
 	#endregion

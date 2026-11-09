@@ -350,6 +350,16 @@ Sometimes it may be necessary to monitor data within a plc and react if this dat
 
 This monitor internally uses an `IPlc` and regularly polls monitored `IPlcItems` and checks if their data has changed. It provides the `PollingMonitorablePlc` wrapper class that combines both the plc and the monitor instance.
 
+#### Reading
+
+All monitored `IPlcItems` that share the same polling frequency are read together with a single `IPlc.ReadItemsAsync` call per polling cycle. The number of requests sent to the plc therefore depends on the number of different polling frequencies and not on the number of monitored items. `IPlcItems` that are equal to one another (same address and length) are read only once and their value is transferred to all monitored instances.
+
+If a read fails or a subscriber of `IPlcItem.ValueChanged` throws an exception, the exception is logged and polling continues with the next cycle. Exceptions of a single subscriber do not affect other items.
+
+#### Start and Stop
+
+The monitor only polls while it is running. Items that are monitored before `Start` was called or after `Stop` was called are not polled until the monitor is started. `UnMonitorItem` stops monitoring an item and stops polling altogether once no item of a polling frequency is monitored anymore.
+
 #### Polling Frequency
 
 The frequency at witch `IPlcItems` are polled has a default value of _300 milliseconds_. This is defined by `PlcItemMonitorConfigurations.DefaultPollingFrequency`. Although this interval should be sufficient enough for most cases, it can be changed to a different value.

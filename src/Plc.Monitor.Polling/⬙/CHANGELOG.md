@@ -16,6 +16,10 @@ ___
 - An exception thrown by a `ValueChanged` subscriber no longer affects the other monitored items.
 - Items that are monitored before `Start` was called or after `Stop` was called are no longer polled. The monitor now keeps a running state and only starts new handlers while it is running.
 - A handler is now stopped and removed once its last item has been unmonitored. Previously it kept reading the plc forever.
+
+### Changed
+
+- All monitored items that share the same polling frequency are now read together with a single `ReadItemsAsync` call per polling cycle instead of one call per distinct item and cycle. Items that are equal to one another (same address and length) are still read only once. If a batched read fails for single items, the successfully read items are still updated.
 ___
 
 ## 6.2.0

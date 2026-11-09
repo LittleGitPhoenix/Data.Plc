@@ -26,7 +26,8 @@ public class PollingPlcMonitor : IPlcMonitor
 	/// <summary> <see cref="PlcItemMonitorConfigurations"/> specifying special polling frequencies for some <see cref="IPlcItem"/>s. </summary>
 	private readonly PlcItemMonitorConfigurations _plcItemMonitorConfigurations;
 
-	private readonly Dictionary<int, PlcItemMonitorHandler> _plcItemHandlers;
+	/// <summary> The handlers (one per polling frequency) that poll and update the monitored <see cref="IPlcItem"/>s. </summary>
+	private readonly Dictionary<TimeSpan, PlcItemMonitorHandler> _plcItemHandlers;
 
 	private readonly object _lock;
 
@@ -59,7 +60,7 @@ public class PollingPlcMonitor : IPlcMonitor
 
 		// Initialize fields.
 		_lock = new object();
-		_plcItemHandlers = new Dictionary<int, PlcItemMonitorHandler>();
+		_plcItemHandlers = new Dictionary<TimeSpan, PlcItemMonitorHandler>();
 	}
 
 	#endregion
@@ -91,27 +92,23 @@ public class PollingPlcMonitor : IPlcMonitor
 	/// <inheritdoc />
 	public void MonitorItem(IPlcItem plcItem)
 	{
-		// The hash code must consist of the hash from the plc item and the polling frequency.
+		// All items with the same polling frequency are handled by the same handler.
 		var pollingFrequency = _plcItemMonitorConfigurations.GetPollingFrequencyForPlcItem(plcItem);
-		var hashValue = this.CreateHandlerKey(plcItem);
 
 		lock (_lock)
 		{
-			// Check if such a handler exist.
-			if (_plcItemHandlers.TryGetValue(hashValue, out var handler))
-			{
-				// YES: Just add the item.
-				handler.AddPlcItem(plcItem);
-			}
-			else
+			// Check if a handler for the polling frequency exists.
+			if (!_plcItemHandlers.TryGetValue(pollingFrequency, out var handler))
 			{
 				// NO: Create and save the handler.
-				handler = new PlcItemMonitorHandler(_plc, plcItem, pollingFrequency);
-				_plcItemHandlers.Add(hashValue, handler);
-
-				// Only start the handler if the monitor is running.
-				if (_isRunning) handler.Start();
+				handler = new PlcItemMonitorHandler(_plc, pollingFrequency);
+				_plcItemHandlers.Add(pollingFrequency, handler);
 			}
+
+			handler.AddPlcItem(plcItem);
+
+			// Only start the handler if the monitor is running.
+			if (_isRunning) handler.Start();
 		}
 	}
 
@@ -120,8 +117,9 @@ public class PollingPlcMonitor : IPlcMonitor
 	{
 		lock (_lock)
 		{
-			var hashValue = this.CreateHandlerKey(plcItem);
-			if (_plcItemHandlers.TryGetValue(hashValue, out var handler))
+			// The polling frequency is determined the same way as when the item was added, so that the same handler is found.
+			var pollingFrequency = _plcItemMonitorConfigurations.GetPollingFrequencyForPlcItem(plcItem);
+			if (_plcItemHandlers.TryGetValue(pollingFrequency, out var handler))
 			{
 				handler.RemovePlcItem(plcItem);
 
@@ -129,22 +127,10 @@ public class PollingPlcMonitor : IPlcMonitor
 				if (!handler.HasPlcItems)
 				{
 					handler.Stop();
-					_plcItemHandlers.Remove(hashValue);
+					_plcItemHandlers.Remove(pollingFrequency);
 				}
 			}
 		}
-	}
-
-	/// <summary>
-	/// Creates the key under which the <see cref="PlcItemMonitorHandler"/> for the <paramref name="plcItem"/> is stored.
-	/// </summary>
-	/// <param name="plcItem"> The <see cref="IPlcItem"/> whose handler key to create. </param>
-	/// <returns> The key consisting of the hash from the plc item and its polling frequency. </returns>
-	private int CreateHandlerKey(IPlcItem plcItem)
-	{
-		var plcItemHash = plcItem.GetHashCode();
-		var pollingFrequency = _plcItemMonitorConfigurations.GetPollingFrequencyForPlcItem(plcItem);
-		return new {plcItemHash, pollingFrequency}.GetHashCode();
 	}
 
 	/// <summary>
@@ -169,8 +155,11 @@ public class PollingPlcMonitor : IPlcMonitor
 }
 
 /// <summary>
-/// Handles monitoring all <see cref="IPlcItem"/>s that are equal to one another.
+/// Handles monitoring all <see cref="IPlcItem"/>s that share the same polling frequency.
 /// </summary>
+/// <remarks>
+/// All distinct <see cref="IPlcItem"/>s are read with a single call per polling cycle. The read values are then transferred to all monitored instances.
+/// </remarks>
 internal sealed class PlcItemMonitorHandler
 {
 	#region Delegates / Events
@@ -186,12 +175,11 @@ internal sealed class PlcItemMonitorHandler
 
 	/// <summary> The frequency at which to poll for changes. </summary>
 	private readonly TimeSpan _pollingFrequency;
-		
+
 	private readonly object _lock;
 
-	private readonly IPlcItem _placeholderItem;
-
-	private readonly List<IPlcItem> _plcItems;
+	/// <summary> The monitored <see cref="IPlcItem"/>s grouped by the hash code of the items. </summary>
+	private readonly Dictionary<int, MonitoredPlcItems> _monitoredPlcItems;
 
 	private CancellationTokenSource _cancellationTokenSource;
 
@@ -206,7 +194,7 @@ internal sealed class PlcItemMonitorHandler
 		{
 			lock (_lock)
 			{
-				return _plcItems.Count > 0;
+				return _monitoredPlcItems.Count > 0;
 			}
 		}
 	}
@@ -219,9 +207,8 @@ internal sealed class PlcItemMonitorHandler
 	/// Constructor
 	/// </summary>
 	/// <param name="plc"> <see cref="IPlc"/> instance used to poll for changes in the monitored <see cref="IPlcItem"/>s. </param>
-	/// <param name="plcItem"> The first <see cref="IPlcItem"/> to monitor. </param>
 	/// <param name="pollingFrequency"> The frequency at which to poll for changes. </param>
-	public PlcItemMonitorHandler(IPlc plc, IPlcItem plcItem, TimeSpan pollingFrequency)
+	public PlcItemMonitorHandler(IPlc plc, TimeSpan pollingFrequency)
 	{
 		// Save parameters.
 		_plc = plc;
@@ -229,13 +216,7 @@ internal sealed class PlcItemMonitorHandler
 
 		// Initialize fields.
 		_lock = new object();
-		//_cancellationLock = new object();
-
-		// Create a placeholder plc item that is used to update the value.
-		_placeholderItem = plcItem.Clone($"PLACEHOLDER_{plcItem.GetHashCode()}");
-
-		// Add the passed plc item as first one to the internal collection.
-		_plcItems = new List<IPlcItem>() { plcItem };
+		_monitoredPlcItems = new Dictionary<int, MonitoredPlcItems>();
 	}
 
 	#endregion
@@ -243,7 +224,7 @@ internal sealed class PlcItemMonitorHandler
 	#region Methods
 
 	/// <summary>
-	/// Starts monitoring the internal placeholder plc item.
+	/// Starts polling all monitored plc items.
 	/// </summary>
 	public void Start()
 	{
@@ -252,7 +233,7 @@ internal sealed class PlcItemMonitorHandler
 		{
 			// If the cancellation token source is available, then bail out.
 			if (_cancellationTokenSource != null) return;
-				
+
 			// Create a cancellation token source if necessary.
 			_cancellationTokenSource = new CancellationTokenSource();
 			token = _cancellationTokenSource.Token;
@@ -276,7 +257,7 @@ internal sealed class PlcItemMonitorHandler
 					}
 					catch (Exception exception)
 					{
-						//! Any other exception must not end the polling, otherwise the item would never be polled again.
+						//! Any other exception must not end the polling, otherwise the items would never be polled again.
 						this.LogUpdateFailure(exception);
 					}
 
@@ -292,7 +273,7 @@ internal sealed class PlcItemMonitorHandler
 	}
 
 	/// <summary>
-	/// Stops monitoring the internal placeholder plc item.
+	/// Stops polling all monitored plc items.
 	/// </summary>
 	public void Stop()
 	{
@@ -312,60 +293,101 @@ internal sealed class PlcItemMonitorHandler
 	{
 		lock (_lock)
 		{
+			// Items that are equal to one another are read only once, so they share the same entry.
+			var hash = plcItem.GetHashCode();
+			if (!_monitoredPlcItems.TryGetValue(hash, out var monitoredPlcItems))
+			{
+				// Create a placeholder plc item that is used to read the value from the plc.
+				monitoredPlcItems = new MonitoredPlcItems(plcItem.Clone($"PLACEHOLDER_{hash}"));
+				_monitoredPlcItems.Add(hash, monitoredPlcItems);
+			}
+
 			// Don't allow the same item twice.
 			//! The comparison must be done via referential equals, because the items themselves implement IEquatable and therefore may be equal, but not the same.
-			foreach (var existingPlcItem in _plcItems)
+			foreach (var existingPlcItem in monitoredPlcItems.PlcItems)
 			{
 				if (Object.ReferenceEquals(existingPlcItem, plcItem)) return;
 			}
 
-			_plcItems.Add(plcItem);
+			monitoredPlcItems.PlcItems.Add(plcItem);
 		}
 	}
 
+	/// <summary>
+	/// Removes the <paramref name="plcItem"/> from the internal collection of monitored <see cref="IPlcItem"/>s.
+	/// </summary>
+	/// <param name="plcItem"> The plc item to remove. </param>
 	public void RemovePlcItem(IPlcItem plcItem)
 	{
 		lock (_lock)
 		{
+			var hash = plcItem.GetHashCode();
+			if (!_monitoredPlcItems.TryGetValue(hash, out var monitoredPlcItems)) return;
+
 			//! The removal must be done via referential equals, because the items themselves implement IEquatable and therefore may be equal, but not the same.
-			var index = _plcItems.FindIndex(existingPlcItem => Object.ReferenceEquals(existingPlcItem, plcItem));
-			if (index >= 0) _plcItems.RemoveAt(index);
+			var index = monitoredPlcItems.PlcItems.FindIndex(existingPlcItem => Object.ReferenceEquals(existingPlcItem, plcItem));
+			if (index >= 0) monitoredPlcItems.PlcItems.RemoveAt(index);
+
+			// Nothing needs to be read anymore if the last item has been removed.
+			if (monitoredPlcItems.PlcItems.Count == 0) _monitoredPlcItems.Remove(hash);
 		}
 	}
 
 	private async Task UpdateItemsAsync(CancellationToken token)
 	{
 		token.ThrowIfCancellationRequested();
-		var newValue = await _plc.ReadItemAsync(_placeholderItem, token);
 
-		// Make a copy of all monitored plc items in a thread safe manner.
-		token.ThrowIfCancellationRequested();
-		List<IPlcItem> plcItems;
+		// Make a copy of all monitored entries in a thread safe manner.
+		MonitoredPlcItems[] entries;
 		lock (_lock)
 		{
-			plcItems = new List<IPlcItem>(_plcItems);
+			entries = _monitoredPlcItems.Values.ToArray();
+		}
+		if (entries.Length == 0) return;
+
+		// Read all distinct items with a single call.
+		var placeholderItems = entries.Select(entry => entry.PlaceholderItem).ToArray();
+		try
+		{
+			await _plc.ReadItemsAsync(placeholderItems, token);
+		}
+		catch (ReadPlcException exception)
+		{
+			//! Failed items must not prevent the other items from being updated, so only the items that have been read successfully are processed further.
+			this.LogUpdateFailure(exception);
+			var validItems = new HashSet<IPlcItem>(exception.ValidItems, new ReferenceComparer());
+			entries = entries.Where(entry => validItems.Contains(entry.PlaceholderItem)).ToArray();
+		}
+
+		// Collect all monitored items with their new value in a thread safe manner.
+		token.ThrowIfCancellationRequested();
+		var updates = new List<(IPlcItem PlcItem, BitCollection NewValue)>();
+		lock (_lock)
+		{
+			foreach (var entry in entries)
+			{
+				foreach (var plcItem in entry.PlcItems)
+				{
+					updates.Add((plcItem, entry.PlaceholderItem.Value));
+				}
+			}
 		}
 
 		// Update the value of the monitored items.
-		//foreach (var plcItem in plcItems)
-		//{
-		//	token.ThrowIfCancellationRequested();
-		//	plcItem.Value.TransferValuesFrom(newValue);
-		//}
 		Parallel.ForEach
 		(
-			plcItems, (plcItem) =>
+			updates, (update) =>
 			{
 				if (token.IsCancellationRequested) return;
 
 				//! Subscribers of the 'ValueChanged' event may throw. This must neither affect the other items nor the polling itself.
 				try
 				{
-					plcItem.Value.TransferValuesFrom(newValue);
+					update.PlcItem.Value.TransferValuesFrom(update.NewValue);
 				}
 				catch (Exception exception)
 				{
-					this.LogUpdateFailure(exception, plcItem);
+					this.LogUpdateFailure(exception, update.PlcItem);
 				}
 			}
 		);
@@ -381,6 +403,43 @@ internal sealed class PlcItemMonitorHandler
 			? "Updating the monitored plc items failed. Polling will continue."
 			: $"Updating the monitored plc item '{plcItem.Identifier}' failed. Polling will continue.";
 		LogManager.GetLogger().Error(exception, message);
+	}
+
+	#endregion
+
+	#region Nested Types
+
+	/// <summary>
+	/// All monitored <see cref="IPlcItem"/>s that are equal to one another and therefore share a single placeholder item that is used for reading.
+	/// </summary>
+	private sealed class MonitoredPlcItems
+	{
+		/// <summary> The item that is read from the plc. </summary>
+		public IPlcItem PlaceholderItem { get; }
+
+		/// <summary> The monitored items that receive the value of the <see cref="PlaceholderItem"/>. </summary>
+		public List<IPlcItem> PlcItems { get; } = new List<IPlcItem>();
+
+		/// <summary>
+		/// Constructor
+		/// </summary>
+		/// <param name="placeholderItem"> <see cref="PlaceholderItem"/> </param>
+		public MonitoredPlcItems(IPlcItem placeholderItem)
+		{
+			this.PlaceholderItem = placeholderItem;
+		}
+	}
+
+	/// <summary>
+	/// Compares <see cref="IPlcItem"/>s by reference, because the items themselves implement IEquatable.
+	/// </summary>
+	private sealed class ReferenceComparer : IEqualityComparer<IPlcItem>
+	{
+		/// <inheritdoc />
+		public bool Equals(IPlcItem x, IPlcItem y) => Object.ReferenceEquals(x, y);
+
+		/// <inheritdoc />
+		public int GetHashCode(IPlcItem obj) => System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(obj);
 	}
 
 	#endregion
