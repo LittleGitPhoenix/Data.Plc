@@ -1,3 +1,4 @@
+#if SIACCESS_DEMO
 using System.Diagnostics;
 using System.Net.NetworkInformation;
 using Phoenix.Data.Plc.Items;
@@ -145,3 +146,4 @@ public class PollingPlcMonitorIntegrationTest
 
 	#endregion
 }
+#endif
