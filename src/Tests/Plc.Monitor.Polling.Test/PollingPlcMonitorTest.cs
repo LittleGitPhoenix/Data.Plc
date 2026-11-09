@@ -195,6 +195,37 @@ public class PollingPlcMonitorTest
 		Assert.AreEqual(1, differentReadItems.Count);
 	}
 
+	/// <summary>
+	/// Disposing a running <see cref="PollingMonitorablePlc"/> must stop its polling and dispose the decorated plc.
+	/// </summary>
+	[Test]
+	public async Task Dispose_StopsPollingAndDisposesDecoratedPlc()
+	{
+		var readCount = 0;
+		var plcMock = new Mock<IPlc>();
+		plcMock
+			.Setup(x => x.ReadItemsAsync(It.IsAny<ICollection<IPlcItem>>(), It.IsAny<CancellationToken>()))
+			.Returns(() =>
+			{
+				Interlocked.Increment(ref readCount);
+				return Task.CompletedTask;
+			});
+
+		var monitoredPlc = new PollingMonitorablePlc(plcMock.Object, TimeSpan.FromMilliseconds(20));
+		monitoredPlc.MonitorItem(new BytePlcItem(dataBlock: Data.Datablock, position: Data.StartOfModifiableBytes));
+		monitoredPlc.Start();
+		await Task.Delay(300);
+		Assert.That(readCount, Is.GreaterThan(0), "The monitor did not poll at all.");
+
+		monitoredPlc.Dispose();
+		await Task.Delay(100); // Allow a read that was already in progress to finish.
+		var readCountAfterDispose = readCount;
+		await Task.Delay(300);
+
+		Assert.That(readCount, Is.EqualTo(readCountAfterDispose), "The monitor kept polling after being disposed.");
+		plcMock.Verify(x => x.Dispose(), Times.Once);
+	}
+
 	#region Data
 
 	/// <summary>
