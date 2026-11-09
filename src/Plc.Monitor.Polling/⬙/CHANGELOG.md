@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ___
 
+## 6.3.0
+
+📅 _2026-??-??_
+
+### Fixed
+
+- `UnMonitorItem` now actually stops monitoring an item. Previously the item was looked up with a different key than it was stored with, so it kept being polled and kept raising `ValueChanged`.
+___
+
 ## 6.2.0
 
 📅 _2026-11-03_

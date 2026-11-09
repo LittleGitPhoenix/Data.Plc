@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using Phoenix.Data.Plc.Items;
 using Phoenix.Data.Plc.Items.Typed;
 using Phoenix.Data.Plc.Mock;
@@ -193,6 +194,194 @@ public class PollingPlcMonitorTest
 		monitoredPlc.Stop();
 		Assert.AreEqual(1, differentReadItems.Count);
 	}
+
+	#region Data
+
+	/// <summary>
+	/// Wraps a <see cref="MockPlc"/> in a mocked <see cref="IPlc"/> that records every call to <see cref="IPlc.ReadItemsAsync"/>.
+	/// </summary>
+	private sealed class ReadRecorder
+	{
+		private readonly ConcurrentQueue<(DateTime Time, IPlcItem[] Items)> _calls = new();
+		private int _readCount;
+
+		/// <summary> The <see cref="MockPlc"/> holding the actual data. </summary>
+		public MockPlc MockPlc { get; } = new MockPlc();
+
+		/// <summary> The recording <see cref="IPlc"/> that should be given to the monitor. </summary>
+		public IPlc Plc { get; }
+
+		/// <summary> The number of calls to <see cref="IPlc.ReadItemsAsync"/>. </summary>
+		public int ReadCount => Volatile.Read(ref _readCount);
+
+		/// <summary> Snapshot of all recorded calls. </summary>
+		public IReadOnlyList<(DateTime Time, IPlcItem[] Items)> Calls => _calls.ToArray();
+
+		/// <param name="beforeRead"> Optional callback that is invoked with the one-based call number before the data is read. It may throw. </param>
+		public ReadRecorder(Action<int> beforeRead = null)
+		{
+			this.MockPlc.Connect();
+			var plcMock = new Mock<IPlc>();
+			plcMock
+				.Setup(mock => mock.ReadItemsAsync(It.IsAny<ICollection<IPlcItem>>(), It.IsAny<CancellationToken>()))
+				.Returns<ICollection<IPlcItem>, CancellationToken>
+				(
+					(plcItems, cancellationToken) =>
+					{
+						var callNumber = Interlocked.Increment(ref _readCount);
+						_calls.Enqueue((DateTime.UtcNow, plcItems.ToArray()));
+						beforeRead?.Invoke(callNumber);
+						return this.MockPlc.ReadItemsAsync(plcItems, cancellationToken);
+					}
+				);
+			this.Plc = plcMock.Object;
+		}
+
+		/// <summary>
+		/// Writes a new value into one of the modifiable bytes of the data block.
+		/// </summary>
+		public async Task WriteAsync(Data.Plc.Test.Data data, byte value, int byteOffset = 0)
+		{
+			IPlcItem writeItem = new BytePlcItem(dataBlock: data.Datablock, position: (ushort) (data.StartOfModifiableBytes + byteOffset), identifier: $"Writer_{byteOffset}");
+			writeItem.Value.TransferValuesFrom(new[] { value });
+			await this.MockPlc.WriteItemAsync(writeItem);
+		}
+	}
+
+	/// <summary>
+	/// Thread safe counter for <see cref="IPlcItem.ValueChanged"/> events.
+	/// </summary>
+	private sealed class ChangeCounter
+	{
+		private int _count;
+
+		/// <summary> The number of raised events. </summary>
+		public int Count => Volatile.Read(ref _count);
+
+		/// <summary> Event handler that can be subscribed to any <see cref="IPlcItem.ValueChanged"/> event. </summary>
+		public void OnChanged(object sender, EventArgs args) => Interlocked.Increment(ref _count);
+	}
+
+	/// <summary>
+	/// Waits until the <paramref name="condition"/> is met or the <paramref name="timeout"/> elapsed.
+	/// </summary>
+	/// <returns> <see langword="true"/> if the <paramref name="condition"/> was met. </returns>
+	private static async Task<bool> WaitUntilAsync(Func<bool> condition, int timeout = 5000)
+	{
+		var deadline = DateTime.UtcNow.AddMilliseconds(timeout);
+		while (DateTime.UtcNow < deadline)
+		{
+			if (condition()) return true;
+			await Task.Delay(10);
+		}
+		return condition();
+	}
+
+	private BytePlcItem CreateByteItem(int byteOffset = 0, string identifier = null)
+		=> new BytePlcItem(dataBlock: Data.Datablock, position: (ushort) (Data.StartOfModifiableBytes + byteOffset), identifier: identifier);
+
+	#endregion
+
+	#region Tests
+
+	#region UnMonitor
+
+	/// <summary>
+	/// Checks that no further <see cref="IPlcItem.ValueChanged"/> events are raised after an item has been unmonitored.
+	/// </summary>
+	[Test]
+	[Category("UnMonitor")]
+	public async Task UnMonitorItem_StopsChangeNotifications()
+	{
+		// Arrange
+		var recorder = new ReadRecorder();
+		using var monitor = new PollingPlcMonitor(recorder.Plc);
+		var counter = new ChangeCounter();
+		var item = this.CreateByteItem();
+		item.ValueChanged += counter.OnChanged;
+		monitor.MonitorItem(item);
+		monitor.Start();
+		await recorder.WriteAsync(Data, 1);
+		Assert.That(await WaitUntilAsync(() => counter.Count == 1), Is.True, "The first change was not detected.");
+
+		// Act
+		monitor.UnMonitorItem(item);
+		await recorder.WriteAsync(Data, 2);
+		await Task.Delay((int) PlcItemMonitorConfigurations.DefaultPollingFrequency.TotalMilliseconds * 4);
+
+		// Assert
+		Assert.That(counter.Count, Is.EqualTo(1));
+	}
+
+	/// <summary>
+	/// Checks that no further <see cref="IPlcItem.ValueChanged"/> events are raised after an item with a custom polling frequency has been unmonitored.
+	/// </summary>
+	[Test]
+	[Category("UnMonitor")]
+	public async Task UnMonitorItem_WithConfiguredPollingFrequency_StopsChangeNotifications()
+	{
+		// Arrange
+		var identifier = "ConfiguredItem";
+		var recorder = new ReadRecorder();
+		using var monitor = new PollingPlcMonitor(recorder.Plc, new Dictionary<string, uint> { { identifier, 50 } });
+		var counter = new ChangeCounter();
+		var item = this.CreateByteItem(identifier: identifier);
+		item.ValueChanged += counter.OnChanged;
+		monitor.MonitorItem(item);
+		monitor.Start();
+		await recorder.WriteAsync(Data, 1);
+		Assert.That(await WaitUntilAsync(() => counter.Count == 1), Is.True, "The first change was not detected.");
+
+		// Act
+		monitor.UnMonitorItem(item);
+		await recorder.WriteAsync(Data, 2);
+		await Task.Delay(400);
+
+		// Assert
+		Assert.That(counter.Count, Is.EqualTo(1));
+	}
+
+	/// <summary>
+	/// Checks that unmonitoring one of two identical (equal but not same) items only stops the notifications of that very item.
+	/// </summary>
+	/// <param name="unMonitorFirst"> Whether the first or the second item is unmonitored. </param>
+	[Test]
+	[Category("UnMonitor")]
+	[TestCase(true)]
+	[TestCase(false)]
+	public async Task UnMonitorItem_OfOneOfTwoIdenticalItems_KeepsTheOther(bool unMonitorFirst)
+	{
+		// Arrange
+		var recorder = new ReadRecorder();
+		using var monitor = new PollingPlcMonitor(recorder.Plc, new Dictionary<string, uint> { { "First", 50 }, { "Second", 50 } });
+		var firstCounter = new ChangeCounter();
+		var secondCounter = new ChangeCounter();
+		var first = this.CreateByteItem(identifier: "First");
+		var second = this.CreateByteItem(identifier: "Second");
+		first.ValueChanged += firstCounter.OnChanged;
+		second.ValueChanged += secondCounter.OnChanged;
+		monitor.MonitorItem(first);
+		monitor.MonitorItem(second);
+		monitor.Start();
+		await recorder.WriteAsync(Data, 1);
+		Assert.That(await WaitUntilAsync(() => firstCounter.Count == 1 && secondCounter.Count == 1), Is.True, "The first change was not detected by both items.");
+
+		// Act
+		monitor.UnMonitorItem(unMonitorFirst ? first : second);
+		await recorder.WriteAsync(Data, 2);
+		var (removedCounter, keptCounter) = unMonitorFirst ? (firstCounter, secondCounter) : (secondCounter, firstCounter);
+		var keptDetected = await WaitUntilAsync(() => keptCounter.Count == 2);
+		await Task.Delay(400);
+
+		// Assert
+		Assert.That(keptDetected, Is.True, "The kept item did not receive the change.");
+		Assert.That(removedCounter.Count, Is.EqualTo(1));
+		Assert.That(keptCounter.Count, Is.EqualTo(2));
+	}
+
+	#endregion
+
+	#endregion
 
 	private class ReferenceComparer : IEqualityComparer<IPlcItem>
 	{

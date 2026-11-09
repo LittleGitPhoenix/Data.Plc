@@ -86,9 +86,8 @@ public class PollingPlcMonitor : IPlcMonitor
 	public void MonitorItem(IPlcItem plcItem)
 	{
 		// The hash code must consist of the hash from the plc item and the polling frequency.
-		var plcItemHash = plcItem.GetHashCode();
 		var pollingFrequency = _plcItemMonitorConfigurations.GetPollingFrequencyForPlcItem(plcItem);
-		var hashValue = new {plcItemHash, pollingFrequency}.GetHashCode();
+		var hashValue = this.CreateHandlerKey(plcItem);
 
 		lock (_lock)
 		{
@@ -112,12 +111,24 @@ public class PollingPlcMonitor : IPlcMonitor
 	{
 		lock (_lock)
 		{
-			var hashValue = plcItem.GetHashCode();
+			var hashValue = this.CreateHandlerKey(plcItem);
 			if (_plcItemHandlers.TryGetValue(hashValue, out var handler))
 			{
 				handler.RemovePlcItem(plcItem);
 			}
 		}
+	}
+
+	/// <summary>
+	/// Creates the key under which the <see cref="PlcItemMonitorHandler"/> for the <paramref name="plcItem"/> is stored.
+	/// </summary>
+	/// <param name="plcItem"> The <see cref="IPlcItem"/> whose handler key to create. </param>
+	/// <returns> The key consisting of the hash from the plc item and its polling frequency. </returns>
+	private int CreateHandlerKey(IPlcItem plcItem)
+	{
+		var plcItemHash = plcItem.GetHashCode();
+		var pollingFrequency = _plcItemMonitorConfigurations.GetPollingFrequencyForPlcItem(plcItem);
+		return new {plcItemHash, pollingFrequency}.GetHashCode();
 	}
 
 	/// <summary>
@@ -277,7 +288,9 @@ internal sealed class PlcItemMonitorHandler
 	{
 		lock (_lock)
 		{
-			_plcItems.Remove(plcItem);
+			//! The removal must be done via referential equals, because the items themselves implement IEquatable and therefore may be equal, but not the same.
+			var index = _plcItems.FindIndex(existingPlcItem => Object.ReferenceEquals(existingPlcItem, plcItem));
+			if (index >= 0) _plcItems.RemoveAt(index);
 		}
 	}
 
