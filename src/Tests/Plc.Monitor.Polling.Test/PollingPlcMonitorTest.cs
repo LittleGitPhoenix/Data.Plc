@@ -379,6 +379,82 @@ public class PollingPlcMonitorTest
 		Assert.That(keptCounter.Count, Is.EqualTo(2));
 	}
 
+	#region Exceptions
+
+	/// <summary>
+	/// Checks that polling continues after a read failed.
+	/// </summary>
+	[Test]
+	[Category("Exceptions")]
+	public async Task Polling_ContinuesAfterReadException()
+	{
+		// Arrange
+		var identifier = "Item";
+		var recorder = new ReadRecorder
+		(
+			callNumber =>
+			{
+				if (callNumber == 1) throw new ReadPlcException(new List<IPlcItem>(), new List<(IPlcItem, string)>());
+			}
+		);
+		using var monitor = new PollingPlcMonitor(recorder.Plc, new Dictionary<string, uint> { { identifier, 50 } });
+		var counter = new ChangeCounter();
+		var item = this.CreateByteItem(identifier: identifier);
+		item.ValueChanged += counter.OnChanged;
+		monitor.MonitorItem(item);
+
+		// Act
+		monitor.Start();
+		await recorder.WriteAsync(Data, 1);
+		var firstDetected = await WaitUntilAsync(() => counter.Count == 1);
+		await recorder.WriteAsync(Data, 2);
+		var secondDetected = await WaitUntilAsync(() => counter.Count == 2);
+
+		// Assert
+		Assert.That(firstDetected, Is.True, "The change after the failed read was not detected.");
+		Assert.That(secondDetected, Is.True, "The change after the first successful read was not detected.");
+		Assert.That(recorder.ReadCount, Is.GreaterThan(2));
+	}
+
+	/// <summary>
+	/// Checks that polling continues after a subscriber of <see cref="IPlcItem.ValueChanged"/> threw an exception.
+	/// </summary>
+	[Test]
+	[Category("Exceptions")]
+	public async Task Polling_ContinuesAfterSubscriberException()
+	{
+		// Arrange
+		var identifier = "Item";
+		var recorder = new ReadRecorder();
+		using var monitor = new PollingPlcMonitor(recorder.Plc, new Dictionary<string, uint> { { identifier, 50 } });
+		var counter = new ChangeCounter();
+		var item = this.CreateByteItem(identifier: identifier);
+		item.ValueChanged += (sender, args) =>
+		{
+			// Only the first invocation throws.
+			if (counter.Count == 0)
+			{
+				counter.OnChanged(sender, args);
+				throw new InvalidOperationException("Subscriber failure.");
+			}
+			counter.OnChanged(sender, args);
+		};
+		monitor.MonitorItem(item);
+
+		// Act
+		monitor.Start();
+		await recorder.WriteAsync(Data, 1);
+		var firstDetected = await WaitUntilAsync(() => counter.Count == 1);
+		await recorder.WriteAsync(Data, 2);
+		var secondDetected = await WaitUntilAsync(() => counter.Count == 2);
+
+		// Assert
+		Assert.That(firstDetected, Is.True, "The change that made the subscriber throw was not detected.");
+		Assert.That(secondDetected, Is.True, "The change after the subscriber exception was not detected.");
+	}
+
+	#endregion
+
 	#endregion
 
 	#endregion

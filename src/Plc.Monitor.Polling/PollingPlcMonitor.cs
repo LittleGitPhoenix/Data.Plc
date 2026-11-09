@@ -3,6 +3,7 @@
 #endregion
 
 using Phoenix.Data.Plc.Items;
+using Phoenix.Data.Plc.Logging;
 
 namespace Phoenix.Data.Plc.Monitor.Polling;
 
@@ -242,11 +243,24 @@ internal sealed class PlcItemMonitorHandler
 					{
 						// Update the handler and therefore all the plc items.
 						await this.UpdateItemsAsync(token);
+					}
+					catch (OperationCanceledException) when (token.IsCancellationRequested)
+					{
+						// Only cancellation ends the loop.
+						break;
+					}
+					catch (Exception exception)
+					{
+						//! Any other exception must not end the polling, otherwise the item would never be polled again.
+						this.LogUpdateFailure(exception);
+					}
 
+					try
+					{
 						// Wait for the next polling interval.
 						await Task.Delay(_pollingFrequency, token);
 					}
-					catch (TaskCanceledException) { /* Ignore */ }
+					catch (OperationCanceledException) { /* Ignore */ }
 				}
 			}, token
 		);
@@ -317,10 +331,31 @@ internal sealed class PlcItemMonitorHandler
 		(
 			plcItems, (plcItem) =>
 			{
-				token.ThrowIfCancellationRequested();
-				plcItem.Value.TransferValuesFrom(newValue);
+				if (token.IsCancellationRequested) return;
+
+				//! Subscribers of the 'ValueChanged' event may throw. This must neither affect the other items nor the polling itself.
+				try
+				{
+					plcItem.Value.TransferValuesFrom(newValue);
+				}
+				catch (Exception exception)
+				{
+					this.LogUpdateFailure(exception, plcItem);
+				}
 			}
 		);
+	}
+
+	#endregion
+
+	#region Logging
+
+	private void LogUpdateFailure(Exception exception, IPlcItem plcItem = null)
+	{
+		var message = plcItem is null
+			? "Updating the monitored plc items failed. Polling will continue."
+			: $"Updating the monitored plc item '{plcItem.Identifier}' failed. Polling will continue.";
+		LogManager.GetLogger().Error(exception, message);
 	}
 
 	#endregion
