@@ -432,6 +432,11 @@ The monitor only polls while it is running. Items that are monitored before `Sta
 
 `UnMonitorItem` stops monitoring a single instance. Once the last item of a polling frequency has been removed, the corresponding handler is stopped and removed, so nothing is read from the plc for it anymore.
 
+The polling frequency is only used by `MonitorItem` to choose the handler that receives the item. `UnMonitorItem` does **not** calculate it again (it could have changed in the meantime, e.g. by setting the static `PlcItemMonitorConfigurations.DefaultPollingFrequency`), but removes the instance from **all** handlers. Removal is done via reference equality, not via `IPlcItem` equality. Therefore only the passed instance is removed and never another instance that is merely equal to it (same address and length, but possibly a different identifier and thus a different polling frequency). The other instances keep being monitored.
+
+> [!NOTE]
+> Normally a single instance is only ever contained in one handler. The exception is monitoring the very same instance twice with a changed default polling frequency in between (for example by changing the static `PlcItemMonitorConfigurations.DefaultPollingFrequency`). The instance is then polled by two handlers, but a single `UnMonitorItem` call removes it from both.
+
 #### Polling Frequency
 
 The frequency at which `IPlcItems` are polled has a default value of _300 milliseconds_. This is defined by `PlcItemMonitorConfigurations.DefaultPollingFrequency`. Although this interval should be sufficient enough for most cases, it can be changed to a different value.

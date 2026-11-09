@@ -146,17 +146,18 @@ public class PollingPlcMonitor : IPlcMonitor
 	{
 		lock (_lock)
 		{
-			// The polling frequency is determined the same way as when the item was added, so that the same handler is found.
-			var pollingFrequency = this.GetPollingFrequency(plcItem);
-			if (_plcItemHandlers.TryGetValue(pollingFrequency, out var handler))
+			//! The polling frequency is deliberately NOT recalculated here. It may have changed since the item was added (e.g. the static default frequency), which would lead to a different handler. Instead the item is removed from all handlers.
+			//! Items are removed by reference, so this only affects the instance that was passed and never another equal one. Handlers that do not contain it are not changed.
+			foreach (var pair in _plcItemHandlers.ToArray())
 			{
+				var handler = pair.Value;
 				handler.RemovePlcItem(plcItem);
 
 				// A handler without any items must not keep polling the plc.
 				if (!handler.HasPlcItems)
 				{
 					handler.Stop();
-					_plcItemHandlers.Remove(pollingFrequency);
+					_plcItemHandlers.Remove(pair.Key);
 				}
 			}
 		}

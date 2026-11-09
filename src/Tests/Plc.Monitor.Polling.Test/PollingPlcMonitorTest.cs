@@ -351,6 +351,82 @@ public class PollingPlcMonitorTest
 	}
 
 	/// <summary>
+	/// Checks that an item can still be unmonitored after the static default polling frequency has changed since it was added.
+	/// </summary>
+	[Test]
+	[Category("UnMonitor")]
+	public async Task UnMonitorItem_AfterDefaultPollingFrequencyChanged_StopsChangeNotifications()
+	{
+		var originalFrequency = PlcItemMonitorConfigurations.DefaultPollingFrequency;
+		try
+		{
+			// Arrange
+			PlcItemMonitorConfigurations.DefaultPollingFrequency = TimeSpan.FromMilliseconds(50);
+			var recorder = new ReadRecorder();
+			using var monitor = new PollingPlcMonitor(recorder.Plc);
+			var counter = new ChangeCounter();
+			var item = this.CreateByteItem();
+			item.ValueChanged += counter.OnChanged;
+			monitor.MonitorItem(item);
+			monitor.Start();
+			await recorder.WriteAsync(Data, 1);
+			Assert.That(await WaitUntilAsync(() => counter.Count == 1), Is.True, "The first change was not detected.");
+
+			// Act
+			PlcItemMonitorConfigurations.DefaultPollingFrequency = TimeSpan.FromMilliseconds(500);
+			monitor.UnMonitorItem(item);
+			await Task.Delay(200); // Grace period for a read that is still in progress.
+			var readsAfterGracePeriod = recorder.ReadCount;
+			await recorder.WriteAsync(Data, 2);
+			await Task.Delay(500);
+
+			// Assert
+			Assert.That(counter.Count, Is.EqualTo(1), "The item was still notified after it has been unmonitored.");
+			Assert.That(recorder.ReadCount, Is.EqualTo(readsAfterGracePeriod), "The plc was still polled, although no item is monitored anymore.");
+		}
+		finally
+		{
+			PlcItemMonitorConfigurations.DefaultPollingFrequency = originalFrequency;
+		}
+	}
+
+	/// <summary>
+	/// Checks that an item that was added to two handlers (the default polling frequency changed between two calls of MonitorItem) is removed from both of them.
+	/// </summary>
+	[Test]
+	[Category("UnMonitor")]
+	public async Task UnMonitorItem_OfItemInMultipleHandlers_RemovesItFromAll()
+	{
+		var originalFrequency = PlcItemMonitorConfigurations.DefaultPollingFrequency;
+		try
+		{
+			// Arrange
+			PlcItemMonitorConfigurations.DefaultPollingFrequency = TimeSpan.FromMilliseconds(50);
+			var recorder = new ReadRecorder();
+			using var monitor = new PollingPlcMonitor(recorder.Plc);
+			var item = this.CreateByteItem();
+			monitor.MonitorItem(item);
+			PlcItemMonitorConfigurations.DefaultPollingFrequency = TimeSpan.FromMilliseconds(100);
+			monitor.MonitorItem(item);
+			monitor.Start();
+			Assert.That(await WaitUntilAsync(() => recorder.ReadCount >= 3), Is.True, "The item was not polled.");
+
+			// Act
+			monitor.UnMonitorItem(item);
+			await Task.Delay(200); // Grace period for a read that is still in progress.
+			var readsAfterGracePeriod = recorder.ReadCount;
+			await Task.Delay(500);
+
+			// Assert
+			Assert.That(recorder.ReadCount, Is.EqualTo(readsAfterGracePeriod));
+		}
+		finally
+		{
+			PlcItemMonitorConfigurations.DefaultPollingFrequency = originalFrequency;
+		}
+	}
+
+	/// <summary>
 	/// Checks that no further <see cref="IPlcItem.ValueChanged"/> events are raised after an item with a custom polling frequency has been unmonitored.
 	/// </summary>
 	[Test]
