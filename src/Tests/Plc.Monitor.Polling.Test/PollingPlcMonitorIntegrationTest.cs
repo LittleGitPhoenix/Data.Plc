@@ -66,6 +66,10 @@ public class PollingPlcMonitorIntegrationTest
 			items.Add(new BytePlcItem(Data.Datablock, (ushort) (Data.StartOfModifiableBytes + offset)));
 			items.Add(new BitPlcItem(Data.Datablock, (ushort) (Data.StartOfModifiableBytes + offset), BitPosition.X0));
 		}
+
+		// Initialize the items with the current plc values before subscribing, so that only the intended change is counted and not the initial read.
+		await plc.ReadItemsAsync(items);
+
 		var counters = items.ToDictionary(item => item, item => new ChangeCounter());
 		foreach (var item in items) item.ValueChanged += counters[item].OnChanged;
 
