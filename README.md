@@ -379,7 +379,7 @@ The number of requests sent to the plc therefore depends on the number of differ
 
 ``` mermaid
 %%{init: {"theme": "base", "themeVariables": {"background": "#252526", "primaryColor": "#252526", "primaryTextColor": "#F1F2F3", "textColor": "#F1F2F3", "primaryBorderColor": "#757575", "lineColor": "#757575", "clusterBkg": "#2D2D30", "clusterBorder": "#484943", "edgeLabelBackground": "#252526"}}}%%
-flowchart LR
+flowchart RL
 	PLC[("PLC")]
 
 	subgraph Monitor["PollingPlcMonitor"]
@@ -397,13 +397,13 @@ flowchart LR
 	Item3["item3<br/>DB1.DBB1"]
 	Item4["FastItem<br/>DB1.DBB2"]
 
-	PLC -- "ReadItemsAsync([DBB0, DBB1])<br/>every 300 ms" --> HandlerDefault
-	PLC -- "ReadItemsAsync([DBB2])<br/>every 50 ms" --> HandlerFast
+	PLC <-- "Reads both placeholders<br/>every 300 ms" --> HandlerDefault
+	PLC <-- "Reads single placeholder<br/>every 50 ms" --> HandlerFast
 
-	PlaceholderA -.-> Item1
-	PlaceholderA -.-> Item2
-	PlaceholderB -.-> Item3
-	PlaceholderC -.-> Item4
+	PlaceholderA <-.-> Item1
+	PlaceholderA <-.-> Item2
+	PlaceholderB <-.-> Item3
+	PlaceholderC <-.-> Item4
 
 	classDef plc fill:#252526,stroke:#F92672,stroke-width:2px,color:#F1F2F3
 	classDef placeholder fill:#252526,stroke:#A6E22E,stroke-width:2px,color:#F1F2F3
@@ -420,7 +420,7 @@ flowchart LR
 	linkStyle 2,3,4,5 stroke:#66D9EF,stroke-width:2px
 ```
 
-Orange arrows are the reads from the plc, one `ReadItemsAsync` call per handler and polling cycle. Blue dotted arrows are the transfers of the read value (`TransferValuesFrom`) from the placeholder to every monitored instance.
+Blue dotted arrows are the link between a placeholder and the monitored instances it represents. The read value is transferred (`TransferValuesFrom`) from the placeholder to every monitored instance. Orange arrows are the communication with the plc: one `ReadItemsAsync` call (request and response) per handler and polling cycle.
 
 In the example above `item1` and `item2` are different instances with the same address. They share a single placeholder and therefore only one of them is actually read from the plc.
 
