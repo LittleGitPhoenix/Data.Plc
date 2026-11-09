@@ -364,6 +364,8 @@ The monitor only polls while it is running. Items that are monitored before `Sta
 
 The frequency at witch `IPlcItems` are polled has a default value of _300 milliseconds_. This is defined by `PlcItemMonitorConfigurations.DefaultPollingFrequency`. Although this interval should be sufficient enough for most cases, it can be changed to a different value.
 
+To use a different default frequency for a single monitor instead of changing the static value for all of them, pass the default polling frequency as `TimeSpan` to the constructor of the `PollingPlcMonitor` or `PollingMonitorablePlc` or to the `MakeMonitorable` extension. The static `PlcItemMonitorConfigurations.DefaultPollingFrequency` is only used as fallback if no such value has been specified. The order of precedence is therefore: **configuration for the item** → **default frequency of the monitor** → **static default frequency**.
+
 > [!CAUTION]
 > Changing the default monitoring frequency does not change the interval at which already monitored items are polled.
 
@@ -401,6 +403,18 @@ IMonitorablePlc monitoredPlc = new MockPlc().MakeMonitorable
 			{"LightspeedItem", 50},          
 			{"SlowItem", 1000},
 		}
+	);
+```
+
+**Create a new _PollingMonitorablePlc_ instance with its own default polling frequency.**
+``` csharp
+IMonitorablePlc monitoredPlc = new IPlc().MakeMonitorable(TimeSpan.FromMilliseconds(100));
+
+// Combined with a custom polling frequency configuration for some items.
+IMonitorablePlc monitoredPlc = new MockPlc().MakeMonitorable
+	(
+		new Dictionary<string, uint> { {"SlowItem", 1000} },
+		TimeSpan.FromMilliseconds(100)
 	);
 ```
 ___

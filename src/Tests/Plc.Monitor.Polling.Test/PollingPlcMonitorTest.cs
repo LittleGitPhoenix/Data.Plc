@@ -206,7 +206,7 @@ public class PollingPlcMonitorTest
 		private int _readCount;
 
 		/// <summary> The <see cref="MockPlc"/> holding the actual data. </summary>
-		public MockPlc MockPlc { get; } = new MockPlc();
+		public MockPlc MockPlc { get; }
 
 		/// <summary> The recording <see cref="IPlc"/> that should be given to the monitor. </summary>
 		public IPlc Plc { get; }
@@ -219,8 +219,10 @@ public class PollingPlcMonitorTest
 
 		/// <param name="beforeRead"> Optional callback that is invoked with the one-based call number before the data is read. It may throw. </param>
 		/// <param name="selectFailingItems"> Optional callback that selects the items of a call that fail to be read. All other items are read successfully and are reported as valid items of the thrown <see cref="ReadPlcException"/>. </param>
-		public ReadRecorder(Action<int> beforeRead = null, Func<IPlcItem[], IPlcItem[]> selectFailingItems = null)
+		/// <param name="mockPlc"> Optional <see cref="Phoenix.Data.Plc.Mock.MockPlc"/> to use. This allows multiple recorders to share the same data. </param>
+		public ReadRecorder(Action<int> beforeRead = null, Func<IPlcItem[], IPlcItem[]> selectFailingItems = null, MockPlc mockPlc = null)
 		{
+			this.MockPlc = mockPlc ?? new MockPlc();
 			this.MockPlc.Connect();
 			var plcMock = new Mock<IPlc>();
 			plcMock
@@ -701,6 +703,79 @@ public class PollingPlcMonitorTest
 		Assert.That(healthyDetected, Is.True, "The healthy item was not updated although it has been read successfully.");
 		Assert.That(failingCounter.Count, Is.EqualTo(0), "The failing item must not be updated.");
 		Assert.That(recorder.ReadCount, Is.GreaterThan(1));
+	}
+
+	#endregion
+
+	#region Frequency
+
+	/// <summary>
+	/// Checks that two monitors sharing the same plc poll at the default polling frequency that has been specified for each of them.
+	/// </summary>
+	[Test]
+	[Category("Frequency")]
+	public async Task Monitor_WithOwnDefaultFrequency_PollsAtThatFrequency()
+	{
+		// Arrange
+		var window = 1600;
+		var fastInterval = 50;
+		var slowInterval = 400;
+		var mockPlc = new MockPlc();
+		var fastRecorder = new ReadRecorder(mockPlc: mockPlc);
+		var slowRecorder = new ReadRecorder(mockPlc: mockPlc);
+		using var fastMonitor = fastRecorder.Plc.MakeMonitorable(TimeSpan.FromMilliseconds(fastInterval));
+		using var slowMonitor = slowRecorder.Plc.MakeMonitorable(TimeSpan.FromMilliseconds(slowInterval));
+		fastMonitor.MonitorItem(this.CreateByteItem());
+		slowMonitor.MonitorItem(this.CreateByteItem());
+
+		// Act
+		fastMonitor.Start();
+		slowMonitor.Start();
+		await Task.Delay(window);
+		fastMonitor.Stop();
+		slowMonitor.Stop();
+
+		// Assert
+		Assert.That(fastRecorder.ReadCount, Is.InRange(window / fastInterval / 2, window / fastInterval + 5));
+		Assert.That(slowRecorder.ReadCount, Is.InRange(window / slowInterval / 2, window / slowInterval + 2));
+		Assert.That(fastRecorder.ReadCount, Is.GreaterThan(slowRecorder.ReadCount * 3));
+	}
+
+	/// <summary>
+	/// Checks that the polling frequency that is configured for an item takes precedence over the default polling frequency of the monitor.
+	/// </summary>
+	/// <param name="defaultInterval"> The default polling frequency of the monitor in milliseconds. </param>
+	/// <param name="configuredInterval"> The configured polling frequency of the item in milliseconds. </param>
+	[Test]
+	[Category("Frequency")]
+	[TestCase(400, 50)]
+	[TestCase(50, 400)]
+	public async Task Monitor_ItemConfiguration_OverridesMonitorDefault(int defaultInterval, int configuredInterval)
+	{
+		// Arrange
+		var window = 1600;
+		var recorder = new ReadRecorder();
+		using var monitor = new PollingPlcMonitor
+		(
+			recorder.Plc,
+			new Dictionary<string, uint> { { "Configured", (uint) configuredInterval } },
+			TimeSpan.FromMilliseconds(defaultInterval)
+		);
+		monitor.MonitorItem(this.CreateByteItem(0, "Configured"));
+		monitor.MonitorItem(this.CreateByteItem(1, "Default"));
+
+		// Act
+		monitor.Start();
+		await Task.Delay(window);
+		monitor.Stop();
+
+		// Assert
+		var calls = recorder.Calls;
+		var configuredCalls = calls.Count(call => call.Items.Any(item => item.Position == Data.StartOfModifiableBytes));
+		var defaultCalls = calls.Count(call => call.Items.Any(item => item.Position == Data.StartOfModifiableBytes + 1));
+		Assert.That(calls.Select(call => call.Items.Length), Has.All.EqualTo(1), "Items with different polling frequencies must be read separately.");
+		Assert.That(configuredCalls, Is.InRange(window / configuredInterval / 2, window / configuredInterval + 5), "The item did not use its configured frequency.");
+		Assert.That(defaultCalls, Is.InRange(window / defaultInterval / 2, window / defaultInterval + 5), "The item did not use the default frequency of the monitor.");
 	}
 
 	#endregion

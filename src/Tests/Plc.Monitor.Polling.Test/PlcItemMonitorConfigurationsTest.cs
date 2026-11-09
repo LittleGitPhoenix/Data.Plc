@@ -55,4 +55,45 @@ public class PlcItemMonitorConfigurationsTest
 		// Assert
 		Assert.AreEqual(PlcItemMonitorConfigurations.MinimumPollingFrequency, frequency);
 	}
+
+	/// <summary>
+	/// Checks if the passed default polling frequency is returned for items that don't provide a custom <see cref="PlcItemMonitorConfiguration"/> and that it cannot undershoot the <see cref="PlcItemMonitorConfigurations.MinimumPollingFrequency"/>.
+	/// </summary>
+	/// <param name="defaultMilliseconds"> The default polling frequency in milliseconds. </param>
+	/// <param name="expectedMilliseconds"> The expected polling frequency in milliseconds. </param>
+	[Test]
+	[TestCase(400, 400)]
+	[TestCase(10, 50)]
+	public void Check_Custom_Default_Frequency(int defaultMilliseconds, int expectedMilliseconds)
+	{
+		// Arrange
+		var item = Moq.Mock.Of<IPlcItem>();
+		Moq.Mock.Get(item).SetupGet(plcItem => plcItem.Identifier).Returns(Guid.NewGuid().ToString);
+		var configurations = new PlcItemMonitorConfigurations();
+
+		// Act
+		var frequency = configurations.GetPollingFrequencyForPlcItem(item, TimeSpan.FromMilliseconds(defaultMilliseconds));
+
+		// Assert
+		Assert.AreEqual(TimeSpan.FromMilliseconds(expectedMilliseconds), frequency);
+	}
+
+	/// <summary>
+	/// Checks if a custom polling frequency of an <see cref="IPlcItem"/> takes precedence over the passed default polling frequency.
+	/// </summary>
+	[Test]
+	public void Custom_Frequency_Overrides_Custom_Default_Frequency()
+	{
+		// Arrange
+		var itemIdentifier = Guid.NewGuid().ToString();
+		var item = Moq.Mock.Of<IPlcItem>();
+		Moq.Mock.Get(item).SetupGet(plcItem => plcItem.Identifier).Returns(itemIdentifier);
+		var configurations = new PlcItemMonitorConfigurations(new[] {new PlcItemMonitorConfiguration(itemIdentifier, 100),});
+
+		// Act
+		var frequency = configurations.GetPollingFrequencyForPlcItem(item, TimeSpan.FromMilliseconds(400));
+
+		// Assert
+		Assert.AreEqual(TimeSpan.FromMilliseconds(100), frequency);
+	}
 }

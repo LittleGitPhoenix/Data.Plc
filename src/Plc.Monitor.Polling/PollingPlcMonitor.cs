@@ -26,6 +26,9 @@ public class PollingPlcMonitor : IPlcMonitor
 	/// <summary> <see cref="PlcItemMonitorConfigurations"/> specifying special polling frequencies for some <see cref="IPlcItem"/>s. </summary>
 	private readonly PlcItemMonitorConfigurations _plcItemMonitorConfigurations;
 
+	/// <summary> The default polling frequency of this monitor. If <see langword="null"/>, the static <see cref="PlcItemMonitorConfigurations.DefaultPollingFrequency"/> is used. </summary>
+	private readonly TimeSpan? _defaultPollingFrequency;
+
 	/// <summary> The handlers (one per polling frequency) that poll and update the monitored <see cref="IPlcItem"/>s. </summary>
 	private readonly Dictionary<TimeSpan, PlcItemMonitorHandler> _plcItemHandlers;
 
@@ -53,10 +56,36 @@ public class PollingPlcMonitor : IPlcMonitor
 	/// <param name="plc"> <see cref="IPlc"/> instance used to poll for changes in the monitored <see cref="IPlcItem"/>s. </param>
 	/// <param name="plcItemMonitorConfigurations"> <see cref="PlcItemMonitorConfigurations"/> for specifying special polling frequencies for some <see cref="IPlcItem"/>s. </param>
 	public PollingPlcMonitor(IPlc plc, PlcItemMonitorConfigurations plcItemMonitorConfigurations)
+		: this(plc, plcItemMonitorConfigurations, (TimeSpan?) null) { }
+
+	/// <summary>
+	/// Constructor
+	/// </summary>
+	/// <param name="plc"> <see cref="IPlc"/> instance used to poll for changes in the monitored <see cref="IPlcItem"/>s. </param>
+	/// <param name="defaultPollingFrequency"> The default polling frequency of this monitor that is used for all <see cref="IPlcItem"/>s that are not listed in the <see cref="PlcItemMonitorConfigurations"/>. Cannot be less than the minimum polling frequency. </param>
+	public PollingPlcMonitor(IPlc plc, TimeSpan defaultPollingFrequency) : this(plc, null, defaultPollingFrequency) { }
+
+	/// <summary>
+	/// Constructor
+	/// </summary>
+	/// <param name="plc"> <see cref="IPlc"/> instance used to poll for changes in the monitored <see cref="IPlcItem"/>s. </param>
+	/// <param name="plcItemMonitorConfigurations"> <see cref="PlcItemMonitorConfigurations"/> for specifying special polling frequencies for some <see cref="IPlcItem"/>s. </param>
+	/// <param name="defaultPollingFrequency"> The default polling frequency of this monitor that is used for all <see cref="IPlcItem"/>s that are not listed in the <paramref name="plcItemMonitorConfigurations"/>. Cannot be less than the minimum polling frequency. </param>
+	public PollingPlcMonitor(IPlc plc, PlcItemMonitorConfigurations plcItemMonitorConfigurations, TimeSpan defaultPollingFrequency)
+		: this(plc, plcItemMonitorConfigurations, (TimeSpan?) defaultPollingFrequency) { }
+
+	/// <summary>
+	/// Constructor
+	/// </summary>
+	/// <param name="plc"> <see cref="IPlc"/> instance used to poll for changes in the monitored <see cref="IPlcItem"/>s. </param>
+	/// <param name="plcItemMonitorConfigurations"> <see cref="PlcItemMonitorConfigurations"/> for specifying special polling frequencies for some <see cref="IPlcItem"/>s. </param>
+	/// <param name="defaultPollingFrequency"> The default polling frequency of this monitor. If <see langword="null"/>, the static <see cref="PlcItemMonitorConfigurations.DefaultPollingFrequency"/> is used. </param>
+	private PollingPlcMonitor(IPlc plc, PlcItemMonitorConfigurations plcItemMonitorConfigurations, TimeSpan? defaultPollingFrequency)
 	{
 		// Save parameters.
 		_plc = plc;
 		_plcItemMonitorConfigurations = plcItemMonitorConfigurations ?? new PlcItemMonitorConfigurations();
+		_defaultPollingFrequency = defaultPollingFrequency;
 
 		// Initialize fields.
 		_lock = new object();
@@ -93,7 +122,7 @@ public class PollingPlcMonitor : IPlcMonitor
 	public void MonitorItem(IPlcItem plcItem)
 	{
 		// All items with the same polling frequency are handled by the same handler.
-		var pollingFrequency = _plcItemMonitorConfigurations.GetPollingFrequencyForPlcItem(plcItem);
+		var pollingFrequency = this.GetPollingFrequency(plcItem);
 
 		lock (_lock)
 		{
@@ -118,7 +147,7 @@ public class PollingPlcMonitor : IPlcMonitor
 		lock (_lock)
 		{
 			// The polling frequency is determined the same way as when the item was added, so that the same handler is found.
-			var pollingFrequency = _plcItemMonitorConfigurations.GetPollingFrequencyForPlcItem(plcItem);
+			var pollingFrequency = this.GetPollingFrequency(plcItem);
 			if (_plcItemHandlers.TryGetValue(pollingFrequency, out var handler))
 			{
 				handler.RemovePlcItem(plcItem);
@@ -132,6 +161,14 @@ public class PollingPlcMonitor : IPlcMonitor
 			}
 		}
 	}
+
+	/// <summary>
+	/// Gets the polling frequency for the <paramref name="plcItem"/>.
+	/// </summary>
+	/// <param name="plcItem"> The <see cref="IPlcItem"/> whose polling frequency to get. </param>
+	/// <returns> The configured polling frequency of the item or otherwise the default polling frequency of this monitor. </returns>
+	private TimeSpan GetPollingFrequency(IPlcItem plcItem)
+		=> _plcItemMonitorConfigurations.GetPollingFrequencyForPlcItem(plcItem, _defaultPollingFrequency ?? PlcItemMonitorConfigurations.DefaultPollingFrequency);
 
 	/// <summary>
 	/// Creates a copied collection of all currently available <see cref="PlcItemMonitorHandler"/>s.

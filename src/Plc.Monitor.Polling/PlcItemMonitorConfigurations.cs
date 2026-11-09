@@ -29,7 +29,7 @@ public class PlcItemMonitorConfigurations : System.Collections.ObjectModel.Keyed
 
 	#region Properties
 
-	/// <summary> The default polling frequency that is returned by <see cref="GetPollingFrequencyForPlcItem"/> if the <see cref="IPlcItem"/> is not listed. </summary>
+	/// <summary> The default polling frequency that is returned by <see cref="GetPollingFrequencyForPlcItem(IPlcItem)"/> if the <see cref="IPlcItem"/> is not listed. </summary>
 	/// <remarks> Cannot be less than <see cref="MinimumPollingFrequency"/>. </remarks>
 	public static TimeSpan DefaultPollingFrequency
 	{
@@ -90,12 +90,21 @@ public class PlcItemMonitorConfigurations : System.Collections.ObjectModel.Keyed
 	/// <param name="plcItem"> The <see cref="IPlcItem"/> whose polling frequency to get. </param>
 	/// <returns> The polling frequency. </returns>
 	public TimeSpan GetPollingFrequencyForPlcItem(IPlcItem plcItem)
+		=> this.GetPollingFrequencyForPlcItem(plcItem, PlcItemMonitorConfigurations.DefaultPollingFrequency);
+
+	/// <summary>
+	/// Gets the polling frequency for the <paramref name="plcItem"/>.
+	/// </summary>
+	/// <param name="plcItem"> The <see cref="IPlcItem"/> whose polling frequency to get. </param>
+	/// <param name="defaultPollingFrequency"> The polling frequency that is returned if the <paramref name="plcItem"/> is not listed. Cannot be less than <see cref="MinimumPollingFrequency"/>. </param>
+	/// <returns> The polling frequency. </returns>
+	public TimeSpan GetPollingFrequencyForPlcItem(IPlcItem plcItem, TimeSpan defaultPollingFrequency)
 	{
 		// Use the defined value for the item if available.
 		if (plcItem.Identifier != null && base.Contains(plcItem.Identifier)) return PlcItemMonitorConfigurations.ValidatePollingFrequency(TimeSpan.FromMilliseconds(base[plcItem.Identifier].PollingFrequency));
 
-		// Otherwise the default polling frequency is used.
-		return PlcItemMonitorConfigurations.DefaultPollingFrequency;
+		// Otherwise the passed default polling frequency is used.
+		return PlcItemMonitorConfigurations.ValidatePollingFrequency(defaultPollingFrequency);
 	}
 
 	/// <summary>
