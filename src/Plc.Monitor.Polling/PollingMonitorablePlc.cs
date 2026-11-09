@@ -152,7 +152,11 @@ public sealed class PollingMonitorablePlc : IMonitorablePlc
 
 	/// <inheritdoc />
 	public void Dispose()
-		=> _decoratedPlc.Dispose();
+	{
+		//! The monitor must be disposed first, otherwise its handlers would keep polling the already disposed plc.
+		_plcMonitor.Dispose();
+		_decoratedPlc.Dispose();
+	}
 
 	#endregion
 
