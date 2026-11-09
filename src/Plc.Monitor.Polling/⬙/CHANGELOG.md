@@ -15,6 +15,7 @@ ___
 - The polling of an item no longer stops for good if an exception occurs. Failing reads (e.g. `ReadPlcException`) and exceptions thrown by subscribers of `ValueChanged` are now logged via the `LogManager` and polling continues with the next cycle. Only cancellation ends polling.
 - An exception thrown by a `ValueChanged` subscriber no longer affects the other monitored items.
 - Items that are monitored before `Start` was called or after `Stop` was called are no longer polled. The monitor now keeps a running state and only starts new handlers while it is running.
+- A handler is now stopped and removed once its last item has been unmonitored. Previously it kept reading the plc forever.
 ___
 
 ## 6.2.0

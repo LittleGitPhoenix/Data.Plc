@@ -516,6 +516,36 @@ public class PollingPlcMonitorTest
 
 	#endregion
 
+	#region Handlers
+
+	/// <summary>
+	/// Checks that polling stops completely once the last monitored item has been unmonitored.
+	/// </summary>
+	[Test]
+	[Category("Handlers")]
+	public async Task UnMonitorItem_OfLastItem_StopsReading()
+	{
+		// Arrange
+		var identifier = "Item";
+		var recorder = new ReadRecorder();
+		using var monitor = new PollingPlcMonitor(recorder.Plc, new Dictionary<string, uint> { { identifier, 50 } });
+		var item = this.CreateByteItem(identifier: identifier);
+		monitor.MonitorItem(item);
+		monitor.Start();
+		Assert.That(await WaitUntilAsync(() => recorder.ReadCount >= 3), Is.True, "The item was not polled.");
+
+		// Act
+		monitor.UnMonitorItem(item);
+		await Task.Delay(200); // Grace period for a read that is still in progress.
+		var readsAfterGracePeriod = recorder.ReadCount;
+		await Task.Delay(500);
+
+		// Assert
+		Assert.That(recorder.ReadCount, Is.EqualTo(readsAfterGracePeriod));
+	}
+
+	#endregion
+
 	#endregion
 
 	#endregion

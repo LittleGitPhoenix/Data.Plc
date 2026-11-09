@@ -124,6 +124,13 @@ public class PollingPlcMonitor : IPlcMonitor
 			if (_plcItemHandlers.TryGetValue(hashValue, out var handler))
 			{
 				handler.RemovePlcItem(plcItem);
+
+				// A handler without any items must not keep polling the plc.
+				if (!handler.HasPlcItems)
+				{
+					handler.Stop();
+					_plcItemHandlers.Remove(hashValue);
+				}
 			}
 		}
 	}
@@ -191,6 +198,19 @@ internal sealed class PlcItemMonitorHandler
 	#endregion
 
 	#region Properties
+
+	/// <summary> Gets a value indicating whether this handler still monitors at least one <see cref="IPlcItem"/>. </summary>
+	public bool HasPlcItems
+	{
+		get
+		{
+			lock (_lock)
+			{
+				return _plcItems.Count > 0;
+			}
+		}
+	}
+
 	#endregion
 
 	#region (De)Constructors
