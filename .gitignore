@@ -1,5 +1,5 @@
 # ╔═════════════════════════════════════╗
-# ║ PHOENIX .gitignore v1.6.0 - Special ║
+# ║ PHOENIX .gitignore v1.7.0 - Special ║
 # ╚═════════════════════════════════════╝
 
 ## Ignore Visual Studio temporary files, build results, and
@@ -323,12 +323,13 @@ __pycache__/
 # VS Code workspace files.
 *.code-workspace
 
+# Ignore plans / specification / design documents (contain environment-specific details).
+spec/
+/.github/plans/
+
 # ╔════════════════════════════════╗
 # ║ Project specific PHOENIX Rules ║
 # ╚════════════════════════════════╝
-
-# Specification / design documents (contain environment-specific details).
-spec/
 
 # Ignore everything in the siAccess/AGLink resource folder.
 src/Plc.SiAccess/⬙/siAccess/
