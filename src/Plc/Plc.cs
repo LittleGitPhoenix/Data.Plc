@@ -2,7 +2,6 @@
 //! This file is subject to the terms and conditions defined in file 'LICENSE.md', which is part of this source code package.
 #endregion
 
-using System;
 using System.Collections.Concurrent;
 using Phoenix.Data.Plc.Items;
 using Phoenix.Data.Plc.Logging;
@@ -316,7 +315,7 @@ public abstract class Plc : IPlc, IFormattable
 	/// <inheritdoc />
 	public async Task ReadItemsAsync(ICollection<IPlcItem> plcItems, CancellationToken cancellationToken = default)
 	{
-		await this.ReadItemsAsync(plcItems.IsReadOnly ? new List<IPlcItem>(plcItems) : (IList<IPlcItem>) plcItems, cancellationToken);
+		await this.ReadItemsAsync(plcItems.IsReadOnly ? [.. plcItems] : (IList<IPlcItem>) plcItems, cancellationToken);
 
 		// Since this may be a costly operation, check if logging is even enabled.
 		if (LogManager.LogAllReadAndWriteOperations)
@@ -419,7 +418,7 @@ public abstract class Plc : IPlc, IFormattable
 	/// <inheritdoc />
 	public async Task<bool> WriteItemsAsync(ICollection<IPlcItem> plcItems, CancellationToken cancellationToken = default)
 	{
-		var success = await this.WriteItemsAsync(plcItems.IsReadOnly ? new List<IPlcItem>(plcItems) : (IList<IPlcItem>) plcItems, cancellationToken);
+		var success = await this.WriteItemsAsync(plcItems.IsReadOnly ? [.. plcItems] : (IList<IPlcItem>) plcItems, cancellationToken);
 
 		// Since this may be a costly operation, check if logging is even enabled.
 		if (LogManager.LogAllReadAndWriteOperations)

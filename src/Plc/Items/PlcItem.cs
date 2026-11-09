@@ -2,7 +2,6 @@
 //! This file is subject to the terms and conditions defined in file 'LICENSE.md', which is part of this source code package.
 #endregion
 
-using System;
 using System.Text;
 
 namespace Phoenix.Data.Plc.Items;
@@ -27,9 +26,6 @@ public class PlcItem : IPlcItem
 	#endregion
 
 	#region Fields
-
-	private readonly object _valueAccessLockObject;
-		
 	#endregion
 
 	#region Properties
@@ -53,17 +49,7 @@ public class PlcItem : IPlcItem
 	public BitPosition BitPosition { get; }
 
 	/// <inheritdoc />
-	public BitCollection Value
-	{
-		get
-		{
-			lock (_valueAccessLockObject)
-			{
-				return _value;
-			}
-		}
-	}
-	private readonly BitCollection _value;
+	public BitCollection Value { get; }
 
 	#endregion
 
@@ -136,10 +122,7 @@ public class PlcItem : IPlcItem
 		this.DataBlock = type == PlcItemType.Data ? dataBlock : (ushort) 0;
 		this.Position = position;
 		this.BitPosition = bitPosition;
-		_value = initialValue; // Use the field to prevent change notification.
-
-		// Initialize fields.
-		_valueAccessLockObject = new object();
+		this.Value = initialValue;
 	}
 		
 	#endregion
@@ -153,10 +136,7 @@ public class PlcItem : IPlcItem
 	{
 		get
 		{
-			if (_hashCode == null)
-			{
-				_hashCode = new { this.Type, this.DataBlock, this.Position, this.BitPosition, this.Value.Length }.GetHashCode();
-			}
+			_hashCode ??= new { this.Type, this.DataBlock, this.Position, this.BitPosition, this.Value.Length }.GetHashCode();
 			return _hashCode.Value;
 		}
 	}
@@ -273,15 +253,15 @@ public class PlcItem : IPlcItem
 		}
 		else if (type.IsArray)
 		{
-			return PlcItem.GetFullName(type.GetElementType()) + "[]";
+			return GetFullName(type.GetElementType()) + "[]";
 		}
 		else if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(System.Nullable<>))
 		{
-			return PlcItem.GetFullName(type.GetGenericArguments()[0]) + "?";
+			return GetFullName(type.GetGenericArguments()[0]) + "?";
 		}
 		else if (type.IsGenericType)
 		{
-			return type.Name.Split('`')[0] + "<" + string.Join(", ", type.GetGenericArguments().Select(PlcItem.GetFullName)) + ">";
+			return type.Name.Split('`')[0] + "<" + string.Join(", ", type.GetGenericArguments().Select(GetFullName)) + ">";
 		}
 		else
 		{
@@ -310,7 +290,7 @@ public class PlcItem : IPlcItem
 
 	/// <inheritdoc />
 	public string ToString(string format, IFormatProvider formatProvider)
-		=> PlcItem.ToString(this, format);
+		=> ToString(this, format);
 		
 	/// <inheritdoc cref="IFormattable.ToString(string, System.IFormatProvider)"/>
 	internal static string ToString(IPlcItem plcItem, string format)
@@ -321,16 +301,16 @@ public class PlcItem : IPlcItem
 		{
 			case "S":
 			case "LOG":
-				return PlcItem.GetIdentifierBuilder(plcItem).ToString();
+				return GetIdentifierBuilder(plcItem).ToString();
 
 			case "F":
 			case "FULL":
-				return $"[<{PlcItem.GetFullName(plcItem.GetType())}> :: {plcItem.Type} | {PlcItem.GetIdentifierBuilder(plcItem)} | {plcItem.Value:HEX}]";
+				return $"[<{GetFullName(plcItem.GetType())}> :: {plcItem.Type} | {GetIdentifierBuilder(plcItem)} | {plcItem.Value:HEX}]";
 
 			case "N":
 			case "NORMAL":
 			default:
-				return $"[<{PlcItem.GetFullName(plcItem.GetType())}> :: {plcItem.Type} | {PlcItem.GetIdentifierBuilder(plcItem)}]";
+				return $"[<{GetFullName(plcItem.GetType())}> :: {plcItem.Type} | {GetIdentifierBuilder(plcItem)}]";
 		}
 	}
 
