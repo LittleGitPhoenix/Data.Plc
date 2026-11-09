@@ -14,6 +14,7 @@ ___
 - `UnMonitorItem` now actually stops monitoring an item. Previously the item was looked up with a different key than it was stored with, so it kept being polled and kept raising `ValueChanged`.
 - The polling of an item no longer stops for good if an exception occurs. Failing reads (e.g. `ReadPlcException`) and exceptions thrown by subscribers of `ValueChanged` are now logged via the `LogManager` and polling continues with the next cycle. Only cancellation ends polling.
 - An exception thrown by a `ValueChanged` subscriber no longer affects the other monitored items.
+- Items that are monitored before `Start` was called or after `Stop` was called are no longer polled. The monitor now keeps a running state and only starts new handlers while it is running.
 ___
 
 ## 6.2.0

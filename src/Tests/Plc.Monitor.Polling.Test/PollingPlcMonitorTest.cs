@@ -455,6 +455,67 @@ public class PollingPlcMonitorTest
 
 	#endregion
 
+	#region StartStop
+
+	/// <summary>
+	/// Checks that an item that is monitored before the monitor has been started is not polled.
+	/// </summary>
+	[Test]
+	[Category("StartStop")]
+	public async Task MonitorItem_BeforeStart_DoesNotPoll()
+	{
+		// Arrange
+		var identifier = "Item";
+		var recorder = new ReadRecorder();
+		using var monitor = new PollingPlcMonitor(recorder.Plc, new Dictionary<string, uint> { { identifier, 50 } });
+		var counter = new ChangeCounter();
+		var item = this.CreateByteItem(identifier: identifier);
+		item.ValueChanged += counter.OnChanged;
+
+		// Act
+		monitor.MonitorItem(item);
+		await recorder.WriteAsync(Data, 1);
+		await Task.Delay(500);
+
+		// Assert
+		Assert.That(counter.Count, Is.EqualTo(0));
+		Assert.That(recorder.ReadCount, Is.EqualTo(0));
+	}
+
+	/// <summary>
+	/// Checks that an item that is monitored after the monitor has been stopped is not polled until the monitor is started again.
+	/// </summary>
+	[Test]
+	[Category("StartStop")]
+	public async Task MonitorItem_AfterStop_DoesNotPoll()
+	{
+		// Arrange
+		var identifier = "Item";
+		var recorder = new ReadRecorder();
+		using var monitor = new PollingPlcMonitor(recorder.Plc, new Dictionary<string, uint> { { identifier, 50 } });
+		var counter = new ChangeCounter();
+		var item = this.CreateByteItem(identifier: identifier);
+		item.ValueChanged += counter.OnChanged;
+		monitor.Start();
+		monitor.Stop();
+
+		// Act
+		monitor.MonitorItem(item);
+		await recorder.WriteAsync(Data, 1);
+		await Task.Delay(500);
+		var countWhileStopped = counter.Count;
+		var readsWhileStopped = recorder.ReadCount;
+		monitor.Start();
+		var detectedAfterStart = await WaitUntilAsync(() => counter.Count == 1);
+
+		// Assert
+		Assert.That(countWhileStopped, Is.EqualTo(0));
+		Assert.That(readsWhileStopped, Is.EqualTo(0));
+		Assert.That(detectedAfterStart, Is.True, "The change was not detected after the monitor has been started again.");
+	}
+
+	#endregion
+
 	#endregion
 
 	#endregion

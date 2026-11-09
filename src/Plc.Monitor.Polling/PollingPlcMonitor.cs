@@ -29,6 +29,9 @@ public class PollingPlcMonitor : IPlcMonitor
 	private readonly Dictionary<int, PlcItemMonitorHandler> _plcItemHandlers;
 
 	private readonly object _lock;
+
+	/// <summary> Flag if the monitor is currently running. New handlers are only started if this is <see langword="true"/>. </summary>
+	private bool _isRunning;
 		
 	#endregion
 
@@ -68,6 +71,7 @@ public class PollingPlcMonitor : IPlcMonitor
 	{
 		lock (_lock)
 		{
+			_isRunning = true;
 			var handlers = this.GetHandlers();
 			foreach (var handler in handlers) handler.Start();
 		}
@@ -78,6 +82,7 @@ public class PollingPlcMonitor : IPlcMonitor
 	{
 		lock (_lock)
 		{
+			_isRunning = false;
 			var handlers = this.GetHandlers();
 			foreach (var handler in handlers) handler.Stop();
 		}
@@ -103,6 +108,9 @@ public class PollingPlcMonitor : IPlcMonitor
 				// NO: Create and save the handler.
 				handler = new PlcItemMonitorHandler(_plc, plcItem, pollingFrequency);
 				_plcItemHandlers.Add(hashValue, handler);
+
+				// Only start the handler if the monitor is running.
+				if (_isRunning) handler.Start();
 			}
 		}
 	}
@@ -208,9 +216,6 @@ internal sealed class PlcItemMonitorHandler
 
 		// Add the passed plc item as first one to the internal collection.
 		_plcItems = new List<IPlcItem>() { plcItem };
-
-		// Start monitoring.
-		this.Start();
 	}
 
 	#endregion
